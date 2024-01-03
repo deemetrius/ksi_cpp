@@ -4,7 +4,7 @@
 #include <limits>
 #include <algorithm>
 
-namespace ksi::lib::conv {
+namespace ksi::conv {
 
   struct from_integer
   {
@@ -13,7 +13,7 @@ namespace ksi::lib::conv {
   };
 
 
-  template <concepts::integer_signed_type Result>
+  template <ksi::concepts::integer_signed_type Result>
   struct from_integer::to<Result>
   {
     template <concepts::integer_signed_type Param>

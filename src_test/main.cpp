@@ -9,7 +9,7 @@
 int main()
 {
   using regex_nest = ksi::lib::regex_nest<std::string>;
-  regex_nest::pattern pattern{ regex_nest::pattern::prefix(".txt", "i") };
+  regex_nest::pattern pattern{ regex_nest::pattern::ending(".txt", "i") };
   std::cout << pattern.value << " [ " << pattern.regex << " ]\n";
   std::cout << "doc.txt match: " << pattern.match("doc.txt") << "\n";
   std::cout << "doc.txt replace ext: " << pattern.replace("doc.txt", ".hpg") << "\n";
@@ -17,7 +17,8 @@ int main()
 }
 #endif
 
-#include "../ksi_lib/dict.hpp"
+#if 1
+#include "../ksi_lib/interpreter/vars.hpp"
 
 int main()
 {
@@ -30,9 +31,10 @@ int main()
   {
     std::cout
     << "name: " << item.name << "\n"
-    << "key: " << item.key << "\n"
     << "index: " << item.index << "\n"
+    << "value: " << item.value << "\n"
     << "\n";
   }
   return 0;
 }
+#endif

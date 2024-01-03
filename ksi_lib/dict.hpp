@@ -17,7 +17,7 @@ namespace ksi::lib {
     {
       string_type name;
       size_type index;
-      size_type key;
+      size_type value;
     };
 
     using value_type = node;
@@ -113,21 +113,21 @@ namespace ksi::lib {
 
       size_type index = std::ssize(data->nodes);
       it = data->map.lower_bound(name);
-      size_type key = (( it != data->map.end() ) ? data->nodes[it->second].key : index );
+      size_type value = (( it != data->map.end() ) ? data->nodes[it->second].value : index );
 
       data->nodes.emplace_back(name, index, -1);
       it = data->map.try_emplace(name, index).first;
-      reindex(it, key);
+      reindex(it, value);
 
       return {data.get(), it->second};
     }
 
-    void reindex(typename map_type::iterator it_from, size_type from_key)
+    void reindex(typename map_type::iterator it_from, size_type value_start)
     {
       for( typename map_type::value_type & item : is_range<typename map_type::iterator>{it_from, data->map.end()} )
       {
-        data->nodes[item.second].key = from_key;
-        ++from_key;
+        data->nodes[item.second].value = value_start;
+        ++value_start;
       }
     }
   };

@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace ksi::lib::concepts {
+namespace ksi::concepts {
 
   template <typename Type>
   concept integer_type = std::is_integral_v<Type>;

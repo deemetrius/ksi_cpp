@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace ksi::lib::conv {
+namespace ksi::conv {
 
   struct from_string
   {
