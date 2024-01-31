@@ -1,9 +1,24 @@
 #pragma once
 
+/*
+  wrapper around: std::basic_regex
+
+  https://en.cppreference.com/w/cpp/regex/basic_regex/basic_regex
+
+  According to given documentation:
+    default constructor of std::basic_regex
+    makes pattern that matches nothing
+*/
+
+// ^(?!0)0
+
 #include "conv.string.hpp"
 #include <regex>
 
 namespace ksi::lib {
+
+
+  using namespace std::string_literals;
 
   template <typename String_type>
   struct regex_nest
@@ -13,16 +28,19 @@ namespace ksi::lib {
     using regex_type = std::basic_regex<char_type>;
     using size_type = string_type::size_type;
     using option_type = regex_type::flag_type;
+    using error_code_type = std::regex_constants::error_type;
+
+    static constexpr option_type default_option{ regex_type::ECMAScript };
 
     using conv_type = conv::from_string::to<string_type>;
+    static constexpr conv_type converter{};
 
-    static constexpr option_type option{ regex_type::ECMAScript };
+    static inline const string_type option_chars{ converter("i"s) };
 
-    static option_type make_option(const string_type & flags)
+    static option_type make_options(const string_type & flags)
     {
-      string_type opts{ conv_type{}("i") };
-      option_type ret{ option };
-      if( flags.find(opts[0]) != flags.npos )
+      option_type ret{ default_option };
+      if( flags.find(option_chars[0]) != flags.npos )
       {
         ret |= regex_type::icase;
       }
@@ -44,7 +62,7 @@ namespace ksi::lib {
 
     static string_type escape(const string_type & str)
     {
-      string_type what{ conv_type{}("\\^$.*+?()[]{}|-") };
+      string_type what{ converter(R"(\^$.*+?()[]{}|-)"s) };
       size_type size{ count_presence(str, what) + str.size() };
       string_type ret{ size, char_type{0}, typename string_type::allocator_type{} };
       size_type i{0};
@@ -61,10 +79,42 @@ namespace ksi::lib {
       return ret;
     }
 
-    static regex_type regex_never()
+    static string_type filter_unique(string_type const & where, string_type const & keep_chars)
     {
-      return regex_type(conv_type{}("^(?!x)x"), option);
+      if( where.size() == 0 ) { return where; }
+      if( keep_chars.size() == 0 ) { return keep_chars; }
+
+      size_type count{ 0 };
+      std::vector<std::uint8_t> mask(where.size(), 0);
+      for( char_type ch : keep_chars )
+      {
+        size_type pos = where.find(ch);
+        if( pos != where.npos )
+        {
+          mask[pos] = 1;
+          ++count;
+        }
+      }
+
+      string_type ret(count, 0);
+      size_type pos{ 0 };
+      for( size_type i = 0, size = where.size(); i < size; ++i )
+      {
+        if( mask[i] == 1 )
+        {
+          ret[pos] = where[i];
+          ++pos;
+        }
+      }
+
+      return ret;
     }
+
+    struct error_info_type
+    {
+      error_code_type code;
+      string_type message;
+    };
 
     struct pattern
     {
@@ -76,119 +126,110 @@ namespace ksi::lib {
         type_mask
       };
 
-      enum code {
-        code_fine,
-        code_mistake, // wrong pattern
-        code_error
+      enum status_type {
+        status_not_ready = 0,
+        status_mistake = -1,
+        status_ok = 1,
       };
 
+      // props
 
-      string_type regex;
-      string_type value;
-      string_type mode;
-      kind type;
-      code status{ code_fine };
-      string_type msg;
+      string_type   source_string;
+      kind          type;
 
+      string_type   pattern_string;
+      string_type   mode_chars;
 
-      void reset_status()
+      status_type   status{ status_not_ready };
+      regex_type    regex{};
+
+      error_info_type error_info;
+
+      bool init()
       {
-        status = code_fine;
-        msg.clear();
-      }
-
-
-      regex_type make_regex()
-      {
-        reset_status();
-        option_type opt{ make_option(mode) };
+        status = status_not_ready;
+        option_type opts{ make_options(mode_chars) };
         try
         {
-          return regex_type{ regex, opt };
+          regex = regex_type{ pattern_string, opts };
+          status = status_ok;
         }
         catch( const std::regex_error & e )
         {
-          status = code_mistake;
-          msg = conv_type{}( e.what() );
-          return regex_never();
-        }
-      }
-
-      bool match(const string_type & subject)
-      {
-        reset_status();
-        regex_type re{ make_regex() };
-        try
-        {
-          return std::regex_search(subject, re, std::regex_constants::match_any);
-        }
-        catch( const std::regex_error & e )
-        {
-          status = code_error;
-          msg = conv_type{}( e.what() );
+          status = status_mistake;
+          error_info.code = e.code();
+          error_info.message = converter( e.what() );
           return false;
         }
+        return true;
       }
 
+      // actions
+
+      bool match(string_type const & subject)
+      {
+        return std::regex_search(subject, this->regex, std::regex_constants::match_any);
+      }
+
+      // may throw: std::regex_error
       string_type replace(const string_type & subject, const string_type & replacement)
       {
-        reset_status();
-        regex_type re{ make_regex() };
-        try
-        {
-          return std::regex_replace(subject, re, replacement);
-        }
-        catch( const std::regex_error & e )
-        {
-          status = code_error;
-          msg = conv_type{}( e.what() );
-          return conv_type{}("");
-        }
+        return std::regex_replace(subject, this->regex, replacement);
       }
 
+      // pattern makers
 
-      static pattern regular(const string_type & str, const string_type & flags)
+      static pattern regular(const string_type & source_string, const string_type & mode_chars)
       {
-        return {
-          str,
-          str,
-          flags,
-          type_regular
+        pattern ret{
+          source_string,
+          type_regular,
+          source_string,
+          filter_unique(mode_chars, option_chars)
         };
+        ret.init();
+        return ret;
       }
 
-      static pattern exact(const string_type & str, const string_type & flags)
+      static pattern exact(const string_type & source_string, const string_type & mode_chars)
       {
-        return {
-          conv_type{}("^") + escape(str) + conv_type{}("$"),
-          str,
-          flags,
-          type_exact
+        pattern ret{
+          source_string,
+          type_exact,
+          converter("^") + escape(source_string) + converter("$"),
+          filter_unique(mode_chars, option_chars)
         };
+        ret.init();
+        return ret;
       }
 
-      static pattern prefix(const string_type & str, const string_type & flags)
+      static pattern prefix(const string_type & source_string, const string_type & mode_chars)
       {
-        return {
-          conv_type{}("^") + escape(str),
-          str,
-          flags,
-          type_exact
+        pattern ret{
+          source_string,
+          type_prefix,
+          converter("^") + escape(source_string),
+          filter_unique(mode_chars, option_chars)
         };
+        ret.init();
+        return ret;
       }
 
-      static pattern ending(const string_type & str, const string_type & flags)
+      static pattern ending(const string_type & source_string, const string_type & mode_chars)
       {
-        return {
-          escape(str) + conv_type{}("$"),
-          str,
-          flags,
-          type_exact
+        pattern ret{
+          source_string,
+          type_ending,
+          escape(source_string) + converter("$"),
+          filter_unique(mode_chars, option_chars)
         };
+        ret.init();
+        return ret;
       }
 
     }; // end pattern
 
   }; // end nest
+
 
 } // end ns
