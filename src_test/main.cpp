@@ -9,10 +9,14 @@
 int main()
 {
   using regex_nest = ksi::lib::regex_nest<std::string>;
+
   regex_nest::pattern pattern{ regex_nest::pattern::ending(".txt", "i") };
-  std::cout << pattern.source_string << " [ " << pattern.pattern_string << " ] " << pattern.mode_chars << "\n";
-  std::cout << "doc.txt match: " << std::boolalpha << pattern.match("doc.tXt") << "\n";
-  std::cout << "doc.txt replace ext: " << pattern.replace("doc.txt", ".hpg") << "\n";
+  std::cout << "pattern: " << pattern.source_string << " [ " << pattern.pattern_string << " ] " << pattern.mode_chars << "\n";
+
+  std::string text = "doc.tXt";
+
+  std::cout << text << " match: " << std::boolalpha << pattern.match("doc.tXt") << "\n";
+  std::cout << text << " replaced extension: " << pattern.replace("doc.txt", ".hpg") << "\n";
   return 0;
 }
 #endif
