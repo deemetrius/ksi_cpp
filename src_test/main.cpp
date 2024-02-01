@@ -10,6 +10,7 @@ int main()
 {
   using regex_nest = ksi::lib::regex_nest<std::string>;
 
+  regex_nest::maybe_pattern maybe = regex_nest::maybe_pattern::regular_try("\\w+$", "");
   regex_nest::pattern pattern{ regex_nest::pattern::ending(".txt", "i") };
   std::cout << "pattern: " << pattern.source_string << " [ " << pattern.pattern_string << " ] " << pattern.mode_chars << "\n";
 

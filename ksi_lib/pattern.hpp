@@ -14,6 +14,7 @@
 
 #include "conv.string.hpp"
 #include <regex>
+#include <optional>
 
 namespace ksi::lib {
 
@@ -60,25 +61,6 @@ namespace ksi::lib {
       return ret;
     }
 
-    static string_type escape(const string_type & str)
-    {
-      string_type what{ converter(R"(\^$.*+?()[]{}|-)"s) };
-      size_type size{ count_presence(str, what) + str.size() };
-      string_type ret{ size, char_type{0}, typename string_type::allocator_type{} };
-      size_type i{0};
-      for( char_type ch : str )
-      {
-        if( what.find(ch) != what.npos )
-        {
-          ret[i] = what[0];
-          ++i;
-        }
-        ret[i] = ch;
-        ++i;
-      }
-      return ret;
-    }
-
     static string_type filter_unique(string_type const & where, string_type const & keep_chars)
     {
       if( where.size() == 0 ) { return where; }
@@ -116,7 +98,9 @@ namespace ksi::lib {
       string_type message;
     };
 
-    struct pattern
+    using opt_error_info_type = std::optional<error_info_type>;
+
+    struct data_pattern
     {
       enum kind {
         type_regular,
@@ -143,9 +127,12 @@ namespace ksi::lib {
       status_type   status{ status_not_ready };
       regex_type    regex{};
 
-      error_info_type error_info;
+      bool is_fine() const
+      {
+        return (status == status_ok);
+      }
 
-      bool init()
+      bool init(opt_error_info_type & maybe_error)
       {
         status = status_not_ready;
         option_type opts{ make_options(mode_chars) };
@@ -157,12 +144,17 @@ namespace ksi::lib {
         catch( const std::regex_error & e )
         {
           status = status_mistake;
-          error_info.code = e.code();
-          error_info.message = converter( e.what() );
+          maybe_error = { e.code(), converter( e.what() ) };
           return false;
         }
         return true;
       }
+    };
+
+    struct pattern
+      : public data_pattern
+    {
+      static inline thread_local opt_error_info_type error_info{};
 
       // actions
 
@@ -183,11 +175,12 @@ namespace ksi::lib {
       {
         pattern ret{
           source_string,
-          type_regular,
+          pattern::type_regular,
           source_string,
           filter_unique(mode_chars, option_chars)
         };
-        ret.init();
+        error_info.reset();
+        ret.init(error_info);
         return ret;
       }
 
@@ -195,11 +188,12 @@ namespace ksi::lib {
       {
         pattern ret{
           source_string,
-          type_exact,
+          pattern::type_exact,
           converter("^") + escape(source_string) + converter("$"),
           filter_unique(mode_chars, option_chars)
         };
-        ret.init();
+        error_info.reset();
+        ret.init(error_info);
         return ret;
       }
 
@@ -207,11 +201,12 @@ namespace ksi::lib {
       {
         pattern ret{
           source_string,
-          type_prefix,
+          pattern::type_prefix,
           converter("^") + escape(source_string),
           filter_unique(mode_chars, option_chars)
         };
-        ret.init();
+        error_info.reset();
+        ret.init(error_info);
         return ret;
       }
 
@@ -219,15 +214,52 @@ namespace ksi::lib {
       {
         pattern ret{
           source_string,
-          type_ending,
+          pattern::type_ending,
           escape(source_string) + converter("$"),
           filter_unique(mode_chars, option_chars)
         };
-        ret.init();
+        error_info.reset();
+        ret.init(error_info);
         return ret;
       }
 
+      static string_type escape(const string_type & str)
+      {
+        string_type what{ converter(R"(\^$.*+?()[]{}|-)"s) };
+        size_type size{ count_presence(str, what) + str.size() };
+        string_type ret{ size, char_type{0}, typename string_type::allocator_type{} };
+        size_type i{0};
+        for( char_type ch : str )
+        {
+          if( what.find(ch) != what.npos )
+          {
+            ret[i] = what[0];
+            ++i;
+          }
+          ret[i] = ch;
+          ++i;
+        }
+        return ret;
+      }
     }; // end pattern
+
+    struct maybe_pattern
+    {
+      pattern pattern;
+      opt_error_info_type maybe_error{};
+
+      static maybe_pattern regular_try(const string_type & source_string, const string_type & mode_chars)
+      {
+        maybe_pattern ret{{
+          source_string,
+          pattern::type_regular,
+          source_string,
+          filter_unique(mode_chars, option_chars)
+        }};
+        ret.pattern.init(ret.maybe_error);
+        return ret;
+      }
+    };
 
   }; // end nest
 
