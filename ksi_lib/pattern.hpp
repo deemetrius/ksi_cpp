@@ -114,8 +114,16 @@ namespace ksi::lib {
       return ret;
     }
 
+    static bool is_word_char(const char_type ch)
+    {
+      static const regex_type regex{R"(\w)"s};
+      return std::regex_match(&ch, &ch + 1, regex);
+    }
+
     struct match_range
     {
+      using find_next_result = std::vector<match_range>;
+
       size_type from;
       size_type to;
 
@@ -133,9 +141,46 @@ namespace ksi::lib {
       {
         return {source_string.begin() + from, source_string.begin() + to};
       }
+
+      bool last_word_char(string_type const & source_string) const
+      {
+        if( to == 0 ) { return false; }
+        return is_word_char(source_string[to - 1]);
+      }
+
+      find_next_result find_next(regex_type const & regex, string_type const & source_string) const
+      {
+        if( to >= source_string.size() ) { return {}; }
+        using results_type = std::match_results<typename string_type::const_iterator>;
+        results_type results;
+        std::regex_constants::match_flag_type flags = std::regex_constants::match_not_bol;
+        if( last_word_char(source_string) == is_word_char(source_string[to]) )
+        {
+          flags |= std::regex_constants::match_not_bow;
+        }
+        if(
+          std::regex_search(
+            source_string.cbegin() + to,
+            source_string.cend(),
+            results,
+            regex,
+            flags
+          ) == false
+        ) { return {}; }
+        find_result ret;
+        ret.reserve( results.size() );
+        for( typename results_type::const_reference it : results )
+        {
+          ret.emplace_back(
+            it.first - source_string.cbegin(),
+            it.second - source_string.cbegin()
+          );
+        }
+        return ret;
+      }
     };
 
-    using search_result = std::vector<match_range>;
+    using find_result = std::vector<match_range>;
 
     struct error_info_type
     {
@@ -214,12 +259,12 @@ namespace ksi::lib {
         return std::regex_replace(subject, this->regex, replacement);
       }
 
-      search_result find_first(string_type const & subject, size_type start_pos) const
+      find_result find_first(string_type const & subject) const
       {
         using results_type = std::match_results<typename string_type::const_iterator>;
         results_type results;
         if( std::regex_search(subject, results, this->regex) == false ) { return {}; }
-        search_result ret;
+        find_result ret;
         ret.reserve( results.size() );
         for( typename results_type::const_reference it : results )
         {

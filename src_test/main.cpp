@@ -24,11 +24,12 @@ int main()
 
   {
     regex_nest::pattern pattern = regex_nest::pattern::regular("\\.t(x)t$"s, "i"s);
-    //typename regex_nest::search_result matches = pattern.find_first(text, 0);
+    //typename regex_nest::find_result matches = pattern.find_first(text, 0);
     std::cout << "\npattern: " << pattern.pattern_string << " find_first() in: " << text << '\n';
-    for( regex_nest::size_type i{ 0 }; regex_nest::match_range const & it : pattern.find_first(text, 0) )
+    for( regex_nest::size_type i{ 0 }; regex_nest::match_range const & it : pattern.find_first(text) )
     {
       std::cout << "match[" << i << "]: " << it.make_view(text) << '\n';
+      it.find_next(pattern.regex, text);
       ++i;
     }
   }
