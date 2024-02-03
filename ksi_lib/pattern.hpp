@@ -278,7 +278,7 @@ namespace ksi::lib {
 
       // pattern makers
 
-      static pattern regular(const string_type & source_string, const string_type & mode_chars)
+      static pattern make_regular(const string_type & source_string, const string_type & mode_chars)
       {
         pattern ret{
           source_string,
@@ -291,7 +291,7 @@ namespace ksi::lib {
         return ret;
       }
 
-      static pattern exact(const string_type & source_string, const string_type & mode_chars)
+      static pattern make_exact(const string_type & source_string, const string_type & mode_chars)
       {
         pattern ret{
           source_string,
@@ -304,7 +304,7 @@ namespace ksi::lib {
         return ret;
       }
 
-      static pattern prefix(const string_type & source_string, const string_type & mode_chars)
+      static pattern make_prefix(const string_type & source_string, const string_type & mode_chars)
       {
         pattern ret{
           source_string,
@@ -317,7 +317,7 @@ namespace ksi::lib {
         return ret;
       }
 
-      static pattern ending(const string_type & source_string, const string_type & mode_chars)
+      static pattern make_ending(const string_type & source_string, const string_type & mode_chars)
       {
         pattern ret{
           source_string,
@@ -336,7 +336,12 @@ namespace ksi::lib {
       pattern pattern;
       opt_error_info_type maybe_error{};
 
-      static maybe_pattern regular_try(const string_type & source_string, const string_type & mode_chars)
+      bool is_fine() const
+      {
+        return (maybe_error.has_value() == false);
+      }
+
+      static maybe_pattern make_regular_try(const string_type & source_string, const string_type & mode_chars)
       {
         maybe_pattern ret{{
           source_string,
