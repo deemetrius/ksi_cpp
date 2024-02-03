@@ -15,6 +15,9 @@
 #include "conv.string.hpp"
 #include <regex>
 #include <optional>
+#include <string_view>
+#include <span>
+#include <vector>
 
 namespace ksi::lib {
 
@@ -61,6 +64,25 @@ namespace ksi::lib {
       return ret;
     }
 
+    static string_type escape(const string_type & str)
+    {
+      string_type special{ converter(R"(\^$.*+?()[]{}|-)"s) };
+      size_type size{ count_presence(str, special) + str.size() };
+      string_type ret{ size, char_type{0}, typename string_type::allocator_type{} };
+      size_type i{0};
+      for( char_type ch : str )
+      {
+        if( special.find(ch) != special.npos )
+        {
+          ret[i] = special[0];
+          ++i;
+        }
+        ret[i] = ch;
+        ++i;
+      }
+      return ret;
+    }
+
     static string_type filter_unique(string_type const & where, string_type const & keep_chars)
     {
       if( where.size() == 0 ) { return where; }
@@ -91,6 +113,29 @@ namespace ksi::lib {
 
       return ret;
     }
+
+    struct match_range
+    {
+      size_type from;
+      size_type to;
+
+      size_type length() const
+      {
+        return (to - from);
+      }
+
+      std::basic_string_view<char_type> make_view(string_type const & source_string) const
+      {
+        return {source_string.cbegin() + from, source_string.cbegin() + to};
+      }
+
+      std::span<char_type> make_span(string_type & source_string) const
+      {
+        return {source_string.begin() + from, source_string.begin() + to};
+      }
+    };
+
+    using search_result = std::vector<match_range>;
 
     struct error_info_type
     {
@@ -158,15 +203,32 @@ namespace ksi::lib {
 
       // actions
 
-      bool match(string_type const & subject)
+      bool match(string_type const & subject) const
       {
         return std::regex_search(subject, this->regex, std::regex_constants::match_any);
       }
 
       // may throw: std::regex_error
-      string_type replace(const string_type & subject, const string_type & replacement)
+      string_type replace(const string_type & subject, const string_type & replacement) const
       {
         return std::regex_replace(subject, this->regex, replacement);
+      }
+
+      search_result find_first(string_type const & subject, size_type start_pos) const
+      {
+        using results_type = std::match_results<typename string_type::const_iterator>;
+        results_type results;
+        if( std::regex_search(subject, results, this->regex) == false ) { return {}; }
+        search_result ret;
+        ret.reserve( results.size() );
+        for( typename results_type::const_reference it : results )
+        {
+          ret.emplace_back(
+            it.first - subject.cbegin(),
+            it.second - subject.cbegin()
+          );
+        }
+        return ret;
       }
 
       // pattern makers
@@ -215,30 +277,11 @@ namespace ksi::lib {
         pattern ret{
           source_string,
           pattern::type_ending,
-          escape(source_string) + converter("$"),
+          escape(source_string) + converter("$"s),
           filter_unique(mode_chars, option_chars)
         };
         error_info.reset();
         ret.init(error_info);
-        return ret;
-      }
-
-      static string_type escape(const string_type & str)
-      {
-        string_type what{ converter(R"(\^$.*+?()[]{}|-)"s) };
-        size_type size{ count_presence(str, what) + str.size() };
-        string_type ret{ size, char_type{0}, typename string_type::allocator_type{} };
-        size_type i{0};
-        for( char_type ch : str )
-        {
-          if( what.find(ch) != what.npos )
-          {
-            ret[i] = what[0];
-            ++i;
-          }
-          ret[i] = ch;
-          ++i;
-        }
         return ret;
       }
     }; // end pattern

@@ -9,15 +9,30 @@
 int main()
 {
   using regex_nest = ksi::lib::regex_nest<std::string>;
+  using namespace std::string_literals;
 
-  regex_nest::maybe_pattern maybe = regex_nest::maybe_pattern::regular_try("\\w+$", "");
-  regex_nest::pattern pattern{ regex_nest::pattern::ending(".txt", "i") };
-  std::cout << "pattern: " << pattern.source_string << " [ " << pattern.pattern_string << " ] " << pattern.mode_chars << "\n";
+  std::string text = "doc.TXT"s;
 
-  std::string text = "doc.tXt";
+  {
+    regex_nest::maybe_pattern maybe = regex_nest::maybe_pattern::regular_try("\\w+$"s, ""s);
+    regex_nest::pattern pattern = regex_nest::pattern::ending(".txt"s, "i"s);
+    std::cout << "pattern: " << pattern.source_string << " [ " << pattern.pattern_string << " ] " << pattern.mode_chars << "\n";
 
-  std::cout << text << " match: " << std::boolalpha << pattern.match("doc.tXt") << "\n";
-  std::cout << text << " replaced extension: " << pattern.replace("doc.txt", ".hpg") << "\n";
+    std::cout << text << " match: " << std::boolalpha << pattern.match("doc.tXt") << "\n";
+    std::cout << text << " replaced extension: " << pattern.replace("doc.txt", ".hpg") << "\n";
+  }
+
+  {
+    regex_nest::pattern pattern = regex_nest::pattern::regular("\\.t(x)t$"s, "i"s);
+    //typename regex_nest::search_result matches = pattern.find_first(text, 0);
+    std::cout << "\npattern: " << pattern.pattern_string << " find_first() in: " << text << '\n';
+    for( regex_nest::size_type i{ 0 }; regex_nest::match_range const & it : pattern.find_first(text, 0) )
+    {
+      std::cout << "match[" << i << "]: " << it.make_view(text) << '\n';
+      ++i;
+    }
+  }
+
   return 0;
 }
 #endif
