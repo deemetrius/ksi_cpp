@@ -24,13 +24,31 @@ int main()
 
   {
     regex_nest::pattern pattern = regex_nest::pattern::make_regular("\\.t(x)t$"s, "i"s);
-    //typename regex_nest::find_result matches = pattern.find_first(text, 0);
     std::cout << "\npattern: " << pattern.pattern_string << " find_first() in: " << text << '\n';
     for( regex_nest::size_type i{ 0 }; regex_nest::match_range const & it : pattern.find_first(text) )
     {
       std::cout << "match[" << i << "]: " << it.make_view(text) << '\n';
       it.find_next(pattern.regex, text);
       ++i;
+    }
+  }
+
+  {
+    regex_nest::pattern pattern = regex_nest::pattern::make_regular(R"(^\W*(\d+)\.txt$)"s, "i"s);
+    regex_nest::string_type text{ "\t1.txt\n\t2.txt\n\t3.txt"s };
+
+    std::cout << "\ntext:\n" << text << "\npattern: " << pattern.pattern_string << '\n';
+
+    regex_nest::search_result all_results = pattern.full_search(text);
+    for( regex_nest::size_type ie{ 1 }; regex_nest::find_result const & entry : all_results )
+    {
+      std::cout << "entry " << ie << "\n";
+      for( regex_nest::size_type ic{ 0 }; regex_nest::match_range capture : entry )
+      {
+        std::cout << "match[" << ic << "]: " << capture.make_view(text) << '\n';
+        ++ic;
+      }
+      ++ie;
     }
   }
 
