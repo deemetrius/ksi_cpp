@@ -12,7 +12,8 @@
         "-o",
         "${workspaceFolder}/.out/ksi_test.exe",
         "-Wc++17-extensions",
-        "-std=c++20"
+        "-std=c++20",
+        "--include-directory=${workspaceFolder}"
       ],
       "options": {
         "cwd": "D:/prog/LLVM/bin"

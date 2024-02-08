@@ -81,7 +81,7 @@ namespace ksi::chars {
   {
     using namespace std::string_literals;
     using string_type = std::basic_string<Char_type>;
-    using conv_type = conv::from_string::to<string_type>;
+    using conv_type = conv::string_cast<string_type>;
 
     static const std::basic_regex<Char_type> regex{ conv_type{}(R"(\w)"s) };
 
@@ -122,7 +122,7 @@ namespace ksi::lib {
 
     static inline thread_local option_type default_option{ regex_type::ECMAScript };
 
-    using conv_type = conv::from_string::to<string_type>;
+    using conv_type = conv::string_cast<string_type>;
     static constexpr conv_type converter{};
 
     static inline const string_type option_chars{ converter("i"s) };

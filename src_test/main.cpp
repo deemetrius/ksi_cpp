@@ -1,10 +1,24 @@
 
 #include <iostream>
 
+
 #if 1
-//#include "../ksi_lib/conv.integer.hpp"
-//#include "../ksi_lib/conv.string.hpp"
-#include "../ksi_lib/pattern.hpp"
+#include "ksi_lib/interpreter/types/system_types.hpp"
+
+int main()
+{
+  ksi::interpreter::types<>::system_types sys_types;
+  ksi::interpreter::types<>::value_bool v_bool{ true };
+
+  std::wcout << v_bool.get_type(&sys_types)->name << L'\n';
+
+  return 0;
+}
+#endif
+
+
+#if 0
+#include "ksi_lib/pattern.hpp"
 
 int main()
 {
@@ -56,8 +70,9 @@ int main()
 }
 #endif
 
+
 #if 0
-#include "../ksi_lib/interpreter/vars.hpp"
+#include "ksi_lib/interpreter/var_names.hpp"
 
 int main()
 {

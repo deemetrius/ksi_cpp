@@ -4,15 +4,12 @@
 
 namespace ksi::conv {
 
-  struct from_string
-  {
-    template <typename Result>
-    struct to;
-  };
+  template <typename Result>
+  struct string_cast;
 
 
   template <>
-  struct from_string::to<std::wstring>
+  struct string_cast<std::wstring>
   {
     using result_type = std::wstring;
 
@@ -44,7 +41,7 @@ namespace ksi::conv {
 
 
   template <>
-  struct from_string::to<std::string>
+  struct string_cast<std::string>
   {
     using result_type = std::string;
 
