@@ -1,13 +1,13 @@
 #pragma once
 
-#include "value.hpp"
+#include "bases.value.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct types<Type_config>::value_type
-    : public value
+    : public types<Type_config>::bases::value_static
   {
     // props
     t_string name;
@@ -20,7 +20,7 @@ namespace ksi::interpreter {
 
     ptr_type get_type(ptr_system_types sys_types) const override
     {
-      return &sys_types->t_bool;
+      return &sys_types->t_type;
     }
   };
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "value.hpp"
+#include "bases.value_ref_counted.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct types<Type_config>::value_bool
-    : public types::value
+    : public types<Type_config>::bases::value_ref_counted
   {
     // props
     t_bool flag;

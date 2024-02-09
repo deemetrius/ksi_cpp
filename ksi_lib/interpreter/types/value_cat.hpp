@@ -1,13 +1,13 @@
 #pragma once
 
-#include "value.hpp"
+#include "bases.value_static.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct types<Type_config>::value_cat
-    : public types::value
+    : public types::bases::value_static
   {
     // props
     t_string name;
