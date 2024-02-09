@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bases.value_static.hpp"
+#include "bases/value_static.hpp"
 
 namespace ksi::interpreter {
 

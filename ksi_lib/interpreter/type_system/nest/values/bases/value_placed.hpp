@@ -1,11 +1,13 @@
 #pragma once
 
-#include "bases.value.hpp"
+#include "value.hpp"
 
 namespace ksi::interpreter::errors {
 
 
-  struct value_not_managed {};
+  struct base { std::string msg; };
+  struct internal : public base {};
+  struct method_not_supported : public internal {};
 
 
 }
@@ -24,7 +26,7 @@ namespace ksi::interpreter {
 
     bases::ptr_value_managed try_get_managed() override
     {
-      throw errors::value_not_managed{};
+      throw errors::method_not_supported{ "value_placed::try_get_managed()" };
     }
   };
 

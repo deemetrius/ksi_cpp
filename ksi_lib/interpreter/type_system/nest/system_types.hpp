@@ -1,8 +1,8 @@
 #pragma once
 
-#include "value_cat.hpp"
-#include "value_type.hpp"
-#include "value_bool.hpp"
+#include "values/value_cat.hpp"
+#include "values/value_type.hpp"
+#include "values/value_bool.hpp"
 
 namespace ksi::interpreter {
 

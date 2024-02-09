@@ -3,7 +3,7 @@
 
 
 #if 1
-#include "ksi_lib/interpreter/types/infrastructure.hpp"
+#include "ksi_lib/interpreter/type_system/infrastructure.hpp"
 
 int main()
 {

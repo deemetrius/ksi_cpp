@@ -1,16 +1,16 @@
 #pragma once
 
-#include "bases.value_managed.hpp"
+#include "value_managed.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::bases::value_ref_counted
+  struct types<Type_config>::bases::value_static
     : public types<Type_config>::bases::value_managed
   {
     // props
-    count_type ref_count{ 0 };
+    count_type ref_count{ 1 };
 
     // actions
 
@@ -26,7 +26,7 @@ namespace ksi::interpreter {
 
     bool is_still_sticked() const override
     {
-      return (ref_count > 0);
+      return true;
     }
   };
 

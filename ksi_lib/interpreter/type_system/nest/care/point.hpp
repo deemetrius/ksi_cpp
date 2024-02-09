@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types_nest.hpp"
+#include "../types_nest.hpp"
 #include <set>
 
 namespace ksi::interpreter {
@@ -13,9 +13,7 @@ namespace ksi::interpreter {
 
     // props
     cells_type from_cells;
-
-    // actions
-    bool is_root() const;
+    bool is_root;
   };
 
 

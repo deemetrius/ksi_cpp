@@ -1,7 +1,7 @@
 #pragma once
 
-#include "value_bool.hpp"
-#include "care.holder_value.hpp"
+#include "../values/value_bool.hpp"
+#include "holder_value.hpp"
 #include <map>
 
 namespace ksi::interpreter {
