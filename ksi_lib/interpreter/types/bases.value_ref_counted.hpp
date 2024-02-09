@@ -1,13 +1,13 @@
 #pragma once
 
-#include "bases.value.hpp"
+#include "bases.value_managed.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct types<Type_config>::bases::value_ref_counted
-    : public types<Type_config>::bases::value
+    : public types<Type_config>::bases::value_managed
   {
     // props
     count_type ref_count{ 0 };

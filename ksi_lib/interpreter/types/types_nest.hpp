@@ -30,9 +30,15 @@ namespace ksi::interpreter {
     struct bases
     {
       struct value;
+
+      struct value_placed;
+      struct value_managed;
+
       struct value_static; // managed by: space_data
       struct value_ref_counted;
       struct value_pointed;
+
+      using ptr_value_managed = value_managed *;
     };
 
     using ptr_value = bases::value *;

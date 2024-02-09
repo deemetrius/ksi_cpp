@@ -1,13 +1,13 @@
 #pragma once
 
-#include "bases.value_ref_counted.hpp"
+#include "bases.value_placed.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct types<Type_config>::value_bool
-    : public types<Type_config>::bases::value_ref_counted
+    : public types<Type_config>::bases::value_placed
   {
     // props
     t_bool flag;
@@ -18,10 +18,9 @@ namespace ksi::interpreter {
 
     // actions
 
-    ptr_type get_type(ptr_system_types sys_types) const override
-    {
-      return &sys_types->t_bool;
-    }
+    ptr_type get_type(ptr_system_types sys_types) const override;
+
+    void assign_to_cell(care::ptr_cell to_cell) override;
   };
 
 

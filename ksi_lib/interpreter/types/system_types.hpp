@@ -23,5 +23,17 @@ namespace ksi::interpreter {
     value_cat c_null  { converter_string("_null"  ) };
   };
 
+  template <typename Type_config> inline types<Type_config>::ptr_type
+  types<Type_config>::value_cat::get_type(ptr_system_types sys_types) const
+  { return &sys_types->t_cat; }
+
+  template <typename Type_config> inline types<Type_config>::ptr_type
+  types<Type_config>::value_type::get_type(ptr_system_types sys_types) const
+  { return &sys_types->t_type; }
+
+  template <typename Type_config> inline types<Type_config>::ptr_type
+  types<Type_config>::value_bool::get_type(ptr_system_types sys_types) const
+  { return &sys_types->t_bool; }
+
 
 } // ns

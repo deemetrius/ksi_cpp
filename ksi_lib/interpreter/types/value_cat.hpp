@@ -18,10 +18,7 @@ namespace ksi::interpreter {
 
     // actions
 
-    ptr_type get_type(ptr_system_types sys_types) const override
-    {
-      return &sys_types->t_cat;
-    }
+    ptr_type get_type(ptr_system_types sys_types) const override;
   };
 
 
