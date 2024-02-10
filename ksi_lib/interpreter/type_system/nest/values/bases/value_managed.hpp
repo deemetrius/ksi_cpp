@@ -9,6 +9,15 @@ namespace ksi::interpreter {
   struct types<Type_config>::bases::value_managed
     : public types<Type_config>::bases::value
   {
+    static void value_goodbye(ptr_value_managed managed_value_handle)
+    {
+      delete managed_value_handle;
+    }
+    using ptr_farewell_function = decltype(& value_goodbye);
+
+    // props
+    ptr_farewell_function fn_way_out{ & value_goodbye };
+
     bool is_placed() const override
     {
       return false;

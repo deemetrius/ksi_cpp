@@ -10,6 +10,12 @@ namespace ksi::interpreter {
   {
     using pointer = bases::ptr_value_managed;
 
+    static void depart_value(pointer & handle)
+    {
+      typename base::value_managed::ptr_farewell_function fn{ handle->fn_way_out };
+      fn( std::exchange(handle, nullptr) );
+    }
+
     // props
     pointer value_handle;
 
@@ -25,6 +31,7 @@ namespace ksi::interpreter {
     {
       if( (value_handle == nullptr) || value_handle->is_still_sticked() ) { return; }
       // todo: collect
+      depart_value(value_handle);
     }
 
     // actions
