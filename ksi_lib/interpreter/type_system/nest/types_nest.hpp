@@ -66,7 +66,7 @@ namespace ksi::interpreter {
 
       using in_point_set = std::set<ptr_cell>; // rels by cells
       using in_junction_map = std::map<ptr_point, count_type>; // refs from value_pointed via slots
-      // note: several slots from one point are allowed to reference same cell
+      // note: several slots from one point may refer to same cell
       // (so count is used as map-value)
     };
   };
