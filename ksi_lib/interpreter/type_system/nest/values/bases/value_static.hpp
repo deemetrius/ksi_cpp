@@ -24,9 +24,9 @@ namespace ksi::interpreter {
       --ref_count;
     }
 
-    bool is_still_sticked() const override
+    care::value_status determine_status() const override
     {
-      return true;
+      return care::value_status::n_should_stay;
     }
   };
 

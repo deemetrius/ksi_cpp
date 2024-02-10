@@ -31,9 +31,10 @@ namespace ksi::interpreter {
       }
     }
 
-    bool is_still_sticked() const override
+    care::value_status determine_status() const override
     {
-      //return (ref_count > 0);
+      if( point.rels_empty() ) { return care::value_status::n_ready_for_delete; }
+      // big todo:
     }
   };
 

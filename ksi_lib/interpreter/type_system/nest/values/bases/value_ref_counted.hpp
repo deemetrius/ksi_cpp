@@ -24,9 +24,13 @@ namespace ksi::interpreter {
       --ref_count;
     }
 
-    bool is_still_sticked() const override
+    care::value_status determine_status() const override
     {
-      return (ref_count > 0);
+      return (
+        (ref_count > 0) ?
+        care::value_status::n_should_stay :
+        care::value_status::n_ready_for_delete
+      );
     }
   };
 

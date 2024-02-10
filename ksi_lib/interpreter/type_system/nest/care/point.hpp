@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../types_nest.hpp"
-#include <set>
 
 namespace ksi::interpreter {
 
@@ -9,11 +8,14 @@ namespace ksi::interpreter {
   template <typename Type_config>
   struct types<Type_config>::care::point
   {
-    using cells_type = std::set<ptr_cell>;
-
     // props
-    cells_type from_cells;
+    in_point_set from_cells;
     bool is_root;
+
+    bool rels_empty() const
+    {
+      return from_cells.empty();
+    }
 
     bool rel_add(ptr_cell from_cell)
     {

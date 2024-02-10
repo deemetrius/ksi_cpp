@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../values/value_bool.hpp"
+#include "junction.hpp"
 #include "holder_value.hpp"
-#include <map>
 
 namespace ksi::interpreter {
 
@@ -10,14 +10,12 @@ namespace ksi::interpreter {
   template <typename Type_config>
   struct types<Type_config>::care::cell
   {
-    using points_type = std::map<ptr_point, count_type>;
-
     // props
     union {
       value_bool v_bool;
     };
     ptr_value value_handle{ nullptr };
-    points_type from_points;
+    care::junction junction_point;
 
     // ctor
     cell(holder_value && keep) : value_handle{ keep.release() }
@@ -48,6 +46,7 @@ namespace ksi::interpreter {
 
     void close()
     {
+      // currently: we do not call destructors of placed values (such as: value_bool, value_int, value_float)
       if( is_not_managed() ) { return; }
       holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
       keep->was_redeemed(this);
@@ -66,7 +65,6 @@ namespace ksi::interpreter {
       other_cell_handle->get_value()->assign_to_cell(this);
       return true;
     }
-
 
     // ctors: no copy, no move, no default
     cell(cell const &) = delete;

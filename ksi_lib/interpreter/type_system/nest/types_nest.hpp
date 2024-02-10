@@ -1,6 +1,8 @@
 #pragma once
 
 #include "config_default.hpp"
+#include <set>
+#include <map>
 
 namespace ksi::interpreter {
 
@@ -29,13 +31,14 @@ namespace ksi::interpreter {
 
     struct bases
     {
-      struct value;
-      struct value_placed;
-      struct value_managed;
+      struct value; // base for all values
+
+      struct value_placed; // they live inside cell's union
+      struct value_managed; // these ... outside
 
       struct value_static; // managed by: space_data
-      struct value_ref_counted;
-      struct value_pointed; // denotes references & circular references
+      struct value_ref_counted; // base to: value_string
+      struct value_pointed; // maintains references (especially circular ones)
 
       using ptr_value_managed = value_managed *;
     };
@@ -44,14 +47,27 @@ namespace ksi::interpreter {
 
     struct care
     {
-      struct point;
-      struct slot;
-      struct cell;
+      enum class value_status {
+        n_should_stay,
+        n_ready_for_delete,
+        n_holded_by_only_circular_refs,
+      };
 
-      struct holder_value;
+      struct point; // point placed to: bases::value_pointed
+      struct junction; // junction live in: care::cell
+
+      struct slot; // slots for arrays/maps/structs
+      struct cell; // cells are referenced via slots
+
+      struct holder_value; // carry values to depart sometimes
 
       using ptr_point = point *;
       using ptr_cell = cell *;
+
+      using in_point_set = std::set<ptr_cell>; // rels by cells
+      using in_junction_map = std::map<ptr_point, count_type>; // refs from value_pointed via slots
+      // note: several slots from one point are allowed to reference same cell
+      // (so count is used as map-value)
     };
   };
 

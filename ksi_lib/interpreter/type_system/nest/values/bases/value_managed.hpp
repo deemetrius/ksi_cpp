@@ -32,7 +32,7 @@ namespace ksi::interpreter {
 
     virtual void was_acquired(care::ptr_cell by_cell) = 0;
     virtual void was_redeemed(care::ptr_cell by_cell) = 0;
-    virtual bool is_still_sticked() const = 0;
+    virtual care::value_status determine_status() const = 0;
   };
 
 

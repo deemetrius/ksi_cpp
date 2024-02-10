@@ -29,9 +29,19 @@ namespace ksi::interpreter {
 
     ~holder_value()
     {
-      if( (value_handle == nullptr) || value_handle->is_still_sticked() ) { return; }
-      // todo: collect
-      depart_value(value_handle);
+      if( value_handle == nullptr ) { return; }
+      switch( value_handle->determine_status() )
+      {
+        case care::value_status::n_holded_by_only_circular_refs :
+        // todo: collect
+        [[fallthrough]]
+
+        case care::value_status::n_ready_for_delete :
+        depart_value(value_handle);
+        break;
+
+        default:;
+      }
     }
 
     // actions
