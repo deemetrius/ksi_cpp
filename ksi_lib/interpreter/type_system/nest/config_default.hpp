@@ -26,6 +26,9 @@ namespace ksi::interpreter {
     using t_string    = std::wstring;
 
     static constexpr ksi::conv::string_cast<t_string> converter_string;
+
+    // currently: we do not call destructors of placed values (such as: value_bool, value_int, value_float)
+    static constexpr bool call_destructor_for_simple_placed_values{ false };
   };
 
 

@@ -18,7 +18,8 @@ namespace ksi::interpreter {
     care::junction junction_point;
 
     // ctor
-    cell(holder_value && keep) : value_handle{ keep.release() }
+    cell(holder_value && keep)
+      : value_handle{ keep.release() } // ! keep should not be empty !
     {
       value_handle->was_acquired(this);
     }
@@ -37,17 +38,18 @@ namespace ksi::interpreter {
       return (value_handle == nullptr);
     }
 
-    bool is_not_managed() const
-    {
-      return (
-        (value_handle == nullptr) || value_handle->is_placed()
-      );
-    }
-
     void close()
     {
-      // currently: we do not call destructors of placed values (such as: value_bool, value_int, value_float)
-      if( is_not_managed() ) { return; }
+      if( empty() ) { return; }
+      if( value_handle->is_placed() )
+      {
+        if constexpr( config::call_destructor_for_simple_placed_values )
+        {
+          value_handle->~value();
+          value_handle = nullptr;
+        }
+        return;
+      }
       holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
       keep->was_redeemed(this);
       // note here: so we let to holder_value::destructor do its job
