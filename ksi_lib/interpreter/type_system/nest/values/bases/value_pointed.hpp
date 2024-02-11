@@ -1,7 +1,7 @@
 #pragma once
 
 #include "value_managed.hpp"
-#include "../../care/point.hpp"
+#include "../../care/root_finder.hpp"
 
 namespace ksi::interpreter {
 
@@ -34,7 +34,20 @@ namespace ksi::interpreter {
     care::value_status determine_status() const override
     {
       if( point.rels_empty() ) { return care::value_status::n_ready_for_delete; }
-      // big todo:
+      care::root_finder finder;
+      try
+      {
+        return (
+          finder.find(&point) ?
+          care::value_status::n_should_stay :
+          care::value_status::n_holded_by_only_circular_refs
+        );
+      }
+      catch( std::bad_alloc const & e )
+      {
+        // todo: chain 'this' value as doubtful
+        return care::value_status::n_undetermined;
+      }
     }
   };
 

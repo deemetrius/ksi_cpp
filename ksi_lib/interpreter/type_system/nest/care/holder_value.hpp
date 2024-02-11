@@ -33,7 +33,7 @@ namespace ksi::interpreter {
       switch( value_handle->determine_status() )
       {
         case care::value_status::n_holded_by_only_circular_refs :
-        // todo: collect
+        // todo: collect | close slots
         [[fallthrough]]
 
         case care::value_status::n_ready_for_delete :

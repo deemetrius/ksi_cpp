@@ -51,6 +51,7 @@ namespace ksi::interpreter {
         n_should_stay,
         n_ready_for_delete,
         n_holded_by_only_circular_refs,
+        n_undetermined,
       };
 
       struct point; // point placed to: bases::value_pointed
@@ -60,6 +61,7 @@ namespace ksi::interpreter {
       struct cell; // cells are referenced via slots
 
       struct holder_value; // carry values to depart sometimes
+      struct root_finder;
 
       using ptr_point = point *;
       using ptr_cell = cell *;

@@ -50,7 +50,7 @@ namespace ksi::interpreter {
       if( is_not_managed() ) { return; }
       holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
       keep->was_redeemed(this);
-      // note: so we let to holder_value::destructor do its job
+      // note here: so we let to holder_value::destructor do its job
     }
 
     bool assign_from_cell(ptr_cell other_cell_handle)
