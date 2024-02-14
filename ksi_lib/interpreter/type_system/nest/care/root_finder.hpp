@@ -21,16 +21,22 @@ namespace ksi::interpreter {
     cells_set traversed_cells;
     // ? should i store here path to root ?
 
-    void add_walker(point_squad_walkers & to_squad, ptr_point for_point)
+    bool find_for_cell(ptr_cell cell_handle)
     {
-      to_squad.emplace_front( for_point->from_cells.begin(), for_point->from_cells.end() );
-      traversed_points.insert(for_point);
+      if( traversed_cells.insert(cell_handle).second == false ) { return false; }
+      for( typename in_junction_map::const_reference it : cell_handle->junction_point.map_points_counts )
+      {
+        if( find_for_point(it.first) ) { return true; }
+      }
+      return false;
     }
 
-    bool find(ptr_point for_point)
+    bool find_for_point(ptr_point point_handle)
     {
+      if( traversed_points.insert(point_handle).second == false ) { return false; }
       point_squad_walkers squad;
-      add_walker(squad, for_point);
+      squad.emplace_front( point_handle->from_cells.begin(), point_handle->from_cells.end() );
+
       for( point_walker * walker{ nullptr }; ! squad.empty(); (walker != nullptr) && walker->advance(); )
       {
         point_walker * walker = squad.begin();
@@ -66,6 +72,13 @@ namespace ksi::interpreter {
       }
       while( ! squad.empty() );
       return false;
+    }
+
+  protected:
+    void add_walker(point_squad_walkers & to_squad, ptr_point point_handle)
+    {
+      to_squad.emplace_front( point_handle->from_cells.begin(), point_handle->from_cells.end() );
+      traversed_points.insert(point_handle);
     }
   };
 

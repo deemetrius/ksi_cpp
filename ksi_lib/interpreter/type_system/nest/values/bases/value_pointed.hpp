@@ -34,11 +34,11 @@ namespace ksi::interpreter {
     care::value_status determine_status() const override
     {
       if( point.rels_empty() ) { return care::value_status::n_ready_for_delete; }
-      care::root_finder finder;
       try
       {
+        care::root_finder finder;
         return (
-          finder.find(&point) ?
+          finder.find_for_point(&point) ?
           care::value_status::n_should_stay :
           care::value_status::n_holded_by_only_circular_refs
         );
