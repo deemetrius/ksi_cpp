@@ -48,6 +48,7 @@ namespace ksi::interpreter {
 
     pointer release()
     {
+      if( value_handle == nullptr ) { throw errors::release_on_empty{"holder_value"} }
       return std::exchange(value_handle, nullptr);
     }
 

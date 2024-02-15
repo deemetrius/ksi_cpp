@@ -41,6 +41,7 @@ namespace ksi::interpreter {
       struct value_pointed; // maintains references (especially circular ones)
 
       using ptr_value_managed = value_managed *;
+      using ptr_value_pointed = value_pointed *;
     };
 
     using ptr_value = bases::value *;

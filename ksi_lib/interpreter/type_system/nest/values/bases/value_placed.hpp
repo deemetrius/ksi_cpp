@@ -2,16 +2,6 @@
 
 #include "value.hpp"
 
-namespace ksi::interpreter::errors {
-
-
-  struct base { std::string msg; };
-  struct internal : public base {};
-  struct method_not_supported : public internal {};
-
-
-}
-
 namespace ksi::interpreter {
 
 
@@ -22,11 +12,6 @@ namespace ksi::interpreter {
     bool is_placed() const override
     {
       return true;
-    }
-
-    bases::ptr_value_managed try_get_managed() override
-    {
-      throw errors::method_not_supported{ "value_placed::try_get_managed()" };
     }
   };
 

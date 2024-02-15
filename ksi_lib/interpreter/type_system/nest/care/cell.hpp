@@ -10,12 +10,19 @@ namespace ksi::interpreter {
   template <typename Type_config>
   struct types<Type_config>::care::cell
   {
+    static void cell_goodbye(ptr_cell cell_handle)
+    {
+      delete cell_handle;
+    }
+    using ptr_farewell_function = decltype(& cell_goodbye);
+
     // props
     union {
       value_bool v_bool;
     };
     ptr_value value_handle{ nullptr };
     care::junction junction_point;
+    ptr_farewell_function fn_way_out{ & cell_goodbye };
 
     // ctor
     cell(holder_value && keep)

@@ -49,6 +49,11 @@ namespace ksi::interpreter {
         return care::value_status::n_undetermined;
       }
     }
+
+    bases::ptr_value_pointed try_get_pointed() override
+    {
+      return this;
+    }
   };
 
 
