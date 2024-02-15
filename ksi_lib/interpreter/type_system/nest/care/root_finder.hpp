@@ -1,7 +1,7 @@
 #pragma once
 
 #include "point.hpp"
-#include "junction.hpp"
+#include "cell.hpp"
 #include "../walker.hpp"
 #include <forward_list>
 
@@ -21,17 +21,17 @@ namespace ksi::interpreter {
     cells_set traversed_cells;
     // ? should i store here path to root ?
 
-    bool find_for_cell(ptr_cell cell_handle)
+    bool is_cell_rooted(ptr_cell cell_handle)
     {
       if( traversed_cells.insert(cell_handle).second == false ) { return false; }
       for( typename in_junction_map::const_reference it : cell_handle->junction_point.map_points_counts )
       {
-        if( find_for_point(it.first) ) { return true; }
+        if( is_point_rooted(it.first) ) { return true; }
       }
       return false;
     }
 
-    bool find_for_point(ptr_point point_handle)
+    bool is_point_rooted(ptr_point point_handle)
     {
       if( traversed_points.insert(point_handle).second == false ) { return false; }
       point_squad_walkers squad;

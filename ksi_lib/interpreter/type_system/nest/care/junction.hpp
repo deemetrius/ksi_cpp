@@ -14,6 +14,11 @@ namespace ksi::interpreter {
     // props
     in_junction_map map_points_counts;
 
+    bool refs_empty() const
+    {
+      return map_points_counts.empty();
+    }
+
     result_of_entraining refs_entrain(ptr_point source_point)
     {
       if( typename in_junction_map::iterator it = map_points_counts.find(source_point); it != map_points_counts.end() )

@@ -62,6 +62,7 @@ namespace ksi::interpreter {
       struct cell; // cells are referenced via slots
 
       struct holder_value; // carry values to depart sometimes
+      struct holder_cell; // .. similar for cell
       struct root_finder;
 
       using ptr_point = point *;

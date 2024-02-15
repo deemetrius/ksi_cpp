@@ -38,7 +38,7 @@ namespace ksi::interpreter {
       {
         care::root_finder finder;
         return (
-          finder.find_for_point(&point) ?
+          finder.is_point_rooted(&point) ?
           care::value_status::n_should_stay :
           care::value_status::n_holded_by_only_circular_refs
         );

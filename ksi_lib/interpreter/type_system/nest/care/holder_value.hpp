@@ -24,7 +24,7 @@ namespace ksi::interpreter {
     {}
 
     // ctor: move
-    holder_value(holder_value && other) : value_handle{ other.release()) }
+    holder_value(holder_value && other) : value_handle{ other.release() }
     {}
 
     ~holder_value()
