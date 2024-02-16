@@ -10,18 +10,18 @@ namespace ksi::interpreter {
     : public types<Type_config>::bases::value_managed
   {
     // props
-    count_type ref_count{ 1 };
+    count_type use_count{ 1 };
 
     // actions
 
     void was_acquired(care::ptr_cell by_cell) override
     {
-      ++ref_count;
+      ++use_count;
     }
 
     void was_redeemed(care::ptr_cell by_cell) override
     {
-      --ref_count;
+      --use_count;
     }
 
     care::value_status determine_status() const override

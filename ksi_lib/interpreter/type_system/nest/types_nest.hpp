@@ -3,6 +3,7 @@
 #include "config_default.hpp"
 #include <set>
 #include <map>
+#include <string>
 
 namespace ksi::interpreter {
 
@@ -19,6 +20,8 @@ namespace ksi::interpreter {
     using typename config::t_floating;
     using typename config::t_string;
     using config::converter_string;
+
+    using t_string_internal = std::string;
 
     struct value_cat;
     struct value_type;
@@ -51,8 +54,7 @@ namespace ksi::interpreter {
       enum class value_status {
         n_should_stay,
         n_ready_for_delete,
-        n_holded_by_only_circular_refs,
-        n_undetermined,
+        n_requires_point_examination_refs_circular_only,
       };
 
       struct point; // point placed to: bases::value_pointed

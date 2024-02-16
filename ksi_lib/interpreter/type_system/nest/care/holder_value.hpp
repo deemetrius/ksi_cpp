@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../values/bases/value_managed.hpp"
+#include "../values/bases/value_pointed.hpp"
 
 namespace ksi::interpreter {
 
@@ -32,9 +32,20 @@ namespace ksi::interpreter {
       if( value_handle == nullptr ) { return; }
       switch( value_handle->determine_status() )
       {
-        case care::value_status::n_holded_by_only_circular_refs :
-        // todo: collect | close slots
-        [[fallthrough]]
+        case care::value_status::n_requires_point_examination_refs_circular_only :
+        try
+        {
+          bases::ptr_value_pointed value_pointed_handle = value_handle->try_get_pointed();
+          care::root_finder finder;
+          if( finder.is_point_rooted(& value_pointed_handle->point) ) { break; }
+          // todo: collect | close slots
+          depart_value(value_handle);
+        }
+        catch( std::bad_alloc const & e )
+        {
+          // todo: chain 'value_handle' as doubtful
+        }
+        break;
 
         case care::value_status::n_ready_for_delete :
         depart_value(value_handle);

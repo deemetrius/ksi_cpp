@@ -5,6 +5,9 @@
 namespace ksi::interpreter {
 
 
+  using namespace std::string_literals;
+
+
   template <typename Type_config>
   struct types<Type_config>::value_cat
     : public types::bases::value_static
@@ -19,6 +22,11 @@ namespace ksi::interpreter {
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
+
+    t_string_internal get_class_name() const override
+    {
+      return "value_cat"s;
+    }
   };
 
 

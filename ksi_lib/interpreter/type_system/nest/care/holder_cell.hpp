@@ -32,11 +32,19 @@ namespace ksi::interpreter {
       if( cell_handle == nullptr ) { return; }
       switch( cell_handle->junction_point.refs_empty() )
       {
-        case false: {
+        case false:
+        try
+        {
           care::root_finder finder;
           if( finder.is_cell_rooted(cell_handle) ) { break; }
+          // todo: collect | sub-close
+          depart_cell(cell_handle);
         }
-        [[fallthrough]]
+        catch( std::bad_alloc const & e )
+        {
+          // todo: chain 'cell_handle' as doubtful
+        }
+        break;
 
         case true:
         depart_cell(cell_handle);

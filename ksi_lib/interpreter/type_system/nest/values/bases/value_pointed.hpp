@@ -33,21 +33,11 @@ namespace ksi::interpreter {
 
     care::value_status determine_status() const override
     {
-      if( point.rels_empty() ) { return care::value_status::n_ready_for_delete; }
-      try
-      {
-        care::root_finder finder;
-        return (
-          finder.is_point_rooted(&point) ?
-          care::value_status::n_should_stay :
-          care::value_status::n_holded_by_only_circular_refs
-        );
-      }
-      catch( std::bad_alloc const & e )
-      {
-        // todo: chain 'this' value as doubtful
-        return care::value_status::n_undetermined;
-      }
+      return (
+        point.rels_empty() ?
+        care::value_status::n_ready_for_delete :
+        care::value_status::n_requires_point_examination_refs_circular_only
+      );
     }
 
     bases::ptr_value_pointed try_get_pointed() override

@@ -5,6 +5,9 @@
 namespace ksi::interpreter {
 
 
+  using namespace std::string_literals;
+
+
   template <typename Type_config>
   struct types<Type_config>::value_bool
     : public types<Type_config>::bases::value_placed
@@ -19,6 +22,11 @@ namespace ksi::interpreter {
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
+
+    t_string_internal get_class_name() const override
+    {
+      return "value_bool"s;
+    }
 
     void assign_to_cell(care::ptr_cell to_cell) override;
   };
