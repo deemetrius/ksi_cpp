@@ -26,6 +26,7 @@ namespace ksi::interpreter {
     struct value_cat;
     struct value_type;
     struct value_bool;
+    struct value_array;
 
     struct system_types;
 

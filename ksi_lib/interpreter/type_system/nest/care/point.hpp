@@ -19,7 +19,7 @@ namespace ksi::interpreter {
 
     bool rel_add(ptr_cell from_cell)
     {
-      return from_cells.insert(from_cell)->second;
+      return from_cells.insert(from_cell).second;
     }
 
     bool rel_del(ptr_cell from_cell)
