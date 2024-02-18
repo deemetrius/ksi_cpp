@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../care/slot.hpp"
+#include "../care/holder_cell.hpp"
 #include <vector>
 
 namespace ksi::interpreter {
@@ -28,10 +29,12 @@ namespace ksi::interpreter {
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
+    t_string_internal get_class_name() const override { return "value_array"s; }
 
-    t_string_internal get_class_name() const override
+    void append(care::ptr_cell cell_handle, care::holder_cell && keep_cell)
     {
-      return "value_array"s;
+      typename storage_type::iterator it{ storage.emplace_back(keep_cell.release(), & this->point) };
+      it->cell_handle->junction_point.refs_entrain(& this->point);
     }
   };
 

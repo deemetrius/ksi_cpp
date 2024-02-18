@@ -44,6 +44,7 @@ namespace ksi::interpreter {
         catch( std::bad_alloc const & e )
         {
           // todo: chain 'value_handle' as doubtful
+          throw;
         }
         break;
 

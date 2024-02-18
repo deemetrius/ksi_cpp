@@ -43,6 +43,7 @@ namespace ksi::interpreter {
         catch( std::bad_alloc const & e )
         {
           // todo: chain 'cell_handle' as doubtful
+          throw;
         }
         break;
 

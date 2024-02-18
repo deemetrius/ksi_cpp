@@ -25,8 +25,8 @@ namespace ksi::interpreter {
     ptr_farewell_function fn_way_out{ & cell_goodbye };
 
     // ctor
-    cell(holder_value && keep)
-      : value_handle{ keep.release() } // ! keep should not be empty !
+    cell(holder_value && keep_value)
+      : value_handle{ keep_value.release() } // ! keep should not be empty; otherwise .release() will throw !
     {
       value_handle->was_acquired(this);
     }

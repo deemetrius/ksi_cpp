@@ -17,6 +17,11 @@ namespace ksi::interpreter {
       return from_cells.empty();
     }
 
+    bool rels_only_one() const
+    {
+      return (from_cells.size() == 1);
+    }
+
     bool rel_add(ptr_cell from_cell)
     {
       return from_cells.insert(from_cell).second;
