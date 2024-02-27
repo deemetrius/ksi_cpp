@@ -8,10 +8,12 @@
 int main()
 {
   ksi::interpreter::types<>::system_types sys_types;
-  ksi::interpreter::types<>::value_bool v_bool{ true };
-  ksi::interpreter::types<>::value_array v_array{ 3 };
+  ksi::interpreter::types<>::values::value_bool v_bool{ true };
+  ksi::interpreter::types<>::values::value_array v_array{ 3 };
 
   std::wcout << v_bool.get_type(&sys_types)->name << L'\n';
+
+  ksi::interpreter::types<>::run_info runtime;
 
   return 0;
 }

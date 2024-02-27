@@ -9,7 +9,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::value_cat
+  struct types<Type_config>::values::value_cat
     : public types::bases::value_static
   {
     // props

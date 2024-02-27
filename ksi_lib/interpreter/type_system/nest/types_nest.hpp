@@ -13,6 +13,7 @@ namespace ksi::interpreter {
     : public Type_config
   {
     using count_type = std::intptr_t;
+    using index_type = std::ptrdiff_t;
 
     using config = Type_config;
     using typename config::t_bool;
@@ -23,15 +24,18 @@ namespace ksi::interpreter {
 
     using t_string_internal = std::string;
 
-    struct value_cat;
-    struct value_type;
-    struct value_bool;
-    struct value_array;
 
     struct system_types;
+    struct run_info;
 
-    using ptr_type = value_type *;
-    using ptr_system_types = system_types *;
+
+    struct values
+    {
+      struct value_cat;
+      struct value_type;
+      struct value_bool;
+      struct value_array;
+    };
 
     struct bases
     {
@@ -48,7 +52,12 @@ namespace ksi::interpreter {
       using ptr_value_pointed = value_pointed *;
     };
 
+
     using ptr_value = bases::value *;
+    using ptr_type = values::value_type *;
+    using ptr_system_types = system_types *;
+    using ptr_run_info = run_info *;
+
 
     struct care
     {
@@ -57,6 +66,11 @@ namespace ksi::interpreter {
         n_ready_for_delete,
         n_requires_point_examination_refs_circular_only,
       };
+
+      struct tag_root {};
+      struct tag_none {};
+      static constexpr tag_root is_root{};
+      static constexpr tag_none is_transitive{};
 
       struct point; // point placed to: bases::value_pointed
       struct junction; // junction live in: care::cell
@@ -72,10 +86,27 @@ namespace ksi::interpreter {
       using ptr_cell = cell *;
 
       using in_point_set = std::set<ptr_cell>; // rels by cells
-      using in_junction_map = std::map<ptr_point, count_type>; // refs from value_pointed via slots
       // note: several slots from one point may refer to same cell
       // (so count is used as map-value)
+      using in_junction_map = std::map<ptr_point, count_type>; // refs from value_pointed via slots
     };
+
+
+    struct execution
+    {
+      struct space_configuration;
+
+      struct run_data;    struct space_data;
+      struct stack_values;
+      struct call_stack;  struct sequence_space;
+
+      struct sequence;
+
+      using ptr_sequence = sequence *;
+    };
+
+
+    struct instructions;
   };
 
 

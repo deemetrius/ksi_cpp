@@ -18,7 +18,7 @@ namespace ksi::interpreter {
 
     // props
     union {
-      value_bool v_bool;
+      values::value_bool v_bool;
     };
     ptr_value value_handle{ nullptr };
     care::junction junction_point;
@@ -86,7 +86,7 @@ namespace ksi::interpreter {
   };
 
   template <typename Type_config>
-  inline void types<Type_config>::value_bool::assign_to_cell(care::ptr_cell to_cell)
+  inline void types<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
   }
