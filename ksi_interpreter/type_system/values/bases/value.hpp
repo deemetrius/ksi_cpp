@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../system_nest.hpp"
-#include "interpreter/interpreter_errors.hpp"
+#include "ksi_interpreter/interpreter_errors.hpp"
 
 namespace ksi::interpreter {
 

@@ -25,7 +25,6 @@ namespace ksi::interpreter {
     using t_string_internal = std::string;
 
 
-    struct system_types;
     struct run_info;
 
 
@@ -51,12 +50,6 @@ namespace ksi::interpreter {
       using ptr_value_managed = value_managed *;
       using ptr_value_pointed = value_pointed *;
     };
-
-
-    using ptr_value = bases::value *;
-    using ptr_type = values::value_type *;
-    using ptr_system_types = system_types *;
-    using ptr_run_info = run_info *;
 
 
     struct care
@@ -96,7 +89,7 @@ namespace ksi::interpreter {
     {
       struct space_configuration;
 
-      struct run_data;    struct space_data;
+      struct run_data;    struct space_data;    struct system_types;
       struct stack_values;
       struct call_stack;  struct sequence_space;
 
@@ -108,6 +101,12 @@ namespace ksi::interpreter {
 
     struct execution;
     //struct instructions;
+
+
+    using ptr_value = bases::value *;
+    using ptr_type = values::value_type *;
+    using ptr_run_info = run_info *;
+    using ptr_system_types = runtime::system_types *;
   };
 
 

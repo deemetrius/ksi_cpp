@@ -1,8 +1,8 @@
 #pragma once
 
-#include "runtime/space_data.hpp"
-#include "runtime/stack_values.hpp"
-#include "runtime/call_stack.hpp"
+#include "../runtime/space_data.hpp"
+#include "../runtime/stack_values.hpp"
+#include "../runtime/call_stack.hpp"
 
 namespace ksi::interpreter {
 

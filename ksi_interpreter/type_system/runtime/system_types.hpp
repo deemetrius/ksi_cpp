@@ -9,7 +9,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct system<Type_config>::system_types
+  struct system<Type_config>::runtime::system_types
   {
     // types
     values::value_type t_module { converter_string("$module") };

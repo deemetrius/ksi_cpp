@@ -2,7 +2,7 @@
 
 #include "point.hpp"
 #include "cell.hpp"
-#include "../walker.hpp"
+#include "ksi_lib/walker.hpp"
 #include <forward_list>
 
 namespace ksi::interpreter {
