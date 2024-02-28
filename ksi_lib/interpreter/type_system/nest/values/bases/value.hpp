@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types_nest.hpp"
+#include "../../system_nest.hpp"
 #include "interpreter/interpreter_errors.hpp"
 
 namespace ksi::interpreter {
@@ -10,7 +10,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::bases::value
+  struct system<Type_config>::bases::value
   {
     virtual ~value() = default;
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../types_nest.hpp"
+#include "../system_nest.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::care::slot
+  struct system<Type_config>::care::slot
   {
     // props
     ptr_cell cell_handle;

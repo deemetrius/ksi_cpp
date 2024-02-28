@@ -6,7 +6,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::execution::stack_values
+  struct system<Type_config>::runtime::stack_values
   {
     // props
     values::value_array data{25, care::is_root};

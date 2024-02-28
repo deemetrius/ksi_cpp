@@ -6,8 +6,8 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::bases::value_static
-    : public types<Type_config>::bases::value_managed
+  struct system<Type_config>::bases::value_static
+    : public system<Type_config>::bases::value_managed
   {
     // props
     count_type use_count{ 1 };

@@ -9,7 +9,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config = type_config>
-  struct types
+  struct system
     : public Type_config
   {
     using count_type = std::intptr_t;
@@ -92,7 +92,7 @@ namespace ksi::interpreter {
     };
 
 
-    struct execution
+    struct runtime
     {
       struct space_configuration;
 
@@ -106,7 +106,8 @@ namespace ksi::interpreter {
     };
 
 
-    struct instructions;
+    struct execution;
+    //struct instructions;
   };
 
 

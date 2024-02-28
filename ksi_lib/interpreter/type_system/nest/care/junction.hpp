@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../types_nest.hpp"
+#include "../system_nest.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::care::junction
+  struct system<Type_config>::care::junction
   {
     enum class result_of_entraining { was_increased, was_added };
     enum class result_of_detraining { was_decreased, was_removed, was_absent, was_wrong_count };

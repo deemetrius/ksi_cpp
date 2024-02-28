@@ -6,7 +6,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::care::holder_cell
+  struct system<Type_config>::care::holder_cell
   {
     using pointer = care::ptr_cell;
 

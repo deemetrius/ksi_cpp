@@ -1,6 +1,6 @@
 #pragma once
 
-#include "instructions.hpp"
+#include "execution.hpp"
 #include <vector>
 #include <list>
 
@@ -8,9 +8,9 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::execution::sequence_space
+  struct system<Type_config>::runtime::sequence_space
   {
-    using instr_positions = std::vector<typename instructions::position>;
+    using instr_positions = std::vector<typename execution::position>;
 
     // props
     ptr_sequence sequence_handle;
@@ -20,7 +20,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::execution::call_stack
+  struct system<Type_config>::runtime::call_stack
   {
   private:
     using cs_storage_type = std::list<sequence_space>;

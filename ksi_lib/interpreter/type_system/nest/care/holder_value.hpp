@@ -6,7 +6,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::care::holder_value
+  struct system<Type_config>::care::holder_value
   {
     using pointer = bases::ptr_value_managed;
 

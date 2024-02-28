@@ -6,8 +6,8 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::bases::value_managed
-    : public types<Type_config>::bases::value
+  struct system<Type_config>::bases::value_managed
+    : public system<Type_config>::bases::value
   {
     static void value_goodbye(ptr_value_managed managed_value_handle)
     {

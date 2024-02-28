@@ -8,7 +8,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct types<Type_config>::care::cell
+  struct system<Type_config>::care::cell
   {
     static void cell_goodbye(ptr_cell cell_handle)
     {
@@ -86,13 +86,13 @@ namespace ksi::interpreter {
   };
 
   template <typename Type_config>
-  inline void types<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
+  inline void system<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
   }
 
   template <typename Type_config>
-  inline void types<Type_config>::bases::value_managed::assign_to_cell(care::ptr_cell to_cell)
+  inline void system<Type_config>::bases::value_managed::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = this;
     this->was_acquired(to_cell);

@@ -14,8 +14,9 @@ namespace ksi::interpreter {
     * Create new header file somewhere in your project dir
     * Copy this struct to the header file you made
     * Change type aliases (after =) to desired types
-    * Pass your config struct as template parameter to nest "types"
-    * (example) ksi::interpreter::types< your_config >
+    * Pass your config struct as template parameter to nest "system"
+
+    (example) ksi::interpreter::system< your_config >
   */
 
   struct type_config
