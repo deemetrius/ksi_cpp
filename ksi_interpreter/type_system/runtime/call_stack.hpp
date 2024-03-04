@@ -46,6 +46,8 @@ namespace ksi::interpreter {
         seq_space_handle->sequence_handle->instruction_groups[pos.group_index][pos.instr_index]
       );
     }
+
+    void instruction_next_step() {}
   };
 
 
