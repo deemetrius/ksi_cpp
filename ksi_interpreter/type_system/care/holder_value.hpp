@@ -12,7 +12,7 @@ namespace ksi::interpreter {
 
     static void depart_value(pointer & handle)
     {
-      typename base::value_managed::ptr_farewell_function fn{ handle->fn_way_out };
+      typename bases::value_managed::ptr_farewell_function fn{ handle->fn_way_out };
       fn( std::exchange(handle, nullptr) );
     }
 
@@ -35,7 +35,7 @@ namespace ksi::interpreter {
         case care::value_status::n_requires_point_examination_refs_circular_only :
         try
         {
-          bases::ptr_value_pointed value_pointed_handle = value_handle->try_get_pointed();
+          typename bases::ptr_value_pointed value_pointed_handle = value_handle->try_get_pointed();
           care::root_finder finder;
           if( finder.is_point_rooted(& value_pointed_handle->point) ) { break; }
           // todo: collect | close slots

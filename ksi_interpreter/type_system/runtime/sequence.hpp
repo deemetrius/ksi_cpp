@@ -1,6 +1,6 @@
 #pragma once
 
-#include "execution.hpp"
+#include "../nest/execution.hpp"
 #include <vector>
 
 namespace ksi::interpreter {
@@ -12,8 +12,8 @@ namespace ksi::interpreter {
     using isntr_groups = std::vector<execution::group_type>;
 
     // props
-    execution::position  self_position;
-    isntr_groups            instruction_groups;
+    execution::position self_position;
+    isntr_groups        instruction_groups;
     //var_names
   };
 

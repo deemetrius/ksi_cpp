@@ -37,9 +37,9 @@ namespace ksi::interpreter {
       point_squad_walkers squad;
       squad.emplace_front( point_handle->from_cells.begin(), point_handle->from_cells.end() );
 
-      for( point_walker * walker{ nullptr }; ! squad.empty(); (walker != nullptr) && walker->advance(); )
+      for( point_walker * walker{ nullptr }; ! squad.empty(); (walker != nullptr) ? walker->advance() : void() )
       {
-        point_walker * walker = squad.begin();
+        walker = & squad.front();
 
         if( walker->is_end() )
         {

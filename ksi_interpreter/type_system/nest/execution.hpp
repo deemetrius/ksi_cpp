@@ -21,7 +21,7 @@ namespace ksi::interpreter {
       //fn_action_set
     };
 
-    static void fn_none(ptr_run_info runtime_handle, params_type const & params) {}
+    static void fn_none(ptr_runtime_info runtime_handle, params_type const & params) {}
 
     using fn_pointer = decltype(& fn_none);
 
@@ -33,11 +33,12 @@ namespace ksi::interpreter {
 
       // actions
 
-      //void perform(ptr_run_info runtime_handle) const { fn_handle(runtime_handle, params); }
-      void operator () (ptr_run_info runtime_handle) const { fn_handle(runtime_handle, params); }
+      void perform(ptr_runtime_info runtime_handle) const { fn_handle(runtime_handle, params); }
+      //void operator () (ptr_runtime_info runtime_handle) const { fn_handle(runtime_handle, params); }
     };
 
     using group_type = std::vector<callable>;
+    using ptr_instruction = callable *;
   };
 
 

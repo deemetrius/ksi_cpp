@@ -16,7 +16,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct system<Type_config>::run_info
+  struct system<Type_config>::runtime_info
     : public system<Type_config>::runtime::run_data
     , public system<Type_config>::runtime::stack_values
     , public system<Type_config>::runtime::call_stack

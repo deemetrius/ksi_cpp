@@ -3,16 +3,16 @@
 
 
 #if 1
-#include "ksi_interpreter/infrastructure.hpp"
+#include "ksi_interpreter/VM.hpp"
 
 int main()
 {
   ksi::interpreter::system<>::values::value_bool v_bool{ true };
   ksi::interpreter::system<>::values::value_array v_array{ 3 };
 
-  ksi::interpreter::system<>::run_info runtime;
+  ksi::interpreter::system<>::VM vm;
 
-  std::wcout << v_bool.get_type(&runtime.thread_space.sys_types)->name << L'\n';
+  std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';
 
   return 0;
 }
