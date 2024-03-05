@@ -24,8 +24,10 @@ namespace ksi::interpreter {
     {
       while( ! runtime.call_stack_empty() )
       {
-        execution::ptr_instruction instr_handle = runtime.instruction_obtain();
+        execution::ptr_instruction_const instr_handle = runtime.instruction_obtain();
         instr_handle->perform(& runtime);
+        // we do not call here: runtime.instruction_next_state();
+        // decision ~ it should be called by specific instgructions
       }
     }
   };

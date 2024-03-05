@@ -13,6 +13,16 @@ namespace ksi::interpreter {
       index_type
         group_index,
         instr_index;
+
+      bool try_increment(auto group_size) // returns: true ~ if increment happens; false ~ otherwise
+      {
+        // maybe: assert(instr_index >= group_size)
+        return (
+          (instr_index + 1 < group_size) ?
+          (++instr_index, true) :
+          false
+        );
+      }
     };
     struct params_type
     {
@@ -38,7 +48,8 @@ namespace ksi::interpreter {
     };
 
     using group_type = std::vector<callable>;
-    using ptr_instruction = callable *;
+    using ptr_instruction_const = callable const *;
+    using ptr_position = position *;
   };
 
 

@@ -61,6 +61,7 @@
     "map": "cpp",
     "span": "cpp",
     "forward_list": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "execution": "cpp"
   }
 }
