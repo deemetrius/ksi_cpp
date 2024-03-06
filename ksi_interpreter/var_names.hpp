@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../dict.hpp"
+#include "ksi_lib/dict.hpp"
 
 namespace ksi::interpreter {
 

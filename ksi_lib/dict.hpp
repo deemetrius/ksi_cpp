@@ -11,27 +11,29 @@ namespace ksi::lib {
   struct dict
   {
     using size_type = std::ptrdiff_t;
+    using id_type = size_type;
     using string_type = String;
 
     struct node
     {
-      string_type name;
-      size_type index;
-      size_type value;
+      string_type   term;
+      id_type       id;
+      size_type     value;
     };
 
     using value_type = node;
     using reference = node &;
 
     using nodes_type = std::vector<node>;
-    using map_type = std::map<string_type, size_type>;
+    using map_type = std::map<string_type, id_type>;
 
     struct storage
     {
-      nodes_type nodes;
-      map_type map;
+      nodes_type  nodes;
+      map_type    map;
     };
 
+    using ptr_storage = storage *;
     using data_type = std::unique_ptr<storage>;
 
   protected:
@@ -53,9 +55,9 @@ namespace ksi::lib {
 
       using ordering = std::strong_ordering;
 
-
-      storage * handle;
-      size_type index;
+      // props
+      ptr_storage handle;
+      size_type   index;
 
 
       constexpr reference access() const
@@ -103,23 +105,39 @@ namespace ksi::lib {
     }
 
 
-    iterator try_add(string_type name)
+    bool contains(string_type term) const
     {
-      typename map_type::iterator it = data->map.find(name);
-      if( it != data->map.end() )
-      {
-        return {data.get(), it->second};
+      return ( data->map.find(term) != data->map.end() );
+    }
+
+
+    struct result_try_add
+    {
+      iterator  it;
+      bool      was_added;
+    };
+
+
+    result_try_add try_add(string_type term)
+    {
+      if(
+        typename map_type::iterator it = data->map.find(term);
+        it != data->map.end()
+      ) {
+        return {{data.get(), it->second}, false};
       }
 
-      size_type index = std::ssize(data->nodes);
-      it = data->map.lower_bound(name);
-      size_type value = (( it != data->map.end() ) ? data->nodes[it->second].value : index );
+      id_type id = std::ssize(data->nodes);
+      typename map_type::iterator it_near = data->map.lower_bound(term);
+      size_type value{ ( it_near != data->map.end() ) ? data->nodes[it_near->second].value : id };
 
-      data->nodes.emplace_back(name, index, -1);
-      it = data->map.try_emplace(name, index).first;
-      reindex(it, value);
-
-      return {data.get(), it->second};
+      auto [it, was_added] = data->map.try_emplace(term, id);
+      if( was_added )
+      {
+        data->nodes.emplace_back(term, id, -1);
+        reindex(it, value);
+      }
+      return {{data.get(), it->second}, was_added};
     }
 
     void reindex(typename map_type::iterator it_from, size_type value_start)

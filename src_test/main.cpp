@@ -87,8 +87,8 @@ int main()
   for( typename dict_type::reference item : dict.get_range() )
   {
     std::cout
-    << "name: " << item.name << "\n"
-    << "index: " << item.index << "\n"
+    << "term: " << item.term << "\n"
+    << "id: " << item.id << "\n"
     << "value: " << item.value << "\n"
     << "\n";
   }
