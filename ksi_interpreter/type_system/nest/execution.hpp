@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../system_nest.hpp"
+#include <vector>
 
 namespace ksi::interpreter {
 
@@ -13,17 +14,8 @@ namespace ksi::interpreter {
       index_type
         group_index,
         instr_index;
-
-      bool try_increment(auto group_size) // returns: true ~ if increment happens; false ~ otherwise
-      {
-        // maybe: assert(instr_index >= group_size)
-        return (
-          (instr_index + 1 < group_size) ?
-          (++instr_index, true) :
-          false
-        );
-      }
     };
+
     struct params_type
     {
       // props
@@ -48,8 +40,18 @@ namespace ksi::interpreter {
     };
 
     using group_type = std::vector<callable>;
+    using isntr_groups = std::vector<group_type>;
     using ptr_instruction_const = callable const *;
     using ptr_position = position *;
+
+    static bool try_increment_position(ptr_position pos_handle, isntr_groups const & groups)
+    {
+      return (
+        ( (pos_handle->instr_index + 1) < groups[pos_handle->group_index].size() ) ?
+        ( ++pos_handle->instr_index, true ) :
+        false
+      );
+    }
   };
 
 

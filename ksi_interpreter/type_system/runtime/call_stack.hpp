@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../nest/execution.hpp"
+#include "../runtime/sequence.hpp"
 #include <vector>
 #include <list>
 
@@ -62,13 +62,18 @@ namespace ksi::interpreter {
 
     void instruction_next_state()
     {
-      //
+      if( call_stack_data.empty() ) { return; }
+
       {
         ptr_sequence_space seq_space_handle{ & call_stack_data.back() };
         ptr_sequence seq_handle{ seq_space_handle->sequence_handle };
-        execution::ptr_position pos_handle { & seq_space_handle->pos_instr_chain.back() };
-        if( pos_handle->increment() ) { return; }
+        typename execution::ptr_position pos_handle{ & seq_space_handle->pos_instr_chain.back() };
+        if( execution::try_increment_position(pos_handle, seq_handle->instruction_groups) )
+        {
+          return;
+        }
       }
+
       call_stack_pop();
     }
   };

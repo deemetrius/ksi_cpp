@@ -11,6 +11,7 @@ int main()
   ksi::interpreter::system<>::values::value_array v_array{ 3 };
 
   ksi::interpreter::system<>::VM vm;
+  //vm.runtime.instruction_next_state();
 
   std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';
 
