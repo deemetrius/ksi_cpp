@@ -62,6 +62,15 @@
     "span": "cpp",
     "forward_list": "cpp",
     "set": "cpp",
-    "execution": "cpp"
+    "execution": "cpp",
+    "array": "cpp",
+    "deque": "cpp",
+    "mutex": "cpp",
+    "numeric": "cpp",
+    "queue": "cpp",
+    "ranges": "cpp",
+    "ratio": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp"
   }
 }

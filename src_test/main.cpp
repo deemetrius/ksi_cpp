@@ -5,6 +5,21 @@
 #if 1
 #include "ksi_interpreter/VM.hpp"
 
+void show_dict(auto const & dict)
+{
+  std::cout << '\n';
+  for( auto const & it_map : dict->map )
+  {
+    auto const & it{ dict->values[it_map.second] };
+    std::wcout
+      << "{term: " << it.term
+      << ";\tid: " << it.id
+      << ";\trank: " << it.rank
+      << "}\n";
+    ;
+  }
+}
+
 int main()
 {
   ksi::interpreter::system<>::values::value_bool v_bool{ true };
@@ -12,6 +27,13 @@ int main()
 
   ksi::interpreter::system<>::VM vm;
   //vm.runtime.instruction_next_state();
+  std::cout << std::boolalpha << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+  std::cout << std::boolalpha << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+  std::cout << std::boolalpha << "dict.has(ret): " << vm.config->dict->has(L"ret").was_added << '\n';
+  vm.config->dict->add(L"y");
+  show_dict(vm.config->dict);
+  vm.config->dict->add(L"x");
+  show_dict(vm.config->dict);
 
   std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';
 
