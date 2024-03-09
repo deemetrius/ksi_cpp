@@ -13,32 +13,69 @@ namespace ksi::lib {
 
 
   using dict_id_type = std::size_t;
+  using dict_rank_type = std::size_t;
+
+
+} // ns
+namespace ksi::lib::errors::dict_params {
+
+
+  struct vector_only
+  {
+    dict_id_type  vector_id;
+
+    void throw_exception();
+  };
+
+  struct map_mismatch
+  {
+    dict_id_type  vector_id, map_id;
+
+    void throw_exception();
+  };
 
 
 } // ns
 namespace ksi::lib::errors {
-  using namespace std::string_literals;
 
 
-  struct dict_inconsistent { std::string_view msg; };
+  struct base
+  {
+    std::string_view msg;
+  };
 
+
+  struct dict_inconsistent {};
 
   struct dict_inconsistent_vector_only
-    : public dict_inconsistent
-  {
-    static inline std::string message{ "dict::add() ~ Unable to create map's record"s };
-
-    dict_id_type  vector_id;
-  };
-
+    : public dict_params::vector_only
+    , public base
+    , public dict_inconsistent
+  {};
 
   struct dict_inconsistent_map_mismatch
-    : public dict_inconsistent
-  {
-    static inline std::string message{ "dict::add() ~ map already contains record with wrong id"s };
+    : public dict_params::map_mismatch
+    , public base
+    , public dict_inconsistent
+  {};
 
-    dict_id_type  vector_id, map_id;
-  };
+
+} // ns
+namespace ksi::lib::errors::dict_params {
+
+  using namespace std::string_view_literals;
+
+
+  void vector_only::throw_exception()
+  {
+    throw dict_inconsistent_vector_only{*this, "dict::add() ~ Unable to create map's record"sv};
+  }
+
+
+  void map_mismatch::throw_exception()
+  {
+    throw dict_inconsistent_map_mismatch{*this, "dict::add() ~ map already contains record with wrong id"sv};
+  }
 
 
 } // ns
@@ -50,7 +87,8 @@ namespace ksi::lib {
   {
     using term_type = String;
     using id_type   = dict_id_type;
-    using rank_type = std::size_t;
+    using rank_type = dict_rank_type;
+
 
     struct value_type
     {
@@ -63,6 +101,7 @@ namespace ksi::lib {
     using road = std::map<term_type, id_type>;
     using road_iterator = road::iterator;
     using road_iterator_const = road::const_iterator;
+
 
     // props
     data values;
@@ -96,28 +135,24 @@ namespace ksi::lib {
         rank_type rank{ rank_prev(upper) + 1 };
         values.emplace_back(term, id, rank);
 
-        std::optional<errors::dict_inconsistent_map_mismatch> map_mismatch;
+        std::optional<errors::dict_params::map_mismatch> map_mismatch;
         road_iterator it;
         try
         {
           it = map.try_emplace(upper, term, id);
           if( id != it->second )
           {
-            map_mismatch.emplace(
-              errors::dict_inconsistent{errors::dict_inconsistent_map_mismatch::message},
-              id,
-              it->second
-            );
+            map_mismatch.emplace(id, it->second);
           }
         }
         catch( ... )
         {
-          throw errors::dict_inconsistent_vector_only{errors::dict_inconsistent_vector_only::message, id};
+          errors::dict_params::vector_only{id}.throw_exception();
         }
 
         if( map_mismatch.has_value() )
         {
-          throw std::move(map_mismatch).value();
+          map_mismatch->throw_exception();
         }
 
         rank_recalc_after(it);
