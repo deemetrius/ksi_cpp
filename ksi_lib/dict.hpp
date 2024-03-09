@@ -1,9 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <map>
-#include <utility>
-#include <optional>
+  #include <vector>
+  #include <map>
+
+  #include <string>
+  #include <string_view>
+
+  #include <utility>
+  #include <optional>
 
 namespace ksi::lib {
 
@@ -12,35 +16,29 @@ namespace ksi::lib {
 
 
 } // ns
-namespace ksi::lib::errors::dict_params {
+namespace ksi::lib::errors {
+  using namespace std::string_literals;
 
 
-  struct vector_only
+  struct dict_inconsistent { std::string_view msg; };
+
+
+  struct dict_inconsistent_vector_only
+    : public dict_inconsistent
   {
+    static inline std::string message{ "dict::add() ~ Unable to create map's record"s };
+
     dict_id_type  vector_id;
   };
 
-  struct map_mismatch
-  {
-    dict_id_type  vector_id, map_id;
-  };
-
-
-} // ns
-namespace ksi::lib::errors {
-
-
-  struct dict_inconsistent {};
-
-  struct dict_inconsistent_vector_only
-    : public dict_params::vector_only
-    , public dict_inconsistent
-  {};
 
   struct dict_inconsistent_map_mismatch
-    : public dict_params::map_mismatch
-    , public dict_inconsistent
-  {};
+    : public dict_inconsistent
+  {
+    static inline std::string message{ "dict::add() ~ map already contains record with wrong id"s };
+
+    dict_id_type  vector_id, map_id;
+  };
 
 
 } // ns
@@ -105,17 +103,21 @@ namespace ksi::lib {
           it = map.try_emplace(upper, term, id);
           if( id != it->second )
           {
-            map_mismatch = errors::dict_inconsistent_map_mismatch{id, it->second};
+            map_mismatch.emplace(
+              errors::dict_inconsistent{errors::dict_inconsistent_map_mismatch::message},
+              id,
+              it->second
+            );
           }
         }
         catch( ... )
         {
-          throw errors::dict_inconsistent_vector_only{id};
+          throw errors::dict_inconsistent_vector_only{errors::dict_inconsistent_vector_only::message, id};
         }
 
         if( map_mismatch.has_value() )
         {
-          throw map_mismatch.value();
+          throw std::move(map_mismatch).value();
         }
 
         rank_recalc_after(it);
@@ -123,24 +125,6 @@ namespace ksi::lib {
       }
       return {lower->second, false};
     }
-
-    /* result_type add(term_type term)
-    {
-      id_type id{ values.size() };
-      auto [it, was_added] = map.try_emplace(term, id);
-      if( was_added ) try
-      {
-        rank_type rank{ rank_prev(it) + 1 };
-        values.emplace_back(term, id, rank);
-        rank_recalc_after(it);
-      }
-      catch( ... )
-      {
-        map.erase(it);
-        throw;
-      }
-      return {it->second, was_added};
-    } */
 
     value_type & get(road_iterator it)
     {
