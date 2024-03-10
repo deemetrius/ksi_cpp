@@ -14,11 +14,11 @@ void show_dict(auto const & dict)
     auto const & it{ dict->values[it_map.second] };
     std::wcout
       << "id: " << it.id
-      << " { " << it.term
+      << " { " << (*it.term)
       << " \t~ " << it.rank
       << " }\t"
       << "id: " << it_vect.id
-      << " { " << it_vect.term
+      << " { " << (*it_vect.term)
       << " \t~ " << it_vect.rank
       << " }\n";
     ;

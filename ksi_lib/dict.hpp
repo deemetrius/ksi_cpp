@@ -3,6 +3,9 @@
   #include "dict.cases.hpp"
   #include "concepts.hpp"
 
+  #include <string_view>
+  #include <memory>
+
   #include <vector>
   #include <map>
 
@@ -15,27 +18,24 @@ namespace ksi::lib {
   template <typename String>
   struct dict
   {
-    using term_type = String;
     using id_type   = dict_id_type;
-    using rank_type = dict_rank_type;
 
+    using term_type = String;
+    using term_key  = std::basic_string_view<typename term_type::value_type>;
+    using term_ptr  = std::unique_ptr<term_type>;
+
+    using rank_type = dict_rank_type;
 
     struct value_type
     {
-      term_type term;
       id_type   id;
+      term_ptr  term;
       rank_type rank;
     };
 
     using data = std::vector<value_type>;
-    using road = std::map<term_type, id_type>;
+    using road = std::map<term_key, id_type>;
     using road_iterator = road::iterator;
-
-
-    // props
-    data values;
-    road map;
-
 
     struct result_type
     {
@@ -43,9 +43,13 @@ namespace ksi::lib {
       bool was_added;
     };
 
+    // props
+    data values;
+    road map;
+
     // actions
 
-    result_type has(term_type term) const
+    result_type has(term_key term) const
     {
       typename road::const_iterator it{ map.find(term) };
       return (
@@ -60,15 +64,49 @@ namespace ksi::lib {
       auto [lower, upper] = std::as_const(map).equal_range(term);
       if( lower == upper )
       {
-        id_type id{ values.size() };
-        rank_type rank{ rank_prev(upper) + 1 };
-        values.emplace_back(term, id, rank);
+        auto [id, map_key] = traits::add_value( this, upper, std::move(term) );
+        road_iterator it = traits::add_to_map(this, upper, map_key, id);
+        traits::rank_recalc_after(this, it);
+
+        return {id, true};
+      }
+      return {lower->second, false};
+    }
+
+  private:
+
+    struct traits
+    {
+      using road_iterator = road::iterator;
+      using road_iterator_const = road::const_iterator;
+      using pointer = dict *;
+      using const_pointer = const dict *;
+
+      struct result_add_value
+      {
+        id_type   id;
+        term_key  map_key;
+      };
+
+      static result_add_value add_value(pointer self, road_iterator_const hint, term_type term)
+      {
+        id_type id{ self->values.size() };
+        rank_type rank{ rank_prev(self, hint) + 1 };
+        return {id, *(self->values.emplace_back(
+          id,
+          std::make_unique<term_type>( std::move(term) ),
+          rank
+        ).term)};
+      }
+
+      static road_iterator add_to_map(pointer self, road_iterator_const hint, term_key map_key, id_type id)
+      {
+        road_iterator it;
 
         std::optional<errors::dict_params::map_mismatch> map_mismatch;
-        road_iterator it;
         try
         {
-          it = map.try_emplace(upper, term, id);
+          it = self->map.try_emplace(hint, map_key, id);
           if( id != it->second )
           {
             map_mismatch.emplace(id, it->second);
@@ -84,44 +122,41 @@ namespace ksi::lib {
           map_mismatch->throw_exception();
         }
 
-        rank_recalc_after(it);
-        return {id, true};
+        return it;
       }
-      return {lower->second, false};
-    }
 
-    value_type & get(ksi::concepts::iterator_of<road> auto it)
-    {
-      return values[it->second];
-    }
-
-    value_type const & get_const(ksi::concepts::iterator_of<road> auto it) const
-    {
-      return values[it->second];
-    }
-
-    rank_type rank_prev(ksi::concepts::iterator_of<road> auto it)
-    {
-      return (
-        (map.begin() != it) ? (
-          (map.end() != it) ?
-          get_const(--it).rank :
-          get_const( map.crbegin() ).rank
-        ) :
-        0
-      );
-    }
-
-  private:
-    void rank_recalc_after(road_iterator it)
-    {
-      road_iterator it_end{ map.end() };
-      rank_type rank{ get_const(it).rank };
-      while( (++it) != it_end )
+      static value_type & get(pointer self, ksi::concepts::iterator_of<road> auto it)
       {
-        get(it).rank = (++rank);
+        return self->values[it->second];
       }
-    }
+
+      static value_type const & get_const(const_pointer self, ksi::concepts::iterator_of<road> auto it)
+      {
+        return self->values[it->second];
+      }
+
+      static rank_type rank_prev(pointer self, ksi::concepts::iterator_of<road> auto it)
+      {
+        return (
+          (self->map.begin() != it) ? (
+            (self->map.end() != it) ?
+            get_const(self, --it).rank :
+            get_const( self, self->map.crbegin() ).rank
+          ) :
+          0
+        );
+      }
+
+      static void rank_recalc_after(pointer self, road_iterator it)
+      {
+        road_iterator it_end{ self->map.end() };
+        rank_type rank{ get_const(self, it).rank };
+        while( (++it) != it_end )
+        {
+          get(self, it).rank = (++rank);
+        }
+      }
+    };
   };
 
 
