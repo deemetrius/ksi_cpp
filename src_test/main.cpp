@@ -4,18 +4,23 @@
 
 #if 1
 #include "ksi_interpreter/VM.hpp"
+#include <ranges>
 
 void show_dict(auto const & dict)
 {
   std::cout << '\n';
-  for( auto const & it_map : dict->map )
+  for( auto const & [it_map, it_vect] : std::ranges::views::zip(dict->map, dict->values) )
   {
     auto const & it{ dict->values[it_map.second] };
     std::wcout
-      << "{term: " << it.term
-      << ";\tid: " << it.id
-      << ";\trank: " << it.rank
-      << "}\n";
+      << "id: " << it.id
+      << " { " << it.term
+      << " \t~ " << it.rank
+      << " }\t"
+      << "id: " << it_vect.id
+      << " { " << it_vect.term
+      << " \t~ " << it_vect.rank
+      << " }\n";
     ;
   }
 }
@@ -27,12 +32,14 @@ int main()
 
   ksi::interpreter::system<>::VM vm;
   //vm.runtime.instruction_next_state();
-  std::cout << std::boolalpha << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-  std::cout << std::boolalpha << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-  std::cout << std::boolalpha << "dict.has(ret): " << vm.config->dict->has(L"ret").was_added << '\n';
+  std::cout << std::boolalpha;
+  std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+  std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+  std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").was_added << '\n';
   vm.config->dict->add(L"y");
   show_dict(vm.config->dict);
   vm.config->dict->add(L"x");
+  vm.config->dict->add(L"alpha");
   show_dict(vm.config->dict);
 
   std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';
