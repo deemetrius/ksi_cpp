@@ -6,7 +6,7 @@
 #include "ksi_interpreter/VM.hpp"
 #include <ranges>
 
-void show_dict(auto const & dict)
+/* void show_dict(auto const & dict)
 {
   std::cout << '\n';
   for( auto const & [it_map, it_vect] : std::ranges::views::zip(dict->map, dict->values) )
@@ -21,6 +21,19 @@ void show_dict(auto const & dict)
       << " { " << (*it_vect.term)
       << " \t~ " << it_vect.rank
       << " }\n";
+    ;
+  }
+} */
+
+void show_dict(auto const & dict)
+{
+  std::cout << '\n';
+  for( auto const & it : dict->set )
+  {
+    std::wcout
+      << it.key
+      << " \t~ " << it.index
+      << '\n';
     ;
   }
 }
@@ -38,8 +51,8 @@ int main()
   std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").was_added << '\n';
   vm.config->dict->add(L"y");
   show_dict(vm.config->dict);
-  vm.config->dict->add(L"x");
   vm.config->dict->add(L"alpha");
+  vm.config->dict->add(L"x");
   show_dict(vm.config->dict);
 
   std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';

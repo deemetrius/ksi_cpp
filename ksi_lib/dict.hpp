@@ -1,159 +1,96 @@
 #pragma once
 
-  #include "dict.cases.hpp"
-  #include "concepts.hpp"
-
-  #include <string_view>
-  #include <memory>
-
-  #include <vector>
-  #include <map>
-
-  #include <utility>
-  #include <optional>
+#include <set>
+#include <string_view>
 
 namespace ksi::lib {
+
+
+  using dict_index_type = std::size_t;
 
 
   template <typename String>
   struct dict
   {
-    using id_type   = dict_id_type;
-
-    using term_type = String;
-    using term_key  = std::basic_string_view<typename term_type::value_type>;
-    using term_ptr  = std::unique_ptr<term_type>;
-
-    using rank_type = dict_rank_type;
+    using key_type = String;
+    using term_type = std::basic_string_view<typename key_type::value_type>;
+    using index_type = dict_index_type;
 
     struct value_type
     {
-      id_type   id;
-      term_ptr  term;
-      rank_type rank;
+      key_type            key;
+      mutable index_type  index;
     };
 
-    using data = std::vector<value_type>;
-    using road = std::map<term_key, id_type>;
-    using road_iterator = road::iterator;
+    struct less
+    {
+      bool operator () (value_type const & v1, value_type const & v2) const
+      {
+        return (v1.key < v2.key);
+      }
+
+      bool operator () (value_type const & v1, term_type v2) const
+      {
+        return (v1.key < v2);
+      }
+
+      bool operator () (term_type v1, value_type const & v2) const
+      {
+        return (v1 < v2.key);
+      }
+
+      enum is_transparent {};
+    };
+
+    using set_type = std::set<value_type, less>;
+    using iterator = typename set_type::iterator;
 
     struct result_type
     {
-      id_type id;
+      iterator it;
       bool was_added;
     };
 
     // props
-    data values;
-    road map;
+    set_type set;
 
-    // actions
-
-    result_type has(term_key term) const
+    result_type has(term_type key) const
     {
-      typename road::const_iterator it{ map.find(term) };
-      return (
-        (map.end() == it) ?
-        result_type{0, false} :
-        result_type{it->second, true}
-      );
+      iterator it{ set.find(key) };
+      return {it, it != set.end()};
     }
 
-    result_type add(term_type term)
+    result_type add(key_type key)
     {
-      auto [lower, upper] = std::as_const(map).equal_range(term);
+      auto [lower, upper] = set.template equal_range<term_type>(key);
       if( lower == upper )
       {
-        auto [id, map_key] = traits::add_value( this, upper, std::move(term) );
-        road_iterator it = traits::add_to_map(this, upper, map_key, id);
-        traits::rank_recalc_after(this, it);
-
-        return {id, true};
+        iterator it = set.emplace_hint(upper, std::move(key), traits::calc_index(this, upper));
+        traits::reindex(this, it);
+        return {it, true};
       }
-      return {lower->second, false};
+      return {lower, false};
     }
-
-  private:
 
     struct traits
     {
-      using road_iterator = road::iterator;
-      using road_iterator_const = road::const_iterator;
-      using pointer = dict *;
-      using const_pointer = const dict *;
+      using dict_pointer = dict *;
 
-      struct result_add_value
-      {
-        id_type   id;
-        term_key  map_key;
-      };
-
-      static result_add_value add_value(pointer self, road_iterator_const hint, term_type term)
-      {
-        id_type id{ self->values.size() };
-        rank_type rank{ rank_prev(self, hint) + 1 };
-        return {id, *(self->values.emplace_back(
-          id,
-          std::make_unique<term_type>( std::move(term) ),
-          rank
-        ).term)};
-      }
-
-      static road_iterator add_to_map(pointer self, road_iterator_const hint, term_key map_key, id_type id)
-      {
-        road_iterator it;
-
-        std::optional<errors::dict_params::map_mismatch> map_mismatch;
-        try
-        {
-          it = self->map.try_emplace(hint, map_key, id);
-          if( id != it->second )
-          {
-            map_mismatch.emplace(id, it->second);
-          }
-        }
-        catch( ... )
-        {
-          errors::dict_params::vector_only{id}.throw_exception();
-        }
-
-        if( map_mismatch.has_value() )
-        {
-          map_mismatch->throw_exception();
-        }
-
-        return it;
-      }
-
-      static value_type & get(pointer self, ksi::concepts::iterator_of<road> auto it)
-      {
-        return self->values[it->second];
-      }
-
-      static value_type const & get_const(const_pointer self, ksi::concepts::iterator_of<road> auto it)
-      {
-        return self->values[it->second];
-      }
-
-      static rank_type rank_prev(pointer self, ksi::concepts::iterator_of<road> auto it)
+      static index_type calc_index(dict_pointer self, iterator it)
       {
         return (
-          (self->map.begin() != it) ? (
-            (self->map.end() != it) ?
-            get_const(self, --it).rank :
-            get_const( self, self->map.crbegin() ).rank
-          ) :
-          0
+          (self->set.begin() == it) ? 0 : (
+            (self->set.end() == it) ? (self->set.crbegin()->index + 1) : it->index
+          )
         );
       }
 
-      static void rank_recalc_after(pointer self, road_iterator it)
+      static void reindex(dict_pointer self, iterator it)
       {
-        road_iterator it_end{ self->map.end() };
-        rank_type rank{ get_const(self, it).rank };
-        while( (++it) != it_end )
+        index_type index = it->index;
+        while( (++it) != self->set.end() )
         {
-          get(self, it).rank = (++rank);
+          it->index = (++index);
         }
       }
     };
