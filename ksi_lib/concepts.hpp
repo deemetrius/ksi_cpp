@@ -25,4 +25,8 @@ namespace ksi::concepts {
     std::is_same_v<Type, typename Container::reverse_iterator>;
 
 
+  template <typename Type, typename ... Args>
+  concept any_of = ( std::is_same_v<Type, Args> || ... );
+
+
 } // end ns

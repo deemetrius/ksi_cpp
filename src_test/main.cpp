@@ -6,35 +6,12 @@
 #include "ksi_interpreter/VM.hpp"
 #include <ranges>
 
-/* void show_dict(auto const & dict)
-{
-  std::cout << '\n';
-  for( auto const & [it_map, it_vect] : std::ranges::views::zip(dict->map, dict->values) )
-  {
-    auto const & it{ dict->values[it_map.second] };
-    std::wcout
-      << "id: " << it.id
-      << " { " << (*it.term)
-      << " \t~ " << it.rank
-      << " }\t"
-      << "id: " << it_vect.id
-      << " { " << (*it_vect.term)
-      << " \t~ " << it_vect.rank
-      << " }\n";
-    ;
-  }
-} */
-
 void show_dict(auto const & dict)
 {
   std::cout << '\n';
   for( auto const & it : dict->set )
   {
-    std::wcout
-      << it.key
-      << " \t~ " << it.index
-      << '\n';
-    ;
+    std::wcout << it.term << " \t~ " << it.rank << '\n';
   }
 }
 

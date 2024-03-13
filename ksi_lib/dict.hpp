@@ -12,31 +12,37 @@ namespace ksi::lib {
   template <typename String>
   struct dict
   {
-    using key_type = String;
-    using term_type = std::basic_string_view<typename key_type::value_type>;
+    using term_type = String;
+    using term_view_type = std::basic_string_view<typename term_type::value_type>;
     using index_type = dict_index_type;
 
     struct value_type
     {
-      key_type            key;
-      mutable index_type  index;
+      using pointer = value_type *;
+      using const_pointer = const value_type *;
+
+      // props
+      term_type            term;
+      mutable index_type  rank;
+
+      const_pointer get_const() const { return this; }
     };
 
     struct less
     {
       bool operator () (value_type const & v1, value_type const & v2) const
       {
-        return (v1.key < v2.key);
+        return (v1.term < v2.term);
       }
 
-      bool operator () (value_type const & v1, term_type v2) const
+      bool operator () (value_type const & v1, term_view_type v2) const
       {
-        return (v1.key < v2);
+        return (v1.term < v2);
       }
 
-      bool operator () (term_type v1, value_type const & v2) const
+      bool operator () (term_view_type v1, value_type const & v2) const
       {
-        return (v1 < v2.key);
+        return (v1 < v2.term);
       }
 
       enum is_transparent {};
@@ -54,18 +60,18 @@ namespace ksi::lib {
     // props
     set_type set;
 
-    result_type has(term_type key) const
+    result_type has(term_view_type term) const
     {
-      iterator it{ set.find(key) };
+      iterator it{ set.find(term) };
       return {it, it != set.end()};
     }
 
-    result_type add(key_type key)
+    result_type add(term_type term)
     {
-      auto [lower, upper] = set.template equal_range<term_type>(key);
+      auto [lower, upper] = set.template equal_range<term_view_type>(term);
       if( lower == upper )
       {
-        iterator it = set.emplace_hint(upper, std::move(key), traits::calc_index(this, upper));
+        iterator it = set.emplace_hint(upper, std::move(term), traits::calc_index(this, upper));
         traits::reindex(this, it);
         return {it, true};
       }
@@ -80,17 +86,17 @@ namespace ksi::lib {
       {
         return (
           (self->set.begin() == it) ? 0 : (
-            (self->set.end() == it) ? (self->set.crbegin()->index + 1) : it->index
+            (self->set.end() == it) ? (self->set.crbegin()->rank + 1) : it->rank
           )
         );
       }
 
       static void reindex(dict_pointer self, iterator it)
       {
-        index_type index = it->index;
+        index_type rank = it->rank;
         while( (++it) != self->set.end() )
         {
-          it->index = (++index);
+          it->rank = (++rank);
         }
       }
     };

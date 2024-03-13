@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../system_nest.hpp"
-#include "ksi_lib/dict.hpp"
+//#include "ksi_lib/dict.hpp"
+#include "ksi_lib/dict_part.hpp"
 #include <memory>
 
 namespace ksi::interpreter {
@@ -15,10 +16,19 @@ namespace ksi::interpreter {
 
     // props
     dict_ptr_type dict;
+    ksi::lib::dict_part<t_string> part_test;
 
     space_configuration()
       : dict{ std::make_shared<dict_type>() }
-    {}
+      , part_test{ dict }
+    {
+      using namespace std::string_literals;
+      std::wstring str{ L"1"s };
+
+      std::wcout << part_test.has(str).index << "# " << '\n';
+      dict->add(str);
+      std::wcout << part_test.has(str).index << "# " << part_test.has(str).value->term << '\n';
+    }
   };
 
 
