@@ -22,7 +22,7 @@ namespace ksi::lib {
       using const_pointer = const value_type *;
 
       // props
-      term_type            term;
+      term_type           term;
       mutable index_type  rank;
 
       const_pointer get_const() const { return this; }
