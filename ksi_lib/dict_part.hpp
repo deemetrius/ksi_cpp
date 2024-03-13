@@ -66,6 +66,13 @@ namespace ksi::lib {
 
       return {it->first, it->second, true};
     }
+
+    result_type add(term_type term)
+    {
+      dict_iterator dict_it = dict_pointer->add( std::move(term) ).it;
+      auto [it, was_added] = map.try_emplace( dict_it->get_const(), map.size() );
+      return {it->first, it->second, was_added};
+    }
   };
 
 

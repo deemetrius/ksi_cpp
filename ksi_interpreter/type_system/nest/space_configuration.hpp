@@ -23,11 +23,23 @@ namespace ksi::interpreter {
       , part_test{ dict }
     {
       using namespace std::string_literals;
-      std::wstring str{ L"1"s };
+      std::wstring str{ L"x"s };
 
-      std::wcout << part_test.has(str).index << "# " << '\n';
+      auto show = [](auto result)
+      {
+        std::wcout << std::boolalpha;
+        std::wcout << result.index << "# ";
+        if( result.was_added ) { std::wcout << '"' << result.value->term << "\" " << result.value->rank << ' '; }
+        std::wcout << result.was_added << '\n';
+      };
+
+      show( part_test.has(str) );
       dict->add(str);
-      std::wcout << part_test.has(str).index << "# " << part_test.has(str).value->term << '\n';
+      show( part_test.has(str) );
+      part_test.add(str + L"1");
+      part_test.add(str);
+      show( part_test.has(str) );
+      show( part_test.has(str + L"1") );
     }
   };
 
