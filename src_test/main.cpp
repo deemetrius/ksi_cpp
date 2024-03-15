@@ -11,7 +11,7 @@ void show_dict(auto const & dict)
   std::cout << '\n';
   for( auto const & it : dict->set )
   {
-    std::wcout << it.term << " \t~ " << it.rank << '\n';
+    std::wcout << it.term << " \t~ " << it.rank << "\tid: " << it.id << '\n';
   }
 }
 

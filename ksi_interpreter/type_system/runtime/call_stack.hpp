@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../runtime/sequence.hpp"
+#include "../info/sequence.hpp"
 #include <vector>
 #include <list>
 

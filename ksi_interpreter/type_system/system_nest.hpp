@@ -86,19 +86,23 @@ namespace ksi::interpreter {
     };
 
 
+    struct info
+    {
+      struct var_names;
+      struct sequence;
+    };
+
     struct runtime
     {
       struct run_data;    struct space_data;    struct system_types;
       struct stack_values;
       struct call_stack;  struct sequence_space;
 
-      struct sequence;
-
       using stack_frame = values::value_array;
       using stack_frame_holder = care::holder_value;
 
       using ptr_stack_frame = stack_frame *;
-      using ptr_sequence = sequence *;
+      using ptr_sequence = info::sequence *;
       using ptr_sequence_space = sequence_space *;
     };
 

@@ -16,16 +16,13 @@ namespace ksi::lib {
     using term_view_type = std::basic_string_view<typename term_type::value_type>;
     using index_type = dict_index_type;
 
+    static constexpr index_type rank_initial{ 0 };
+
     struct value_type
     {
-      using pointer = value_type *;
-      using const_pointer = const value_type *;
-
-      // props
       term_type           term;
+      index_type          id;
       mutable index_type  rank;
-
-      const_pointer get_const() const { return this; }
     };
 
     struct less
@@ -71,7 +68,7 @@ namespace ksi::lib {
       auto [lower, upper] = set.template equal_range<term_view_type>(term);
       if( lower == upper )
       {
-        iterator it = set.emplace_hint(upper, std::move(term), traits::calc_index(this, upper));
+        iterator it = set.emplace_hint(upper, std::move(term), set.size(), traits::calc_index(this, upper));
         traits::reindex(this, it);
         return {it, true};
       }
@@ -85,13 +82,13 @@ namespace ksi::lib {
       static index_type calc_index(dict_pointer self, iterator it)
       {
         return (
-          (self->set.begin() == it) ? 0 : (
-            (self->set.end() == it) ? (self->set.crbegin()->rank + 1) : it->rank
+          (self->set.begin() == it) ? rank_initial : (
+            (self->set.end() == it) ? (self->set.size() + rank_initial /* self->set.crbegin()->rank + 1 */) : it->rank
           )
         );
       }
 
-      static void reindex(dict_pointer self, iterator it)
+      static void reindex(dict_pointer self, iterator it) // do not pass here as it: self->set.end()
       {
         index_type rank = it->rank;
         while( (++it) != self->set.end() )

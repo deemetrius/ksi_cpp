@@ -30,18 +30,18 @@ namespace ksi::lib {
 
     struct less
     {
-      constexpr bool operator () (map_key_type k1, map_key_type k2) const
+      constexpr bool operator () (dict_iterator k1, dict_iterator k2) const
       {
-        return (k1 < k2);
+        return (k1->id < k2->id);
       }
     };
 
-    using map_type = std::map<map_key_type, index_type, less>;
+    using map_type = std::map<dict_iterator, index_type, less>;
     using map_iterator = map_type::iterator;
 
     struct result_type
     {
-      map_key_type value;
+      dict_iterator value;
       index_type index;
       bool was_added;
     };
@@ -58,11 +58,18 @@ namespace ksi::lib {
     result_type has(term_view_type term)
     {
       auto [dict_it, dict_has] = dict_pointer->has(term);
-      if( ! dict_has ) { return {nullptr, 0, false}; }
+      if( ! dict_has ) { return {dict_it, 0, false}; }
 
-      map_key_type dict_value = dict_it->get_const();
-      map_iterator it = map.find(dict_value);
-      if( it == map.end() ) { return {dict_value, 1, false}; }
+      map_iterator it = map.find(dict_it);
+      if( it == map.end() ) { return {dict_it, 1, false}; }
+
+      return {it->first, it->second, true};
+    }
+
+    result_type has(dict_iterator dict_it)
+    {
+      map_iterator it = map.find(dict_it);
+      if( it == map.end() ) { return {dict_it, 1, false}; }
 
       return {it->first, it->second, true};
     }
@@ -70,7 +77,7 @@ namespace ksi::lib {
     result_type add(term_type term)
     {
       dict_iterator dict_it = dict_pointer->add( std::move(term) ).it;
-      auto [it, was_added] = map.try_emplace( dict_it->get_const(), map.size() );
+      auto [it, was_added] = map.try_emplace( dict_it, map.size() );
       return {it->first, it->second, was_added};
     }
   };
