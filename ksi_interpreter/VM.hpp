@@ -3,6 +3,18 @@
 #include "infrastructure.hpp"
 #include <memory>
 
+/*
+  VM
+    config
+    runtime
+      threads
+
+  для начала сделать single thread
+*/
+
+// парсер формирует patch структуру (из скрипт файлов)
+// если ошибок нет, то patch можно применить в VM
+
 namespace ksi::interpreter {
 
 
