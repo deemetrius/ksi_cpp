@@ -19,7 +19,7 @@ namespace ksi::interpreter {
     (example) ksi::interpreter::system< your_config >
   */
 
-  struct type_config
+  struct type_config_default
   {
     using t_bool      = bool;
     using t_integer   = std::intptr_t;

@@ -12,11 +12,11 @@ namespace ksi::interpreter {
     using stack_frames_type = std::vector<stack_frame_holder>;
 
     // props
-    stack_frames_type stack_frames;
+    stack_frames_type frames;
 
     ptr_stack_frame stack_frame_current()
     {
-      return & stack_frames.back();
+      return & frames.back();
     }
   };
 

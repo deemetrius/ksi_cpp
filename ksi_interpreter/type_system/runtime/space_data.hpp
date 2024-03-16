@@ -10,14 +10,14 @@ namespace ksi::interpreter {
   struct system<Type_config>::runtime::space_data
   {
     // props
-    ptr_space_configuration space_config_handle;
-    space_configuration::token_type config_token;
-    system_types sys_types;
+    ptr_space_configuration           config_handle;
+    space_configuration::token_type   config_token;
+    system_types                      sys_types;
 
     // ctor
-    space_data(ptr_space_configuration param_space_config)
-      : space_config_handle{ param_space_config }
-      , config_token{ param_space_config->token }
+    space_data(ptr_space_configuration space_config_handle)
+      : config_handle{ space_config_handle }
+      , config_token{ space_config_handle->token }
     {}
   };
 

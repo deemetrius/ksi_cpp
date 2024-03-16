@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config_default.hpp"
+#include "type_config_default.hpp"
 #include <set>
 #include <map>
 #include <string>
@@ -8,7 +8,7 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config = type_config>
+  template <typename Type_config = type_config_default>
   struct system
     : public Type_config
   {
@@ -94,9 +94,12 @@ namespace ksi::interpreter {
 
     struct runtime
     {
-      struct run_data;    struct space_data;    struct system_types;
-      struct stack_values;
-      struct call_stack;  struct sequence_space;
+      struct thread_space;
+        struct space_data;
+          struct system_types;
+        struct stack_values;
+        struct call_stack_info;
+          struct sequence_space;
 
       using stack_frame = values::value_array;
       using stack_frame_holder = care::holder_value;
@@ -114,6 +117,7 @@ namespace ksi::interpreter {
     using ptr_value = bases::value *;
     using ptr_type = values::value_type *;
     using ptr_space_configuration = space_configuration *;
+    using ptr_thread_space = runtime::thread_space *;
     using ptr_runtime_info = runtime_info *;
     using ptr_system_types = runtime::system_types *;
 

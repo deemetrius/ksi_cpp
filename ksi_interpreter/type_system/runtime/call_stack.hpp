@@ -21,13 +21,13 @@ namespace ksi::interpreter {
 
 
   template <typename Type_config>
-  struct system<Type_config>::runtime::call_stack
+  struct system<Type_config>::runtime::call_stack_info
   {
   private:
     using call_stack_storage = std::list<sequence_space>;
 
     // props
-    call_stack_storage call_stack_data;
+    call_stack_storage chain;
 
   public:
 
@@ -35,37 +35,37 @@ namespace ksi::interpreter {
 
     bool call_stack_empty() const
     {
-      return call_stack_data.empty();
+      return chain.empty();
     }
 
     void call_stack_pop()
     {
-      if( call_stack_data.size() < 1 ) { return; }
+      if( chain.size() < 1 ) { return; }
       if(
-        ptr_sequence_space seq_space_handle{ & call_stack_data.back() };
+        ptr_sequence_space seq_space_handle{ & chain.back() };
         seq_space_handle->pos_instr_chain.size() > 1
       ) {
         seq_space_handle->pos_instr_chain.pop_back();
       }
       else
       {
-        call_stack_data.pop_back();
+        chain.pop_back();
       }
     }
 
     execution::ptr_instruction_const instruction_obtain() const
     {
-      ptr_sequence_space seq_space_handle{ & call_stack_data.back() };
+      ptr_sequence_space seq_space_handle{ & chain.back() };
       execution::position pos = seq_space_handle->pos_instr_chain.back();
       return seq_space_handle->sequence_handle->instruction_get_pointer(pos);
     }
 
     void instruction_next_state()
     {
-      if( call_stack_data.empty() ) { return; }
+      if( chain.empty() ) { return; }
 
       {
-        ptr_sequence_space seq_space_handle{ & call_stack_data.back() };
+        ptr_sequence_space seq_space_handle{ & chain.back() };
         ptr_sequence seq_handle{ seq_space_handle->sequence_handle };
         typename execution::ptr_position pos_handle{ & seq_space_handle->pos_instr_chain.back() };
         if( execution::try_increment_position(pos_handle, seq_handle->instruction_groups) )

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "infrastructure.hpp"
+#include "type_system/nest/space_configuration.hpp"
+#include "type_system/nest/runtime_info.hpp"
 #include <memory>
 
 /*
@@ -34,13 +35,7 @@ namespace ksi::interpreter {
 
     void run()
     {
-      while( ! runtime.call_stack_empty() )
-      {
-        execution::ptr_instruction_const instr_handle = runtime.instruction_obtain();
-        instr_handle->perform(& runtime);
-        // we do not call here: runtime.instruction_next_state();
-        // decision ~ it should be called by specific instgructions
-      }
+      runtime.first_page.run(this);
     }
   };
 

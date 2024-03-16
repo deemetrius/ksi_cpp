@@ -32,7 +32,7 @@ int main()
   vm.config->dict->add(L"x");
   show_dict(vm.config->dict);
 
-  std::wcout << v_bool.get_type(&vm.runtime.thread_space.sys_types)->name << L'\n';
+  std::wcout << v_bool.get_type(&vm.runtime.first_page.space.sys_types)->name << L'\n';
 
   return 0;
 }
