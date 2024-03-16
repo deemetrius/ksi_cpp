@@ -24,9 +24,11 @@ namespace ksi::interpreter {
   {
     using dict_type = ksi::lib::dict<t_string>;
     using dict_ptr_type = std::shared_ptr<dict_type>;
+    using token_type = std::size_t;
 
     // props
     dict_ptr_type dict;
+    token_type token{ 0 };
 
     space_configuration()
       : dict{ std::make_shared<dict_type>() }
