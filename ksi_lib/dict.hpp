@@ -20,9 +20,16 @@ namespace ksi::lib {
 
     struct value_type
     {
+      using const_pointer = value_type const *;
+
+      // props
       term_type           term;
       index_type          id;
       mutable index_type  rank;
+
+      // actions
+
+      const_pointer get_const() const { return this; }
     };
 
     struct less
@@ -45,6 +52,7 @@ namespace ksi::lib {
       enum is_transparent {};
     };
 
+    using const_pointer = value_type const *;
     using set_type = std::set<value_type, less>;
     using iterator = typename set_type::iterator;
 

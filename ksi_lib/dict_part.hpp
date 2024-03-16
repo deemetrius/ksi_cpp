@@ -10,7 +10,7 @@ dict_part::has(term) ~ returns:
     when source dict has term - returns _ its record pointer as .value; .index = 1; .was_added{ fasle }
     otherwise ~ {nullptr, 0, false}
   else: (term exists in dict_part)
-    {pointer to dict_record_const, part_index, true}
+    {pointer_to<const dict_record>, part_index, true}
 */
 
 namespace ksi::lib {
@@ -25,7 +25,7 @@ namespace ksi::lib {
 
     using ptr_dict_type = std::shared_ptr<dict_type>;
 
-    using map_key_type = dict_value_type const *;
+    using const_pointer = dict_type::const_pointer;
     using index_type = dict_index_type;
 
     struct less
@@ -36,12 +36,12 @@ namespace ksi::lib {
       }
     };
 
-    using map_type = std::map<dict_iterator, index_type, less>;
+    using map_type = std::map<const_pointer, index_type, less>;
     using map_iterator = map_type::iterator;
 
     struct result_type
     {
-      dict_iterator value;
+      const_pointer value;
       index_type index;
       bool was_added;
     };
@@ -58,18 +58,18 @@ namespace ksi::lib {
     result_type has(term_view_type term)
     {
       auto [dict_it, dict_has] = dict_pointer->has(term);
-      if( ! dict_has ) { return {dict_it, 0, false}; }
+      if( ! dict_has ) { return {nullptr, 0, false}; }
 
       map_iterator it = map.find(dict_it);
-      if( it == map.end() ) { return {dict_it, 1, false}; }
+      if( it == map.end() ) { return {dict_it->get_const(), 1, false}; }
 
       return {it->first, it->second, true};
     }
 
-    result_type has(dict_iterator dict_it)
+    result_type has(const_pointer dict_value)
     {
-      map_iterator it = map.find(dict_it);
-      if( it == map.end() ) { return {dict_it, 1, false}; }
+      map_iterator it = map.find(dict_value);
+      if( it == map.end() ) { return {dict_value, 1, false}; }
 
       return {it->first, it->second, true};
     }
@@ -77,7 +77,7 @@ namespace ksi::lib {
     result_type add(term_type term)
     {
       dict_iterator dict_it = dict_pointer->add( std::move(term) ).it;
-      auto [it, was_added] = map.try_emplace( dict_it, map.size() );
+      auto [it, was_added] = map.try_emplace( dict_it->get_const(), map.size() );
       return {it->first, it->second, was_added};
     }
   };
