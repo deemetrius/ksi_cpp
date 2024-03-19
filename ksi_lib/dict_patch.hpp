@@ -20,6 +20,8 @@ namespace ksi::lib {
     using result_has = dict_type::result_has;
     using result_add = dict_type::result_add;
 
+    enum class error_apply { target_changed, duplicates_found };
+
     // props
     ptr_dict_type target;
     dict_type     extra;
@@ -43,6 +45,13 @@ namespace ksi::lib {
       result_has res = target->has(term);
       if( res.absent ) { return extra.add( std::move(term) ); }
       return {res.it, false};
+    }
+
+    void apply()
+    {
+      if( target->set.size() != extra.rank_initial ) { throw error_apply::target_changed; }
+      target->set.merge(extra.set);
+      if( extra.set.size() != 0 ) { throw error_apply::duplicates_found; }
     }
   };
 

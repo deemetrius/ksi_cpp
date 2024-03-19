@@ -43,6 +43,10 @@ int main()
     std::cout << "patch.add(z0): " << patch_vm.dict.add(L"z0").was_added << '\n';
 
     show_dict(patch_vm.dict.extra);
+
+    std::cout << "\napply patch\n";
+    patch_vm.dict.apply();
+    show_dict(*vm.config->dict);
   }
   catch( ... )
   {
