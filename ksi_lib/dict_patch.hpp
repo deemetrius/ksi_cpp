@@ -15,27 +15,34 @@ namespace ksi::lib {
     using set_type = dict_type::set_type;
     using iterator = dict_type::iterator;
     using term_view_type = dict_type::term_view_type;
+    using term_type = dict_type::term_type;
 
     using result_has = dict_type::result_has;
     using result_add = dict_type::result_add;
 
     // props
-    ptr_dict_type target_dict;
-    index_type    rank_initial;
+    ptr_dict_type target;
     dict_type     extra;
 
     // ctor
     dict_patch(ptr_dict_type source_dict)
-      : target_dict{ std::move(source_dict) }
-      , rank_initial{ source_dict->set.size() }
+      : target{ std::move(source_dict) }
+      , extra{ .rank_initial = target->set.size() }
     {}
 
     // actions
 
     result_has has(term_view_type term) const
     {
-      result_type ret{ extra.has(term) };
-      return (ret.absent ? target_dict->has(term) : ret);
+      result_has ret{ extra.has(term) };
+      return (ret.absent ? target->has(term) : ret);
+    }
+
+    result_add add(term_type term)
+    {
+      result_has res = target->has(term);
+      if( res.absent ) { return extra.add( std::move(term) ); }
+      return {res.it, false};
     }
   };
 

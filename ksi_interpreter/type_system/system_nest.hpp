@@ -28,6 +28,9 @@ namespace ksi::interpreter {
     struct space_configuration;
     struct runtime_info;
 
+    struct VM;
+    struct patch_vm;
+
 
     struct values
     {
@@ -118,8 +121,6 @@ namespace ksi::interpreter {
     using ptr_thread_space = runtime::thread_space *;
     using ptr_runtime_info = runtime_info *;
     using ptr_system_types = runtime::system_types *;
-
-    struct VM;
   };
 
 

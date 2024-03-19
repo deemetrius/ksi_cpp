@@ -16,7 +16,7 @@ namespace ksi::lib {
     using term_view_type = std::basic_string_view<typename term_type::value_type>;
     using index_type = dict_index_type;
 
-    static constexpr index_type rank_initial{ 0 };
+    //static constexpr index_type rank_initial{ 0 };
 
     struct value_type
     {
@@ -71,7 +71,8 @@ namespace ksi::lib {
     };
 
     // props
-    set_type set;
+    set_type    set;
+    index_type  rank_initial{ 0 };
 
     // actions
 
@@ -86,7 +87,7 @@ namespace ksi::lib {
       auto [lower, upper] = set.equal_range(term_view_type{term});
       if( lower == upper )
       {
-        iterator it = set.emplace_hint(upper, std::move(term), set.size(), traits::rank_of(this, upper));
+        iterator it = set.emplace_hint(upper, std::move(term), traits::next_id(this), traits::rank_of(this, upper));
         traits::rank_renumerate_after(this, it);
         return {it, true};
       }
@@ -96,11 +97,17 @@ namespace ksi::lib {
     struct traits
     {
       using dict_pointer = dict *;
+      using const_dict_pointer = dict const *;
+
+      static index_type next_id(const_dict_pointer self)
+      {
+        return (self->set.size() + self->rank_initial);
+      }
 
       static index_type rank_of(dict_pointer self, iterator it)
       {
         return (
-          (self->set.end() == it) ? (self->set.size() + rank_initial) : it->rank
+          (self->set.end() == it) ? (self->set.size() + self->rank_initial) : it->rank
         );
       }
 

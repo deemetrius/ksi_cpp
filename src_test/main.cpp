@@ -3,13 +3,13 @@
 
 
 #if 1
-#include "ksi_interpreter/VM.hpp"
+#include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
 
 void show_dict(auto const & dict)
 {
   std::cout << '\n';
-  for( auto const & it : dict->set )
+  for( auto const & it : dict.set )
   {
     std::wcout << it.term << " \t~ " << it.rank << "\tid: " << it.id << '\n';
   }
@@ -17,22 +17,37 @@ void show_dict(auto const & dict)
 
 int main()
 {
-  ksi::interpreter::system<>::values::value_bool v_bool{ true };
-  ksi::interpreter::system<>::values::value_array v_array{ 3 };
+  try
+  {
+    ksi::interpreter::system<>::values::value_bool v_bool{ true };
+    ksi::interpreter::system<>::values::value_array v_array{ 3 };
 
-  ksi::interpreter::system<>::VM vm;
-  //vm.runtime.instruction_next_state();
-  std::cout << std::boolalpha;
-  std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-  std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-  std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").included() << '\n';
-  vm.config->dict->add(L"y");
-  show_dict(vm.config->dict);
-  vm.config->dict->add(L"alpha");
-  vm.config->dict->add(L"x");
-  show_dict(vm.config->dict);
+    ksi::interpreter::system<>::VM vm;
+    //vm.runtime.instruction_next_state();
+    std::cout << std::boolalpha;
+    std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+    std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
+    std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").included() << '\n';
+    vm.config->dict->add(L"y");
+    show_dict(*vm.config->dict);
+    vm.config->dict->add(L"alpha");
+    vm.config->dict->add(L"x");
+    show_dict(*vm.config->dict);
 
-  std::wcout << v_bool.get_type(&vm.runtime.first_page.space.sys_types)->name << L'\n';
+    std::wcout << v_bool.get_type(&vm.runtime.first_page.space.sys_types)->name << L"\n\n";
+
+    ksi::interpreter::system<>::patch_vm patch_vm{ vm.config->dict };
+    std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';
+    std::cout << "patch.add(ret): " << patch_vm.dict.add(L"ret").was_added << '\n';
+    std::cout << "patch.add(z1): " << patch_vm.dict.add(L"z1").was_added << '\n';
+    std::cout << "patch.add(z0): " << patch_vm.dict.add(L"z0").was_added << '\n';
+
+    show_dict(patch_vm.dict.extra);
+  }
+  catch( ... )
+  {
+    std::cout << "exception\n";
+  }
 
   return 0;
 }
