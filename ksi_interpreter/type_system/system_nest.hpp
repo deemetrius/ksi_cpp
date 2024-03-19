@@ -95,11 +95,9 @@ namespace ksi::interpreter {
     struct runtime
     {
       struct thread_space;
-        struct space_data;
-          struct system_types;
+        struct space_data; struct system_types;
         struct stack_values;
-        struct call_stack_info;
-          struct sequence_space;
+        struct call_stack_info; struct sequence_space;
 
       using stack_frame = values::value_array;
       using stack_frame_holder = care::holder_value;

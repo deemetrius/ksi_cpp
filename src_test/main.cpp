@@ -25,7 +25,7 @@ int main()
   std::cout << std::boolalpha;
   std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
   std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-  std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").was_added << '\n';
+  std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").included() << '\n';
   vm.config->dict->add(L"y");
   show_dict(vm.config->dict);
   vm.config->dict->add(L"alpha");

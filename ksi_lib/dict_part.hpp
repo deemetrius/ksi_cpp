@@ -30,7 +30,7 @@ namespace ksi::lib {
 
     struct less
     {
-      constexpr bool operator () (dict_iterator k1, dict_iterator k2) const
+      constexpr bool operator () (const_pointer k1, const_pointer k2) const
       {
         return (k1->id < k2->id);
       }
@@ -39,7 +39,18 @@ namespace ksi::lib {
     using map_type = std::map<const_pointer, index_type, less>;
     using map_iterator = map_type::iterator;
 
-    struct result_type
+    struct result_has
+    {
+      enum status_type { not_in_dict, part_missing, term_present };
+
+      const_pointer value;
+      index_type    index;
+      status_type   status;
+
+      constexpr bool included() const { return (status == term_present); }
+    };
+
+    struct result_add
     {
       const_pointer value;
       index_type index;
@@ -55,26 +66,26 @@ namespace ksi::lib {
 
     // actions
 
-    result_type has(term_view_type term)
+    result_has has(term_view_type term)
     {
-      auto [dict_it, dict_has] = dict_pointer->has(term);
-      if( ! dict_has ) { return {nullptr, 0, false}; }
+      auto [dict_it, dict_not_has] = dict_pointer->has(term);
+      if( dict_not_has ) { return {nullptr, 0, result_has::not_in_dict}; }
 
       map_iterator it = map.find(dict_it);
-      if( it == map.end() ) { return {dict_it->get_const(), 1, false}; }
+      if( it == map.end() ) { return {dict_it->get_const(), 1, result_has::part_missing}; }
 
-      return {it->first, it->second, true};
+      return {it->first, it->second, result_has::term_exists};
     }
 
-    result_type has(const_pointer dict_value)
+    result_has has(const_pointer dict_value)
     {
       map_iterator it = map.find(dict_value);
-      if( it == map.end() ) { return {dict_value, 1, false}; }
+      if( it == map.end() ) { return {dict_value, 1, result_has::part_missing}; }
 
-      return {it->first, it->second, true};
+      return {it->first, it->second, result_has::term_present};
     }
 
-    result_type add(term_type term)
+    result_add add(term_type term)
     {
       dict_iterator dict_it = dict_pointer->add( std::move(term) ).it;
       auto [it, was_added] = map.try_emplace( dict_it->get_const(), map.size() );

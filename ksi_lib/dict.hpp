@@ -56,7 +56,15 @@ namespace ksi::lib {
     using set_type = std::set<value_type, less>;
     using iterator = typename set_type::iterator;
 
-    struct result_type
+    struct result_has
+    {
+      iterator it;
+      bool absent;
+
+      bool included() const { return (not absent); }
+    };
+
+    struct result_add
     {
       iterator it;
       bool was_added;
@@ -65,19 +73,21 @@ namespace ksi::lib {
     // props
     set_type set;
 
-    result_type has(term_view_type term) const
+    // actions
+
+    result_has has(term_view_type term) const
     {
       iterator it{ set.find(term) };
-      return {it, it != set.end()};
+      return {it, it == set.end()};
     }
 
-    result_type add(term_type term)
+    result_add add(term_type term)
     {
-      auto [lower, upper] = set.template equal_range<term_view_type>(term);
+      auto [lower, upper] = set.equal_range(term_view_type{term});
       if( lower == upper )
       {
-        iterator it = set.emplace_hint(upper, std::move(term), set.size(), traits::calc_index(this, upper));
-        traits::reindex(this, it);
+        iterator it = set.emplace_hint(upper, std::move(term), set.size(), traits::rank_of(this, upper));
+        traits::rank_renumerate_after(this, it);
         return {it, true};
       }
       return {lower, false};
@@ -87,16 +97,15 @@ namespace ksi::lib {
     {
       using dict_pointer = dict *;
 
-      static index_type calc_index(dict_pointer self, iterator it)
+      static index_type rank_of(dict_pointer self, iterator it)
       {
         return (
-          (self->set.begin() == it) ? rank_initial : (
-            (self->set.end() == it) ? (self->set.size() + rank_initial /* self->set.crbegin()->rank + 1 */) : it->rank
-          )
+          (self->set.end() == it) ? (self->set.size() + rank_initial) : it->rank
         );
       }
 
-      static void reindex(dict_pointer self, iterator it) // do not pass here as it: self->set.end()
+      /// @note self->set.end() is not allowed as param ~ it
+      static void rank_renumerate_after(dict_pointer self, iterator it)
       {
         index_type rank = it->rank;
         while( (++it) != self->set.end() )
