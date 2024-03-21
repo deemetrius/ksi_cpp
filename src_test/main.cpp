@@ -2,13 +2,15 @@
 #include <iostream>
 
 #if 1
-#include "_none/ui/ui.hpp"
+#include "ksi_ui/ui.hpp"
 
 int main()
 {
-  ui::theme theme{ std::in_place_type<ui::themes::first_theme> };
+  ui::theme theme{ ui::themes::first_theme(), {.theme_name = "Blue"} };
+
   ui::control_pointer btn = ui::make<ui::controls::Button>({.caption = "click me"});
   ui::control_pointer lbl = ui::make<ui::controls::Label>({.text = "Hello", .for_control = btn});
+
   theme.draw(btn);
   theme.draw(lbl);
 }

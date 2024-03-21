@@ -18,6 +18,9 @@ namespace ui {
 
     type sub_theme;
 
+    theme_instance(typename Theme::theme_config const & params) : sub_theme{ params }
+    {}
+
     void draw(control_handle ctl) override
     {
       sub_theme.draw( static_cast<control<Control> *>(ctl) );
@@ -35,16 +38,16 @@ namespace ui {
   template <typename First_Control, typename ... Rest_Controls>
   struct supported
   {
-    template <typename Theme, typename Container>
-    static void fill(Container & cont)
+    template <typename Container, typename Theme>
+    static void fill(Container & cont, Theme t, typename Theme::theme_config const & params)
     {
       using theme_inst_type = theme_instance<First_Control, Theme>;
 
-      cont[control<First_Control>::self_type->id] = std::make_shared<theme_inst_type>();
+      cont[control<First_Control>::self_type->id] = std::make_shared<theme_inst_type>(params);
 
       if constexpr( sizeof...(Rest_Controls) > 0 )
       {
-        supported<Rest_Controls ...>::template fill<Theme>(cont);
+        supported<Rest_Controls ...>::fill(cont, t, params);
       }
     }
   };
@@ -57,10 +60,10 @@ namespace ui {
     instances_type instances;
 
     template <typename Theme>
-    theme(std::in_place_type_t<Theme>)
+    theme(Theme t, typename Theme::theme_config const & params)
     {
       instances.resize( system::control_types.set.size() );
-      Theme::supported_controls::template fill<Theme>(this->instances);
+      Theme::supported_controls::fill(this->instances, t, params);
       for( pointer & it : this->instances )
       if( not it )
       {
