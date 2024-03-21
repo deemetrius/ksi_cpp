@@ -1,10 +1,23 @@
 
 #include <iostream>
 
-
 #if 1
+#include "_none/ui/ui.hpp"
+
+int main()
+{
+  ui::theme theme{ std::in_place_type<ui::first_theme> };
+  ui::Button btn{/* "click me" */};
+  btn.draw(theme);
+}
+#endif
+
+
+#if 0
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
+
+#include "_none/table.hpp"
 
 void show_dict(auto const & dict)
 {
@@ -14,6 +27,12 @@ void show_dict(auto const & dict)
     std::wcout << it.term << " \t~ " << it.rank << "\tid: " << it.id << '\n';
   }
 }
+
+struct pair
+{
+  bool key;
+  float value;
+};
 
 int main()
 {
@@ -47,6 +66,9 @@ int main()
     std::cout << "\napply patch\n";
     patch_vm.dict.apply();
     show_dict(*vm.config->dict);
+
+    ksi::lib::table< pair, &pair::key > db;
+    db.emplace_back(true, 1.0);
   }
   catch( ... )
   {
