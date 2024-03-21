@@ -6,9 +6,11 @@
 
 int main()
 {
-  ui::theme theme{ std::in_place_type<ui::first_theme> };
-  ui::Button btn{/* "click me" */};
-  btn.draw(theme);
+  ui::theme theme{ std::in_place_type<ui::themes::first_theme> };
+  ui::control_pointer btn = ui::make<ui::controls::Button>({.caption = "click me"});
+  ui::control_pointer lbl = ui::make<ui::controls::Label>({.text = "Hello", .for_control = btn});
+  theme.draw(btn);
+  theme.draw(lbl);
 }
 #endif
 

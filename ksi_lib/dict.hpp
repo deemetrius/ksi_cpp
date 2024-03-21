@@ -3,6 +3,8 @@
 #include <set>
 #include <string_view>
 
+  // big todo: dict ~ struct result_add{ bool already_exists; }
+
 namespace ksi::lib {
 
 
