@@ -32,7 +32,7 @@ namespace ui::themes {
   template <>
   inline void first_theme::instance<controls::Button>::draw(param_type ctl)
   {
-    std::cout << '"' << ctl->type->term << "\" drawn special";
+    std::cout << '"' << ctl->type->name << "\" drawn special";
     std::cout << " using " << config.theme_name << " theme\n";
   }
 
@@ -40,7 +40,7 @@ namespace ui::themes {
   template <typename Control>
   inline void first_theme::instance<Control>::draw(param_type ctl)
   {
-    std::cout << config.theme_name << " theme draws '" << ctl->type->term << "' control\n";
+    std::cout << config.theme_name << " theme draws '" << ctl->type->name << "' control\n";
   }
 
 

@@ -1,7 +1,4 @@
 
-#include <iostream>
-
-#if 1
 #include "ksi_ui/ui.hpp"
 
 int main()
@@ -14,10 +11,10 @@ int main()
   theme.draw(btn);
   theme.draw(lbl);
 }
-#endif
 
 
 #if 0
+#include <iostream>
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
 
@@ -28,7 +25,7 @@ void show_dict(auto const & dict)
   std::cout << '\n';
   for( auto const & it : dict.set )
   {
-    std::wcout << it.term << " \t~ " << it.rank << "\tid: " << it.id << '\n';
+    std::wcout << it.name << " \t~ " << it.rank << "\tid: " << it.id << '\n';
   }
 }
 
@@ -133,29 +130,6 @@ int main()
     }
   }
 
-  return 0;
-}
-#endif
-
-
-#if 0
-#include "ksi_lib/interpreter/var_names.hpp"
-
-int main()
-{
-  using dict_type = ksi::lib::dict<std::string>;
-  dict_type dict;
-  dict.try_add("enum");
-  dict.try_add("struct");
-  dict.try_add("action");
-  for( typename dict_type::reference item : dict.get_range() )
-  {
-    std::cout
-    << "term: " << item.term << "\n"
-    << "id: " << item.id << "\n"
-    << "value: " << item.value << "\n"
-    << "\n";
-  }
   return 0;
 }
 #endif

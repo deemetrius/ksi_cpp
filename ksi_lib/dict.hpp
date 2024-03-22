@@ -3,8 +3,6 @@
 #include <set>
 #include <string_view>
 
-  // big todo: dict ~ struct result_add{ bool already_exists; }
-
 namespace ksi::lib {
 
 
@@ -18,14 +16,12 @@ namespace ksi::lib {
     using term_view_type = std::basic_string_view<typename term_type::value_type>;
     using index_type = dict_index_type;
 
-    //static constexpr index_type rank_initial{ 0 };
-
     struct value_type
     {
       using const_pointer = value_type const *;
 
       // props
-      term_type           term;
+      term_type           name;
       index_type          id;
       mutable index_type  rank;
 
@@ -38,17 +34,17 @@ namespace ksi::lib {
     {
       bool operator () (value_type const & v1, value_type const & v2) const
       {
-        return (v1.term < v2.term);
+        return (v1.name < v2.name);
       }
 
       bool operator () (value_type const & v1, term_view_type v2) const
       {
-        return (v1.term < v2);
+        return (v1.name < v2);
       }
 
       bool operator () (term_view_type v1, value_type const & v2) const
       {
-        return (v1 < v2.term);
+        return (v1 < v2.name);
       }
 
       enum is_transparent {};
@@ -70,6 +66,8 @@ namespace ksi::lib {
     {
       iterator it;
       bool was_added;
+
+      bool already_exists() const { return (not was_added); }
     };
 
     // props

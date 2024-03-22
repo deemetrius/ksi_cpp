@@ -25,9 +25,9 @@ namespace ui {
       // if you assign same control_type to different classes then plz no blame me //
 
       /*
-        // otherwise here can be the following check ~
+        // otherwise here can be something like this ~
         typename dict_type::result_add res = control_types.add( std::move(type_name) );
-        if( res.was_added == false ) { throw some_thing; }
+        if( res.already_exists() ) { throw some_thing; }
         return res.it;
       */
 

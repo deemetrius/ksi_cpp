@@ -32,4 +32,8 @@ namespace ui {
   };
 
 
+  template <typename Control>
+  using control_pointer_for = std::shared_ptr< control<Control> >;
+
+
 } // ns

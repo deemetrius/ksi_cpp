@@ -20,7 +20,7 @@ namespace ui {
   };
 
   template <typename Control>
-  fn_make<Control> make{}; // variable templates (since C++14)
+  constexpr fn_make<Control> make{}; // variable templates (since C++14)
   // see: https://en.cppreference.com/w/cpp/language/variable_template
 
 
