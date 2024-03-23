@@ -30,13 +30,16 @@ namespace ksi::interpreter {
     ~holder_cell()
     {
       if( cell_handle == nullptr ) { return; }
-      switch( cell_handle->junction_point.refs_empty() )
+      if( cell_handle->junction_point.refs_empty() )
       {
-        case false:
+        depart_cell(cell_handle);
+      }
+      else
+      {
         try
         {
           care::root_finder finder;
-          if( finder.is_cell_rooted(cell_handle) ) { break; }
+          if( finder.is_cell_rooted(cell_handle) ) { return; }
           // todo: collect | sub-close
           depart_cell(cell_handle);
         }
@@ -45,14 +48,15 @@ namespace ksi::interpreter {
           // todo: chain 'cell_handle' as doubtful
           throw;
         }
-        break;
-
-        case true:
-        depart_cell(cell_handle);
       }
     }
 
     // actions
+
+    bool empty() const
+    {
+      return (cell_handle == nullptr);
+    }
 
     pointer release()
     {

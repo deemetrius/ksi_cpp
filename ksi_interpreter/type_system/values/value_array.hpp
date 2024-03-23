@@ -30,6 +30,14 @@ namespace ksi::interpreter {
       properties.reserve(reserve_amount);
     }
 
+    ~value_array()
+    {
+      for( typename care::slot & it : properties )
+      {
+        typename care::holder_cell keep_closer{ it.release() };
+      }
+    }
+
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;

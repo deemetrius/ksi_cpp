@@ -9,6 +9,7 @@ namespace ksi::interpreter::errors {
   struct internal : public base {};
   struct method_not_supported : public internal {};
   struct release_on_empty : public internal {};
+  struct assign_from_empty : public internal {};
 
 
 } // ns
