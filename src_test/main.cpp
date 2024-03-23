@@ -39,12 +39,13 @@ struct pair
 
 int main()
 {
+  using sys = ksi::interpreter::system<>;
   try
   {
-    ksi::interpreter::system<>::values::value_bool v_bool{ true };
-    ksi::interpreter::system<>::values::value_array v_array{ 3 };
+    sys::values::value_bool v_bool{ true };
+    sys::values::value_array v_array{ 3 };
 
-    ksi::interpreter::system<>::VM vm;
+    sys::VM vm;
     //vm.runtime.instruction_next_state();
     std::cout << std::boolalpha;
     std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
@@ -58,7 +59,7 @@ int main()
 
     std::wcout << v_bool.get_type(&vm.runtime.first_page.space.sys_types)->name << L"\n\n";
 
-    ksi::interpreter::system<>::patch_vm patch_vm{ vm.config->dict };
+    sys::patch_vm patch_vm{ vm.config->dict };
     std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';
     std::cout << "patch.add(ret): " << patch_vm.dict.add(L"ret").was_added << '\n';
     std::cout << "patch.add(z1): " << patch_vm.dict.add(L"z1").was_added << '\n';
@@ -70,8 +71,20 @@ int main()
     patch_vm.dict.apply();
     show_dict(*vm.config->dict);
 
-    ksi::lib::table< pair, &pair::key > db;
-    db.emplace_back(true, 1.0);
+    //ksi::lib::table< pair, &pair::key > db;
+    //db.emplace_back(true, 1.0);
+
+    {
+      sys::info::literal_type mod_name = vm.config->dict->add(L"@main").it->get_const();
+      vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name );
+    }{
+      sys::info::literal_type mod_name = vm.config->dict->add(L"@global").it->get_const();
+      vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name );
+    }
+    for( auto [key, val] : vm.config->modules.index )
+    {
+      std::wcout << key->name << L" ~ " << val->position << L"\n";
+    }
   }
   catch( ... )
   {

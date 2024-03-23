@@ -68,25 +68,25 @@ namespace ksi::lib {
     data_type   data;
     index_type  index;
 
-    template <typename ... Args>
-    pointer emplace_back(Args && ... args)
+    template <typename Type, typename ... Args>
+    pointer emplace_back(std::in_place_type_t<Type>, Args && ... args)
     {
       data_type tmp_data;
       pointer ret;
       if constexpr( auto_increment_direct )
       {
-        ret = & tmp_data.emplace_back(data.size(), std::forward<Args>(args) ...);
+        ret = & tmp_data.emplace_back(Type{ data.size(), std::forward<Args>(args) ... });
       }
       else if constexpr( auto_increment_need_cast )
       {
-        ret = & tmp_data.emplace_back(
+        ret = & tmp_data.emplace_back(Type{
           static_cast<auto_increment::member_type>( data.size() ),
           std::forward<Args>(args) ...
-        );
+        });
       }
       else
       {
-        ret = & tmp_data.emplace_back(std::forward<Args>(args) ...);
+        ret = & tmp_data.emplace_back(Type{ std::forward<Args>(args) ... });
       }
       index.insert({ret->*Key_member, ret});
       data.splice(data.end(), tmp_data);
