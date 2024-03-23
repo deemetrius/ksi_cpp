@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../nest/space_configuration.hpp"
-#include "system_types.hpp"
+#include "../info/system_types.hpp"
 
 namespace ksi::interpreter {
 
@@ -10,9 +10,9 @@ namespace ksi::interpreter {
   struct system<Type_config>::runtime::space_data
   {
     // props
-    ptr_space_configuration           config_handle;
-    space_configuration::token_type   config_token;
-    system_types                      sys_types;
+    ptr_space_configuration   config_handle;
+    info::token_type          config_token;
+    system_types              sys_types;
 
     // ctor
     space_data(ptr_space_configuration space_config_handle)

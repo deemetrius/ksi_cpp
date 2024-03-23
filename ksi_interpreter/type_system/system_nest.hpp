@@ -1,6 +1,9 @@
 #pragma once
 
 #include "type_config_default.hpp"
+#include "ksi_lib/dict.hpp"
+#include "ksi_lib/table.hpp"
+#include <memory>
 #include <set>
 #include <map>
 #include <string>
@@ -13,7 +16,7 @@ namespace ksi::interpreter {
     : public Type_config
   {
     using count_type = std::intptr_t;
-    using index_type = std::ptrdiff_t;
+    using index_type = std::size_t;
 
     using config = Type_config;
     using typename config::t_bool;
@@ -91,8 +94,45 @@ namespace ksi::interpreter {
 
     struct info
     {
+      using dict_type = ksi::lib::dict<t_string>;
+      using literal_type = dict_type::value_type const *;
+      using dict_ptr_type = std::shared_ptr<dict_type>;
+      using token_type = std::size_t;
+
+      struct literal_less
+      {
+        bool operator () (literal_type lt, literal_type rt) const
+        {
+          return (lt->rank < rt->rank);
+        }
+      };
+
+      struct meta_info
+      {
+        literal_type  name;
+        index_type    position;
+
+        static constexpr index_type meta_info::* auto_increment{ & meta_info::position };
+      };
+      struct property_info
+        : public meta_info
+      {
+        //type_restriction
+      };
+
+      using table_of_properties = ksi::lib::table<property_info, & property_info::name, literal_less>;
+
+      struct module_configuration
+        : public meta_info
+      {
+        //constants
+        table_of_properties  property_names;
+      };
+
       struct var_names;
       struct sequence;
+
+      using ptr_property_info = property_info *; // const?
     };
 
     struct runtime

@@ -9,8 +9,9 @@ namespace ksi::interpreter {
   struct system<Type_config>::care::slot
   {
     // props
-    ptr_cell cell_handle;
-    ptr_point point_handle;
+    ptr_cell                  cell_handle;
+    ptr_point                 point_handle;
+    info::ptr_property_info   meta_information{ nullptr };
   };
 
 

@@ -1,4 +1,5 @@
 
+#if 0
 #include "ksi_ui/ui.hpp"
 
 int main()
@@ -11,14 +12,15 @@ int main()
   theme.draw(btn);
   theme.draw(lbl);
 }
+#endif
 
 
-#if 0
+#if 1
 #include <iostream>
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
 
-#include "_none/table.hpp"
+#include "ksi_lib/table.hpp"
 
 void show_dict(auto const & dict)
 {

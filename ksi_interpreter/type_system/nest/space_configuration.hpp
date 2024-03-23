@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../system_nest.hpp"
-#include "ksi_lib/dict.hpp"
-#include <memory>
 
 /*
   тут карта модулей
@@ -22,16 +20,12 @@ namespace ksi::interpreter {
   template <typename Type_config>
   struct system<Type_config>::space_configuration
   {
-    using dict_type = ksi::lib::dict<t_string>;
-    using dict_ptr_type = std::shared_ptr<dict_type>;
-    using token_type = std::size_t;
-
     // props
-    dict_ptr_type dict;
-    token_type token{ 0 };
+    info::dict_ptr_type   dict;
+    info::token_type      token{ 0 };
 
     space_configuration()
-      : dict{ std::make_shared<dict_type>() }
+      : dict{ std::make_shared<typename info::dict_type>() }
     {}
   };
 
