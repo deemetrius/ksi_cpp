@@ -21,8 +21,9 @@ namespace ksi::interpreter {
   struct system<Type_config>::space_configuration
   {
     // props
-    info::dict_ptr_type   dict;
-    info::token_type      token{ 0 };
+    info::dict_ptr_type     dict;
+    info::token_type        token{ 0 };
+    info::table_of_modules  modules;
 
     space_configuration()
       : dict{ std::make_shared<typename info::dict_type>() }

@@ -109,11 +109,12 @@ namespace ksi::interpreter {
 
       struct meta_info
       {
+        index_type    position; // auto_increment ~ should be the first member for table
         literal_type  name;
-        index_type    position;
 
         static constexpr index_type meta_info::* auto_increment{ & meta_info::position };
       };
+
       struct property_info
         : public meta_info
       {
@@ -128,6 +129,8 @@ namespace ksi::interpreter {
         //constants
         table_of_properties  property_names;
       };
+
+      using table_of_modules = ksi::lib::table<module_configuration, & module_configuration::name, literal_less>;
 
       struct var_names;
       struct sequence;
