@@ -2,6 +2,7 @@
 
 #include "../care/slot.hpp"
 #include "../care/holder_cell.hpp"
+#include "bases/value_pointed.hpp"
 #include <vector>
 #include <type_traits>
 

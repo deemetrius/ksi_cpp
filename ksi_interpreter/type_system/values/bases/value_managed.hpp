@@ -18,21 +18,25 @@ namespace ksi::interpreter {
     // props
     ptr_farewell_function fn_way_out{ & value_goodbye };
 
-    bool is_placed() const override
-    {
-      return false;
-    }
+    void assign_to_cell(care::ptr_cell to_cell) override;
 
     bases::ptr_value_managed try_get_managed() override
     {
       return this;
     }
 
-    void assign_to_cell(care::ptr_cell to_cell) override;
-
     virtual void was_acquired(care::ptr_cell by_cell) = 0;
     virtual void was_redeemed(care::ptr_cell by_cell) = 0;
     virtual care::value_status determine_status() const = 0;
+
+    using typename value::fn_close_type;
+    fn_close_type get_close_function() const override
+    {
+      return (& close_function_managed);
+    }
+
+  private:
+    static void close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle);
   };
 
 

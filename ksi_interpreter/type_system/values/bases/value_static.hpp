@@ -1,14 +1,26 @@
 #pragma once
 
-#include "value_managed.hpp"
+#include "value.hpp"
 
 namespace ksi::interpreter {
 
 
   template <typename Type_config>
   struct system<Type_config>::bases::value_static
-    : public system<Type_config>::bases::value_managed
+    : public system<Type_config>::bases::value
   {
+    void assign_to_cell(care::ptr_cell to_cell) override;
+
+    using typename value::fn_close_type;
+    fn_close_type get_close_function() const override
+    {
+      return (& close_function_static);
+    }
+
+  private:
+    static void close_function_static(ptr_value & value_handle, care::ptr_cell cell_handle) { value_handle = nullptr; }
+
+    /*
     // props
     count_type use_count{ 1 };
 
@@ -28,6 +40,7 @@ namespace ksi::interpreter {
     {
       return care::value_status::n_should_stay;
     }
+    */
   };
 
 

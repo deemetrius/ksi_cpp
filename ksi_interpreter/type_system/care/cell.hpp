@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../values/value_bool.hpp"
-#include "junction.hpp"
+#include "../values/bases/value_static.hpp"
+#include "../values/bases/value_managed.hpp"
 #include "holder_value.hpp"
+#include "junction.hpp"
 
 namespace ksi::interpreter {
 
@@ -48,18 +50,8 @@ namespace ksi::interpreter {
     void close()
     {
       if( empty() ) { return; }
-      if( value_handle->is_placed() )
-      {
-        if constexpr( config::call_destructor_for_simple_placed_values )
-        {
-          value_handle->~value();
-          value_handle = nullptr;
-        }
-        return;
-      }
-      holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
-      keep->was_redeemed(this);
-      // note here: so we let to holder_value::destructor do its job
+      bases::value::fn_close_type fn_close = value_handle->get_close_function();
+      fn_close(std::exchange(value_handle, nullptr), this);
     }
 
     bool assign_from_cell(ptr_cell other_cell_handle)
@@ -86,9 +78,9 @@ namespace ksi::interpreter {
   };
 
   template <typename Type_config>
-  inline void system<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
+  inline void system<Type_config>::bases::value_static::assign_to_cell(care::ptr_cell to_cell)
   {
-    to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
+    to_cell->value_handle = this;
   }
 
   template <typename Type_config>
@@ -96,6 +88,21 @@ namespace ksi::interpreter {
   {
     to_cell->value_handle = this;
     this->was_acquired(to_cell);
+  }
+
+  template <typename Type_config>
+  inline void system<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
+  {
+    to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
+  }
+
+
+  template <typename Type_config>
+  void system<Type_config>::bases::value_managed::close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle)
+  {
+    typename care::holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
+    keep->was_redeemed(cell_handle);
+    // note here: so we let to holder_value::destructor do its job
   }
 
 

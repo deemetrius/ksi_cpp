@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../system_nest.hpp"
+#include "info.hpp"
 
 /*
   тут карта модулей
