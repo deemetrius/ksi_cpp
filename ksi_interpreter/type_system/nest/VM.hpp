@@ -19,8 +19,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::VM
+  template <typename Type_settings>
+  struct system<Type_settings>::VM
   {
     using config_holder = std::unique_ptr<space_configuration>;
 

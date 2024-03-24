@@ -5,8 +5,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::care::slot
+  template <typename Type_settings>
+  struct system<Type_settings>::care::slot
   {
     // props
     ptr_cell                  cell_handle;

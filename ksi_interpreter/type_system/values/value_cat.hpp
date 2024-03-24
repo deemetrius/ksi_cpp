@@ -8,8 +8,8 @@ namespace ksi::interpreter {
   using namespace std::string_literals;
 
 
-  template <typename Type_config>
-  struct system<Type_config>::values::value_cat
+  template <typename Type_settings>
+  struct system<Type_settings>::values::value_cat
     : public system::bases::value_static
   {
     // props

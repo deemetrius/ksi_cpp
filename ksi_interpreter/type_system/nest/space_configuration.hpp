@@ -1,6 +1,7 @@
 #pragma once
 
-#include "info.hpp"
+#include "../values/system_types.hpp"
+#include "configuration.hpp"
 
 /*
   тут карта модулей
@@ -17,13 +18,14 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::space_configuration
+  template <typename Type_settings>
+  struct system<Type_settings>::space_configuration
   {
     // props
-    info::dict_ptr_type     dict;
-    info::token_type        token{ 0 };
-    info::table_of_modules  modules;
+    info::dict_ptr_type               dict;
+    info::token_type                  token{ 0 };
+    values::system_types              sys_types;
+    configuration::table_of_modules   modules;
 
     space_configuration()
       : dict{ std::make_shared<typename info::dict_type>() }

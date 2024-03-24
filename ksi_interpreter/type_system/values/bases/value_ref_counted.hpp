@@ -5,9 +5,9 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::bases::value_ref_counted
-    : public system<Type_config>::bases::value_managed
+  template <typename Type_settings>
+  struct system<Type_settings>::bases::value_ref_counted
+    : public system<Type_settings>::bases::value_managed
   {
     // props
     count_type ref_count{ 0 };

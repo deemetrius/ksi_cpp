@@ -10,16 +10,16 @@ namespace ksi::interpreter {
   /*
     Do not midify this file
 
-    To specify your own config:
+    To specify your own type_settings:
     * Create new header file somewhere in your project dir
     * Copy this struct to the header file you made
     * Change type aliases (after =) to desired types
-    * Pass your config struct as template parameter to nest "system"
+    * Pass your type_settings struct as template parameter to nest "system"
 
-    (example) ksi::interpreter::system< your_config >
+    (example) ksi::interpreter::system< your_settings >
   */
 
-  struct type_config_default
+  struct type_settings_default
   {
     using t_bool      = bool;
     using t_integer   = std::intptr_t;

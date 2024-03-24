@@ -13,8 +13,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::info::sequence
+  template <typename Type_settings>
+  struct system<Type_settings>::info::sequence
   {
     // props
     execution::position       self_position;

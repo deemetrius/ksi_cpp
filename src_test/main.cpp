@@ -57,7 +57,7 @@ int main()
     vm.config->dict->add(L"x");
     show_dict(*vm.config->dict);
 
-    std::wcout << v_bool.get_type(&vm.runtime.first_page.space.sys_types)->name << L"\n\n";
+    std::wcout << v_bool.get_type(&vm.config->sys_types)->name << L"\n\n";
 
     sys::patch_vm patch_vm{ vm.config->dict };
     std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';

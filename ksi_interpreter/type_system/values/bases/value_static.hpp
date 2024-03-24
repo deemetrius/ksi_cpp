@@ -5,9 +5,9 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::bases::value_static
-    : public system<Type_config>::bases::value
+  template <typename Type_settings>
+  struct system<Type_settings>::bases::value_static
+    : public system<Type_settings>::bases::value
   {
     void assign_to_cell(care::ptr_cell to_cell) override;
 

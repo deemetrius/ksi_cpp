@@ -10,9 +10,9 @@ namespace ksi::interpreter {
   using namespace std::string_literals;
 
 
-  template <typename Type_config>
-  struct system<Type_config>::values::value_array
-    : public system<Type_config>::bases::value_pointed
+  template <typename Type_settings>
+  struct system<Type_settings>::values::value_array
+    : public system<Type_settings>::bases::value_pointed
   {
     using storage_type = std::vector<typename care::slot>;
     using size_type = typename storage_type::size_type;

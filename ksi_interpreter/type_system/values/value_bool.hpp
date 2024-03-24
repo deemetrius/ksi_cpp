@@ -8,9 +8,9 @@ namespace ksi::interpreter {
   using namespace std::string_literals;
 
 
-  template <typename Type_config>
-  struct system<Type_config>::values::value_bool
-    : public system<Type_config>::bases::value_placed
+  template <typename Type_settings>
+  struct system<Type_settings>::values::value_bool
+    : public system<Type_settings>::bases::value_placed
   {
     // props
     t_bool flag;

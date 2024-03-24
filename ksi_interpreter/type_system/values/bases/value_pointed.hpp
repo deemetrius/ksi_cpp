@@ -6,9 +6,9 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::bases::value_pointed
-    : public system<Type_config>::bases::value_managed
+  template <typename Type_settings>
+  struct system<Type_settings>::bases::value_pointed
+    : public system<Type_settings>::bases::value_managed
   {
     // props
     care::point point;

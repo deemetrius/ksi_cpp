@@ -7,8 +7,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::runtime::sequence_space
+  template <typename Type_settings>
+  struct system<Type_settings>::runtime::sequence_space
   {
     using instr_positions = std::vector<typename execution::position>;
 
@@ -20,8 +20,8 @@ namespace ksi::interpreter {
   };
 
 
-  template <typename Type_config>
-  struct system<Type_config>::runtime::call_stack_info
+  template <typename Type_settings>
+  struct system<Type_settings>::runtime::call_stack_info
   {
   private:
     using call_stack_storage = std::list<sequence_space>;

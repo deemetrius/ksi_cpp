@@ -1,9 +1,8 @@
 #pragma once
 
-#include "type_config_default.hpp"
+#include "type_settings_default.hpp"
 #include "ksi_lib/dict.hpp"
 #include "ksi_lib/table.hpp"
-#include <memory>
 #include <set>
 #include <map>
 #include <string>
@@ -11,19 +10,19 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config = type_config_default>
+  template <typename Type_settings = type_settings_default>
   struct system
-    : public Type_config
+    : public Type_settings
   {
     using count_type = std::intptr_t;
     using index_type = std::size_t;
 
-    using config = Type_config;
-    using typename config::t_bool;
-    using typename config::t_integer;
-    using typename config::t_floating;
-    using typename config::t_string;
-    using config::converter_string;
+    using type_settings = Type_settings;
+    using typename type_settings::t_bool;
+    using typename type_settings::t_integer;
+    using typename type_settings::t_floating;
+    using typename type_settings::t_string;
+    using type_settings::converter_string;
 
     using t_string_internal = std::string;
 
@@ -37,11 +36,13 @@ namespace ksi::interpreter {
 
     struct values
     {
+      struct value_module;
       struct value_cat;
       struct value_type;
-      struct value_module;
       struct value_bool;
       struct value_array;
+
+      struct system_types;
     };
 
     struct bases
@@ -49,9 +50,9 @@ namespace ksi::interpreter {
       struct value; // base for all values
 
       struct value_placed; // they live inside cell's union
-      struct value_managed;
+      struct value_static;
 
-      struct value_static; // managed by: space_data
+      struct value_managed;
       struct value_ref_counted; // base to: value_string
       struct value_pointed; // maintains references (especially circular ones)
 
@@ -93,12 +94,50 @@ namespace ksi::interpreter {
     };
 
 
-    struct info;
+    struct info
+    {
+      using dict_type = ksi::lib::dict<t_string>;
+      using literal_type = dict_type::value_type const *;
+      using dict_ptr_type = std::shared_ptr<dict_type>;
+      using token_type = std::size_t;
+
+      struct literal_less
+      {
+        bool operator () (literal_type lt, literal_type rt) const
+        {
+          return (lt->rank < rt->rank);
+        }
+      };
+
+      struct meta_info
+      {
+        index_type    position; // auto_increment ~ should be the first member for table
+        literal_type  name;
+
+        static constexpr index_type meta_info::* auto_increment{ & meta_info::position };
+      };
+
+      struct property_info
+        : public meta_info
+      {
+        //type_restriction
+      };
+
+      using table_of_properties = ksi::lib::table<property_info, & property_info::name, literal_less>;
+
+      // todo: decide
+      struct var_names;
+      struct sequence;
+
+      using ptr_property_info = property_info *; // const?
+    };
+
+    struct configuration;
 
     struct runtime
     {
       struct thread_space;
-        struct space_data; struct system_types;
+        struct space_data;
         struct stack_values;
         struct call_stack_info; struct sequence_space;
 
@@ -120,7 +159,7 @@ namespace ksi::interpreter {
     using ptr_space_configuration = space_configuration *;
     using ptr_thread_space = runtime::thread_space *;
     using ptr_runtime_info = runtime_info *;
-    using ptr_system_types = runtime::system_types *;
+    using ptr_system_types = values::system_types *;
   };
 
 

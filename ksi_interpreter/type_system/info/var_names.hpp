@@ -7,8 +7,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::info::var_names
+  template <typename Type_settings>
+  struct system<Type_settings>::info::var_names
   {
     using map_type = ksi::lib::dict_part<t_string>;
     using dict_iterator = map_type::dict_iterator;

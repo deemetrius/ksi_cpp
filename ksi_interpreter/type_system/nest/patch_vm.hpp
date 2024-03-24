@@ -6,8 +6,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::patch_vm
+  template <typename Type_settings>
+  struct system<Type_settings>::patch_vm
   {
     // props
     ksi::lib::dict_patch<t_string> dict;

@@ -6,8 +6,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::execution
+  template <typename Type_settings>
+  struct system<Type_settings>::execution
   {
     struct position
     {

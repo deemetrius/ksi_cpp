@@ -9,8 +9,8 @@ namespace ksi::interpreter {
   using namespace std::string_literals;
 
 
-  template <typename Type_config>
-  struct system<Type_config>::bases::value
+  template <typename Type_settings>
+  struct system<Type_settings>::bases::value
   {
     virtual ~value() = default;
 

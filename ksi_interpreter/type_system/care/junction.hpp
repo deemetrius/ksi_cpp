@@ -5,8 +5,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::care::junction
+  template <typename Type_settings>
+  struct system<Type_settings>::care::junction
   {
     enum class result_of_entraining { was_increased, was_added };
     enum class result_of_detraining { was_decreased, was_removed, was_absent, was_wrong_count };

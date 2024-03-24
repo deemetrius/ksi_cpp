@@ -15,8 +15,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::runtime_info
+  template <typename Type_settings>
+  struct system<Type_settings>::runtime_info
   {
     runtime::thread_space first_page;
   };

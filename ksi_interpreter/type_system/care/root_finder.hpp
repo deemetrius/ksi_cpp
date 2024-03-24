@@ -8,8 +8,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::care::root_finder
+  template <typename Type_settings>
+  struct system<Type_settings>::care::root_finder
   {
     using points_set = std::set<ptr_point>;
     using cells_set = std::set<ptr_cell>;

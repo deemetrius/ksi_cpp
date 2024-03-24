@@ -17,8 +17,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::runtime::thread_space
+  template <typename Type_settings>
+  struct system<Type_settings>::runtime::thread_space
   {
     // props
     runtime::space_data       space;

@@ -5,8 +5,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::care::point
+  template <typename Type_settings>
+  struct system<Type_settings>::care::point
   {
     // props
     in_point_set from_cells;

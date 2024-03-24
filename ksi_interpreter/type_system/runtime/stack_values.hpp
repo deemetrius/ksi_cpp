@@ -6,8 +6,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::runtime::stack_values
+  template <typename Type_settings>
+  struct system<Type_settings>::runtime::stack_values
   {
     using stack_frames_type = std::vector<stack_frame_holder>;
 

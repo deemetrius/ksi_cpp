@@ -9,8 +9,8 @@
 namespace ksi::interpreter {
 
 
-  template <typename Type_config>
-  struct system<Type_config>::care::cell
+  template <typename Type_settings>
+  struct system<Type_settings>::care::cell
   {
     static void cell_goodbye(ptr_cell cell_handle)
     {
@@ -77,28 +77,28 @@ namespace ksi::interpreter {
     cell & operator = (cell &&) = delete;
   };
 
-  template <typename Type_config>
-  inline void system<Type_config>::bases::value_static::assign_to_cell(care::ptr_cell to_cell)
+  template <typename Type_settings>
+  inline void system<Type_settings>::bases::value_static::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = this;
   }
 
-  template <typename Type_config>
-  inline void system<Type_config>::bases::value_managed::assign_to_cell(care::ptr_cell to_cell)
+  template <typename Type_settings>
+  inline void system<Type_settings>::bases::value_managed::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = this;
     this->was_acquired(to_cell);
   }
 
-  template <typename Type_config>
-  inline void system<Type_config>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
+  template <typename Type_settings>
+  inline void system<Type_settings>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
   }
 
 
-  template <typename Type_config>
-  void system<Type_config>::bases::value_managed::close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle)
+  template <typename Type_settings>
+  void system<Type_settings>::bases::value_managed::close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle)
   {
     typename care::holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
     keep->was_redeemed(cell_handle);
