@@ -74,17 +74,17 @@ int main()
     //ksi::lib::table< pair, &pair::key > db;
     //db.emplace_back(true, 1.0);
 
-    {
-      sys::info::literal_type mod_name = vm.config->dict->add(L"@main").it->get_const();
-      vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name );
-    }{
-      sys::info::literal_type mod_name = vm.config->dict->add(L"@global").it->get_const();
-      vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name );
-    }
+    sys::info::literal_type mod_name_main = vm.config->dict->add(L"@main").it->get_const();
+    vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );
+
+    sys::info::literal_type mod_name = vm.config->dict->add(L"@global").it->get_const();
+    vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name );
+
     for( auto [key, val] : vm.config->modules.index )
     {
       std::wcout << key->name << L" ~ " << val->position << L"\n";
     }
+    std::wcout << vm.config->modules.find(mod_name_main)->name->name << L"\n";
   }
   catch( ... )
   {

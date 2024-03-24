@@ -29,4 +29,25 @@ namespace ksi::concepts {
   concept any_of = ( std::is_same_v<Type, Args> || ... );
 
 
+  template <typename T>
+  struct class_of_member
+  {
+    using type = void;
+  };
+
+  template <typename T, typename Class>
+  struct class_of_member<T Class::*>
+  {
+    using type = Class;
+    using member_type = T;
+  };
+
+  template <typename T>
+  using class_of_member_t = class_of_member<T>::type;
+
+
+  template <typename T, typename Struct>
+  concept pointer_to_member = std::is_member_pointer_v<T> && std::is_base_of_v<class_of_member_t<T>, Struct>;
+
+
 } // end ns

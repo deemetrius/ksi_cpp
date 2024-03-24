@@ -1,30 +1,11 @@
 #pragma once
 
-#include <type_traits>
+#include "concepts.hpp"
 #include <list>
 #include <map>
 
 namespace ksi::lib {
 
-
-  template <typename T>
-  struct class_of_member
-  {
-    using type = void;
-  };
-
-  template <typename T, typename Class>
-  struct class_of_member<T Class::*>
-  {
-    using type = Class;
-    using member_type = T;
-  };
-
-  template <typename T>
-  using class_of_member_t = class_of_member<T>::type;
-
-  template <typename T, typename Struct>
-  concept pointer_to_member = std::is_member_pointer_v<T> && std::is_base_of_v<class_of_member_t<T>, Struct>;
 
   template <typename T, typename = void>
   struct has_auto_increment : public std::false_type
@@ -38,7 +19,8 @@ namespace ksi::lib {
     using member_type = decltype(std::declval<T>() .* T::auto_increment);
   };
 
-  template <typename Struct, pointer_to_member<Struct> auto Key_member, typename Less = std::ranges::less>
+
+  template <typename Struct, concepts::pointer_to_member<Struct> auto Key_member, typename Less = std::ranges::less>
   struct table
   {
     // note: if no concepts
@@ -46,10 +28,11 @@ namespace ksi::lib {
 
     using value_type = Struct;
     using pointer = Struct *;
-    using key_type = class_of_member<decltype(Key_member)>::member_type;
+    using key_type = concepts::class_of_member<decltype(Key_member)>::member_type;
     using data_type = std::list<Struct>;
     using data_iterator = data_type::iterator;
     using index_type = std::map<key_type, pointer, Less>;
+    using index_iterator = index_type::iterator;
 
     using auto_increment = has_auto_increment<Struct>;
 
@@ -67,6 +50,12 @@ namespace ksi::lib {
     // props
     data_type   data;
     index_type  index;
+
+    pointer find(key_type key, pointer result_not_found = nullptr)
+    {
+      index_iterator it = index.find(key);
+      return ((index.end() == it) ? result_not_found : it->second);
+    }
 
     template <typename Type, typename ... Args>
     pointer emplace_back(std::in_place_type_t<Type>, Args && ... args)
