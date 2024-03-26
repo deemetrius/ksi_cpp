@@ -31,12 +31,6 @@ void show_dict(auto const & dict)
   }
 }
 
-struct pair
-{
-  bool key;
-  float value;
-};
-
 int main()
 {
   using sys = ksi::interpreter::system<>;
@@ -45,19 +39,21 @@ int main()
     sys::values::value_bool v_bool{ true };
     sys::values::value_array v_array{ 3 };
 
-    sys::VM vm;
-    //vm.runtime.instruction_next_state();
     std::cout << std::boolalpha;
-    std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-    std::cout << "dict.add(ret): " << vm.config->dict->add(L"ret").was_added << '\n';
-    std::cout << "dict.has(ret): " << vm.config->dict->has(L"ret").included() << '\n';
-    vm.config->dict->add(L"y");
-    show_dict(*vm.config->dict);
-    vm.config->dict->add(L"alpha");
-    vm.config->dict->add(L"x");
-    show_dict(*vm.config->dict);
 
-    std::wcout << v_bool.get_type(&vm.config->sys_types)->name << L"\n\n";
+    std::cout
+    << "direct: "
+    << sys::configuration::table_of_modules::auto_increment_direct
+    << "\n";
+    std::cout
+    << "need_cast: "
+    << sys::configuration::table_of_modules::auto_increment_need_cast
+    << "\n";
+
+    sys::VM vm;
+
+    show_dict(*vm.config->dict);
+    std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
     sys::patch_vm patch_vm{ vm.config->dict };
     std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';
@@ -70,9 +66,6 @@ int main()
     std::cout << "\napply patch\n";
     patch_vm.dict.apply();
     show_dict(*vm.config->dict);
-
-    //ksi::lib::table< pair, &pair::key > db;
-    //db.emplace_back(true, 1.0);
 
     sys::info::literal_type mod_name_main = vm.config->dict->add(L"@main").it->get_const();
     vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );

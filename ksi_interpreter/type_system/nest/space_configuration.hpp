@@ -22,13 +22,14 @@ namespace ksi::interpreter {
   struct system<Type_settings>::space_configuration
   {
     // props
-    info::dict_ptr_type               dict;
+    info::dict_holder_type            dict;
     info::token_type                  token{ 0 };
     values::system_types              sys_types;
     configuration::table_of_modules   modules;
 
     space_configuration()
       : dict{ std::make_shared<typename info::dict_type>() }
+      , sys_types{ dict.get() }
     {}
   };
 

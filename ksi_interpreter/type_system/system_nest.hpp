@@ -97,8 +97,10 @@ namespace ksi::interpreter {
     struct info
     {
       using dict_type = ksi::lib::dict<t_string>;
+      using dict_result_add = dict_type::result_add;
       using literal_type = dict_type::value_type const *;
-      using dict_ptr_type = std::shared_ptr<dict_type>;
+      using dict_holder_type = std::shared_ptr<dict_type>;
+      using ptr_dict_type = dict_type *;
       using token_type = std::size_t;
 
       struct literal_less
@@ -114,7 +116,9 @@ namespace ksi::interpreter {
         index_type    position; // auto_increment ~ should be the first member for table
         literal_type  name;
 
-        static constexpr index_type meta_info::* auto_increment{ & meta_info::position };
+        static constexpr index_type meta_info::*
+          auto_increment{ & meta_info::position }
+        ;
       };
 
       struct property_info
