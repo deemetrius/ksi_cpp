@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bases/value_static.hpp"
+#include "bases/is_hint.hpp"
 
 namespace ksi::interpreter {
 
@@ -10,7 +10,7 @@ namespace ksi::interpreter {
 
   template <typename Type_settings>
   struct system<Type_settings>::values::value_type
-    : public system<Type_settings>::bases::value_static
+    : public system<Type_settings>::bases::is_hint
     , public system<Type_settings>::info::meta_info
   {
     using self_meta = info::meta_info;
@@ -27,6 +27,13 @@ namespace ksi::interpreter {
     t_string_internal get_class_name() const override
     {
       return "value_type"s;
+    }
+
+    // is_hint
+
+    bool match_type(ptr_type type) override
+    {
+      return (this == type); // is_base_of ~ if inheritance | or embed_properties
     }
   };
 

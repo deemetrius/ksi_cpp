@@ -50,15 +50,22 @@ namespace ksi::interpreter {
       struct value; // base for all values
 
       struct value_placed; // they live inside cell's union
-      struct value_static;
+      struct value_static; // they part of space_configuration
 
       struct value_managed;
       struct value_ref_counted; // base to: value_string
       struct value_pointed; // maintains references (especially circular ones)
 
+      struct is_hint;
+
       using ptr_value_managed = value_managed *;
       using ptr_value_pointed = value_pointed *;
     };
+
+    using ptr_value = bases::value *;
+    using ptr_cat = values::value_cat *;
+    using ptr_type = values::value_type *;
+    using ptr_restricion = bases::is_hint *;
 
 
     struct care
@@ -124,7 +131,8 @@ namespace ksi::interpreter {
       struct property_info
         : public meta_info
       {
-        //type_restriction
+        bool            is_readonly;
+        ptr_restricion  type_restriction;
       };
 
       using table_of_properties = ksi::lib::table<property_info, & property_info::name, literal_less>;
@@ -133,7 +141,7 @@ namespace ksi::interpreter {
       struct var_names;
       struct sequence;
 
-      using ptr_property_info = property_info *; // const?
+      using ptr_property_info = property_info *; // maybe: ptr to const
     };
 
     struct configuration;
@@ -155,12 +163,9 @@ namespace ksi::interpreter {
 
 
     struct execution;
-    //struct instructions;
+    //todo: struct instructions;
 
 
-    using ptr_value = bases::value *;
-    using ptr_cat = values::value_cat *;
-    using ptr_type = values::value_type *;
     using ptr_space_configuration = space_configuration *;
     using ptr_thread_space = runtime::thread_space *;
     using ptr_runtime_info = runtime_info *;
