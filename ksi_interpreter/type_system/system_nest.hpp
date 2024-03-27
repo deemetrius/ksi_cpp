@@ -159,6 +159,7 @@ namespace ksi::interpreter {
 
 
     using ptr_value = bases::value *;
+    using ptr_cat = values::value_cat *;
     using ptr_type = values::value_type *;
     using ptr_space_configuration = space_configuration *;
     using ptr_thread_space = runtime::thread_space *;

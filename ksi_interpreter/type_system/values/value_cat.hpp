@@ -11,12 +11,13 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   struct system<Type_settings>::values::value_cat
     : public system::bases::value_static
+    , public system<Type_settings>::info::meta_info
   {
-    // props
-    t_string name;
+    using self_meta = info::meta_info;
 
     // ctor
-    value_cat(t_string p_name) : name{ std::move(p_name) }
+    value_cat(info::meta_info params)
+      : self_meta{ std::move(params) }
     {}
 
     // actions

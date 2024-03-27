@@ -17,7 +17,7 @@ namespace ksi::interpreter {
 
     // ctor
     value_type(info::meta_info params)
-      : self_meta{ params }
+      : self_meta{ std::move(params) }
     {}
 
     // actions

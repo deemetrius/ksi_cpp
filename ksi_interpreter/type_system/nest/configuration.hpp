@@ -15,6 +15,12 @@ namespace ksi::interpreter {
       typename info::literal_less
     >;
 
+    using table_of_cats = ksi::lib::table<
+      typename values::value_cat,
+      & values::value_cat::name,
+      typename info::literal_less
+    >;
+
     using table_of_types = ksi::lib::table<
       typename values::value_type,
       & values::value_type::name,
