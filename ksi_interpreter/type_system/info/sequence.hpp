@@ -5,7 +5,7 @@
 
 /*
   сиквенс не хранит значения переменных,
-  а лишь список имён переменных и констант
+  а лишь список имён переменных и readonly ячеек
 
   значения же будут в ~ runtime::call_stack_info > runtime::sequence_space > stack_frame
 */  // и возможно ещё значения в ~ thread_space > static_data

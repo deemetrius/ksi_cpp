@@ -128,6 +128,28 @@ namespace ksi::interpreter {
         ;
       };
 
+      using ptr_meta_info = meta_info *;
+
+      struct meta_less
+      {
+        constexpr bool operator () (ptr_meta_info lt, ptr_meta_info rt) const
+        {
+          return (lt->position < rt->position);
+        }
+      };
+
+      using cat_set = std::set<ptr_cat, meta_less>;
+      struct cat_includes
+      {
+        enum class result_add { just_added, was_already_included };
+
+        // props
+        cat_set   all_includes;
+        cat_set   includes_directly;
+
+        result_add add(ptr_cat base_cat_handle);
+      };
+
       struct property_info
         : public meta_info
       {

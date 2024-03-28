@@ -37,12 +37,16 @@ namespace ksi::interpreter {
     // ctor
     system_types(typename info::ptr_dict_type dict_handle)
       : reg{ dict_handle }
-    {}
+    {
+      // todo: tree of categories
+      c_null->cat_base_add(c_any);
+    }
 
     // props
     registrator  reg;
 
     // categories
+    ptr_cat c_any = reg.add_cat( converter_string("_any") );
     ptr_cat c_null = reg.add_cat( converter_string("_null") );
 
     // types
