@@ -98,7 +98,7 @@ namespace ksi::interpreter {
 
 
   template <typename Type_settings>
-  void system<Type_settings>::bases::value_managed::close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle)
+  inline void system<Type_settings>::bases::value_managed::close_function_managed(ptr_value & value_handle, care::ptr_cell cell_handle)
   {
     typename care::holder_value keep{ std::exchange(value_handle, nullptr)->try_get_managed() };
     keep->was_redeemed(cell_handle);

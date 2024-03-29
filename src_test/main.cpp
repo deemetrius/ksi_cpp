@@ -55,7 +55,7 @@ int main()
     show_dict(*vm.config->dict);
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
-    sys::patch_vm patch_vm{ vm.config->dict };
+    /* sys::patch_vm patch_vm{ vm.config->dict };
     std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';
     std::cout << "patch.add(ret): " << patch_vm.dict.add(L"ret").was_added << '\n';
     std::cout << "patch.add(z1): " << patch_vm.dict.add(L"z1").was_added << '\n';
@@ -65,7 +65,7 @@ int main()
 
     std::cout << "\napply patch\n";
     patch_vm.dict.apply();
-    show_dict(*vm.config->dict);
+    show_dict(*vm.config->dict); */
 
     sys::info::literal_type mod_name_main = vm.config->dict->add(L"@main").it->get_const();
     vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );

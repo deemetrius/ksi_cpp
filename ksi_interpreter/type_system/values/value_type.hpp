@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bases/is_hint.hpp"
+#include "value_cat.hpp"
 
 namespace ksi::interpreter {
 
@@ -14,6 +14,9 @@ namespace ksi::interpreter {
     , public system<Type_settings>::info::meta_info
   {
     using self_meta = info::meta_info;
+
+    // props
+    info::cat_includes  categories;
 
     // ctor
     value_type(info::meta_info params)
@@ -31,11 +34,18 @@ namespace ksi::interpreter {
 
     // is_hint
 
-    bool match_type(ptr_type type) override
+    bool match_type(ptr_type type_handle) override
     {
-      return (this == type); // is_base_of ~ if inheritance | or embed_properties
+      return (this == type_handle); // is_base_of ~ if inheritance | or embed_properties
     }
   };
+
+
+  template <typename Type_settings>
+  inline bool system<Type_settings>::values::value_cat::match_type(ptr_type type_handle)
+  {
+    return type_handle->categories.has(this);
+  }
 
 
 } // ns

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bases/value_static.hpp"
+#include "bases/is_hint.hpp"
 
 namespace ksi::interpreter {
 
@@ -10,7 +10,7 @@ namespace ksi::interpreter {
 
   template <typename Type_settings>
   struct system<Type_settings>::values::value_cat
-    : public system::bases::value_static
+    : public system::bases::is_hint
     , public system<Type_settings>::info::meta_info
   {
     using self_meta = info::meta_info;
@@ -52,11 +52,21 @@ namespace ksi::interpreter {
     {
       return "value_cat"s;
     }
+
+    // is_hint
+
+    bool match_type(ptr_type type_handle) override;
   };
 
 
   template <typename Type_settings>
-  auto system<Type_settings>::info::cat_includes::add(ptr_cat base_cat_handle) -> result_add
+  inline bool system<Type_settings>::info::cat_includes::has(ptr_cat base_cat_handle) const
+  {
+    return this->all_includes.contains(base_cat_handle);
+  }
+
+  template <typename Type_settings>
+  inline auto system<Type_settings>::info::cat_includes::add(ptr_cat base_cat_handle) -> result_add
   {
     auto [it_lower, it_upper] = this->includes_directly.equal_range(base_cat_handle);
     if( it_lower != it_upper ) { return result_add::was_already_included; }

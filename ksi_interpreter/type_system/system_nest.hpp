@@ -147,6 +147,7 @@ namespace ksi::interpreter {
         cat_set   all_includes;
         cat_set   includes_directly;
 
+        bool has(ptr_cat base_cat_handle) const;
         result_add add(ptr_cat base_cat_handle);
       };
 

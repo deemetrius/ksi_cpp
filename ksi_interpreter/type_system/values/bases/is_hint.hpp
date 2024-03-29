@@ -11,7 +11,7 @@ namespace ksi::interpreter {
   {
     // actions
 
-    virtual bool match_type(ptr_type type) = 0;
+    virtual bool match_type(ptr_type type_handle) = 0;
     bool match_value(ptr_value val)
     {
       return this->match_type( val->get_type() );
