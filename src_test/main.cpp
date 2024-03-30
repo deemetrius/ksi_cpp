@@ -56,7 +56,6 @@ int main()
 
     sys::VM vm;
 
-    show_dict(*vm.config->dict);
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
     /* sys::patch_vm patch_vm{ vm.config->dict };
@@ -82,6 +81,8 @@ int main()
       std::wcout << key->name << L" ~ " << val->position << L"\n";
     }
     std::wcout << vm.config->modules.find(mod_name_main)->name->name << L"\n";
+
+    show_dict(*vm.config->dict);
   }
   catch( ... )
   {

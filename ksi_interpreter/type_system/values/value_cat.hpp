@@ -16,7 +16,7 @@ namespace ksi::interpreter {
     using self_meta = info::meta_info;
 
     // maybe: decide is better to throw
-    enum class result_add_base { circular_cats_forbidden, same_twice, success };
+    enum class result_add_parent { circular_cats_forbidden, same_twice, success };
 
     // props
     info::cat_includes base_categories;
@@ -28,19 +28,19 @@ namespace ksi::interpreter {
 
     // sub-cat actions
 
-    bool cat_base_has(ptr_cat base_cat_handle) const
+    bool cat_includes(ptr_cat base_cat_handle) const
     {
       return base_categories.all_includes.contains(base_cat_handle);
     }
 
-    result_add_base cat_base_add(ptr_cat base_cat_handle)
+    result_add_parent cat_add_parent(ptr_cat base_cat_handle)
     {
-      if( base_cat_handle->cat_base_has(this) ) { return result_add_base::circular_cats_forbidden; }
+      if( base_cat_handle->cat_includes(this) ) { return result_add_parent::circular_cats_forbidden; }
       typename info::cat_includes::result_add res = base_categories.add(base_cat_handle);
       return (
         (res == info::cat_includes::result_add::was_already_included) ?
-        result_add_base::same_twice :
-        result_add_base::success
+        result_add_parent::same_twice :
+        result_add_parent::success
       );
     }
 
