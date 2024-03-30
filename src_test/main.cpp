@@ -16,6 +16,7 @@ int main()
 
 
 #if 1
+  #include "ksi_log/file_position.hpp" // 1
 #include <iostream>
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
@@ -36,6 +37,9 @@ int main()
   using sys = ksi::interpreter::system<>;
   try
   {
+    ksi::log::pos_carry carry{ 4 };
+    carry.reckon('\t');
+
     sys::values::value_bool v_bool{ true };
     sys::values::value_array v_array{ 3 };
 

@@ -4,7 +4,7 @@ namespace ksi::log {
 
 
   template <typename Info, typename Source>
-  struct log_param
+  struct record
   {
     Info    info;
     Source  source;
@@ -12,7 +12,7 @@ namespace ksi::log {
 
 
   template <typename Type, typename String, typename Code>
-  struct log_info
+  struct message_info
   {
     Type    type;
     String  message;
