@@ -28,9 +28,13 @@ namespace ksi::interpreter {
     using typename type_settings::t_string;
     using type_settings::converter_string;
 
+    using t_char = typename t_string::value_type;
+    using t_string_view = std::basic_string_view<t_char>;
+
     using t_string_internal = std::string;
     using t_path_view = std::string_view;
 
+    static constexpr ksi::conv::string_cast<t_string_internal> converter_internal_string;
 
     using log_internal = log::internal<t_string_internal>;
     using log_script = log::for_script<t_string, t_path_view>;

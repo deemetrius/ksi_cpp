@@ -7,17 +7,21 @@ namespace ksi::chars {
 
   namespace char_info {
     enum symbols : char {
-      tab   = '\t',
-      cr    = '\r',
-      lf    = '\n',
+      space   = ' ',
+
+      tab     = '\t',
+      cr      = '\r',
+      lf      = '\n',
     };
   } // ns
 
   namespace wide_char_info {
     enum symbols : wchar_t {
-      tab   = L'\t',
-      cr    = L'\r',
-      lf    = L'\n',
+      space   = L' ',
+
+      tab     = L'\t',
+      cr      = L'\r',
+      lf      = L'\n',
     };
   } // ns
 

@@ -6,7 +6,13 @@
   #include "../values/value_bool.hpp"
   #include "../values/value_array.hpp"
 
+  #include <span>
+  #include <iterator>
   #include <initializer_list>
+  #include <vector>
+  #include <cstring>
+
+  #include "ksi_log/chars.hpp"
 
 namespace ksi::interpreter {
 
@@ -36,29 +42,83 @@ namespace ksi::interpreter {
       }
     };
 
-    struct helper
+    struct helper_relationships
     {
       using cat_crew = std::initializer_list<ptr_cat>;
       using type_pack = std::initializer_list<ptr_type>;
 
-      static void sub_cats(ptr_cat parent, cat_crew cats)
-      {
-        using result_type = typename values::value_cat::result_add_parent;
+      using names_type = std::vector<t_string_view>;
+      using size_type = typename t_string_view::size_type;
 
+      static size_type copy_chars(t_char * dst, t_string_view src)
+      {
+        size_type delta = src.size();
+        std::memcpy(dst, src.data(), delta);
+        return delta;
+      }
+
+      static t_string implode(t_string prefix, names_type elements, t_string separator)
+      {
+        if( elements.empty() ) { return prefix; }
+
+        size_type count{ prefix.size() + separator.size() * (elements.size() - 1) };
+        for( t_string_view it : elements )
+        {
+          count += it.size();
+        }
+
+        t_string ret(count, chars::symbols<t_char>::space);
+        t_char * dst{ &(ret[0]) };
+
+        dst += copy_chars(dst, prefix);
+
+        {
+          dst += copy_chars(dst, elements.front());
+          std::span<t_string_view> span{ std::ranges::next( elements.begin() ), elements.end() };
+          for( t_string_view it : span )
+          {
+            dst += copy_chars(dst, separator);
+            dst += copy_chars(dst, it);
+          }
+        }
+
+        return ret;
+      }
+
+      // props
+      //? log_handle;
+      names_type  circular, repeated;
+
+      void sub_cats(ptr_cat parent, cat_crew cats)
+      {
         for( ptr_cat each : cats )
         {
           switch( each->cat_add_parent(parent) )
           {
+            using result_type = typename values::value_cat::result_add_parent;
+
             case result_type::circular_cats_forbidden :
-              // todo: log error
+              circular.push_back(each->name->name);
             break;
 
             case result_type::same_twice :
-              // todo: log notice
+              repeated.push_back(each->name->name);
             break;
 
             default: ;
           }
+        } // for
+
+        if( repeated.size() > 0 )
+        {
+          // todo: log notice
+          t_string message = implode( converter_string(""), std::move(repeated), converter_string(", ") );
+        }
+
+        if( circular.size() > 0 )
+        {
+          // todo: log error
+          t_string message = implode( converter_string(""), std::move(circular), converter_string(", ") );
         }
       }
 
@@ -80,11 +140,13 @@ namespace ksi::interpreter {
     system_types(typename info::ptr_dict_type dict_handle)
       : reg{ dict_handle }
     {
+      helper_relationships  helper{/* log_handle */};
+
       // todo: tree of categories
-      helper::sub_cats( c_any, {c_null, c_hint, c_struct} );
+      helper.sub_cats( c_any, {c_null, c_hint, c_struct} );
 
       // todo: assign categories to types
-      helper::cat_belongs( c_hint, {t_cat, t_type} );
+      helper.cat_belongs( c_hint, {t_cat, t_type} );
     }
 
     // props
