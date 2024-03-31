@@ -1,11 +1,15 @@
 #pragma once
 
-#include "type_settings_default.hpp"
-#include "ksi_lib/dict.hpp"
-#include "ksi_lib/table.hpp"
-#include <set>
-#include <map>
-#include <string>
+  #include "type_settings_default.hpp"
+  #include "ksi_lib/dict.hpp"
+  #include "ksi_lib/table.hpp"
+
+  #include <set>
+  #include <map>
+  #include <string_view>
+  //#include <memory>
+
+  #include "log_helper.hpp"
 
 namespace ksi::interpreter {
 
@@ -25,12 +29,17 @@ namespace ksi::interpreter {
     using type_settings::converter_string;
 
     using t_string_internal = std::string;
+    using t_path_view = std::string_view;
 
 
-    struct space_configuration;
-    struct runtime_info;
+    using log_internal = log::internal<t_string_internal>;
+    using log_script = log::for_script<t_string, t_path_view>;
+    // todo: log holders ~ std::shared_ptr
+
 
     struct VM;
+      struct space_configuration;
+      struct runtime_info;
     struct patch_vm;
 
 

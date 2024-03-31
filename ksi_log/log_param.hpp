@@ -6,8 +6,12 @@ namespace ksi::log {
   template <typename Info, typename Source>
   struct record
   {
-    Info    info;
-    Source  source;
+    using info_type = Info;
+    using source_type = Source;
+    using info_storage = Info const *;
+
+    info_storage  info;
+    source_type   source;
   };
 
 
@@ -17,14 +21,6 @@ namespace ksi::log {
     Type    type;
     String  message;
     Code    code;
-  };
-
-
-  template <typename Path, typename Position>
-  struct script_source
-  {
-    Path      path;
-    Position  position;
   };
 
 

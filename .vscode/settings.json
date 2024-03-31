@@ -71,6 +71,7 @@
     "ranges": "cpp",
     "ratio": "cpp",
     "stop_token": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "source_location": "cpp"
   }
 }
