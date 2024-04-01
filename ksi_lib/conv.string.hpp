@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace ksi::conv {
 
@@ -18,11 +19,11 @@ namespace ksi::conv {
       return param;
     }
 
-    result_type operator () (std::string param) const
+    result_type operator () (std::string_view param) const
     {
       std::mbstate_t state = std::mbstate_t();
 
-      const char * src = param.c_str();
+      const char * src = param.data();
       std::size_t len{ 0 };
       if( mbsrtowcs_s(&len, nullptr, 0, &src, param.size(), &state) )
       {
@@ -37,6 +38,12 @@ namespace ksi::conv {
 
       return ret;
     }
+
+    result_type operator () (std::string param) const
+    {
+      std::string_view sv{ param };
+      return (*this)(sv);
+    }
   };
 
 
@@ -50,11 +57,11 @@ namespace ksi::conv {
       return param;
     }
 
-    result_type operator () (std::wstring param) const
+    result_type operator () (std::wstring_view param) const
     {
       std::mbstate_t state = std::mbstate_t();
 
-      const wchar_t * src = param.c_str();
+      const wchar_t * src = param.data();
       std::size_t len{ 0 };
       if( wcsrtombs_s(&len, nullptr, 0, &src, param.size(), &state) )
       {
@@ -68,6 +75,12 @@ namespace ksi::conv {
       }
 
       return ret;
+    }
+
+    result_type operator () (std::wstring param) const
+    {
+      std::wstring_view sv{ param };
+      return (*this)(sv);
     }
   };
 

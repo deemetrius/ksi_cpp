@@ -17,6 +17,7 @@ int main()
 
 #if 1
   #include "ksi_log/pos_carry.hpp" // 1
+  #include "ksi_log/file.hpp" // 2
 #include <iostream>
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
@@ -39,6 +40,8 @@ int main()
   {
     ksi::log::pos_carry carry{ 4 };
     carry.reckon('\t');
+
+    ksi::files::file_handle fh{ ksi::files::std_marker::std_output };
 
     sys::values::value_bool v_bool{ true };
     sys::values::value_array v_array{ 3 };

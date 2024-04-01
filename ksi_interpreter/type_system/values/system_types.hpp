@@ -15,6 +15,7 @@
   #include "ksi_log/chars.hpp"
 
 namespace ksi::interpreter {
+  using namespace std::string_literals;
 
 
   template <typename Type_settings>
@@ -112,13 +113,13 @@ namespace ksi::interpreter {
         if( repeated.size() > 0 )
         {
           // todo: log notice
-          t_string message = implode( converter_string(""), std::move(repeated), converter_string(", ") );
+          t_string message = implode( converter_string(""s), std::move(repeated), converter_string(", "s) );
         }
 
         if( circular.size() > 0 )
         {
           // todo: log error
-          t_string message = implode( converter_string(""), std::move(circular), converter_string(", ") );
+          t_string message = implode( converter_string(""s), std::move(circular), converter_string(", "s) );
         }
       }
 
@@ -153,20 +154,20 @@ namespace ksi::interpreter {
     registrator  reg;
 
     // categories
-    ptr_cat c_any     = reg.add_cat( converter_string("_any"    ) );
-    ptr_cat c_null    = reg.add_cat( converter_string("_null"   ) );
-    ptr_cat c_hint    = reg.add_cat( converter_string("_hint"   ) );
-    ptr_cat c_struct  = reg.add_cat( converter_string("_struct" ) );
+    ptr_cat c_any     = reg.add_cat( converter_string("_any"s     ) );
+    ptr_cat c_null    = reg.add_cat( converter_string("_null"s    ) );
+    ptr_cat c_hint    = reg.add_cat( converter_string("_hint"s    ) );
+    ptr_cat c_struct  = reg.add_cat( converter_string("_struct"s  ) );
 
     // types
-    ptr_type t_module = reg.add_type( converter_string("$module") );
-    ptr_type t_cat    = reg.add_type( converter_string("$cat"   ) );
-    ptr_type t_type   = reg.add_type( converter_string("$type"  ) );
-    ptr_type t_bool   = reg.add_type( converter_string("$bool"  ) );
-      //ptr_type t_int    = reg.add_type( converter_string("$int"   ) );
-      //ptr_type t_float  = reg.add_type( converter_string("$float" ) );
-      //ptr_type t_text   = reg.add_type( converter_string("$text"  ) );
-    ptr_type t_array  = reg.add_type( converter_string("$array" ) );
+    ptr_type t_module = reg.add_type( converter_string("$module"s ) );
+    ptr_type t_cat    = reg.add_type( converter_string("$cat"s    ) );
+    ptr_type t_type   = reg.add_type( converter_string("$type"s   ) );
+    ptr_type t_bool   = reg.add_type( converter_string("$bool"s   ) );
+      //ptr_type t_int    = reg.add_type( converter_string("$int"s    ) );
+      //ptr_type t_float  = reg.add_type( converter_string("$float"s  ) );
+      //ptr_type t_text   = reg.add_type( converter_string("$text"s   ) );
+    ptr_type t_array  = reg.add_type( converter_string("$array"s  ) );
   };
 
   template <typename Type_settings>
