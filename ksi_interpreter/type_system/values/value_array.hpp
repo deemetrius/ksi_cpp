@@ -7,7 +7,6 @@
 #include <type_traits>
 
 namespace ksi::interpreter {
-  using namespace std::string_literals;
 
 
   template <typename Type_settings>
@@ -42,7 +41,7 @@ namespace ksi::interpreter {
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
-    t_string_internal get_class_name() const override { return "value_array"s; }
+    t_string get_class_name() const override { return converter_string("value_array"sv); }
 
     void append(care::holder_cell && keep_cell)
     {

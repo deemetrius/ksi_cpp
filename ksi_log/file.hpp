@@ -1,7 +1,10 @@
 #pragma once
 
-  #include <utility>
+  //#define _CRT_SECURE_NO_WARNINGS
+  // clang cmd option: -Wno-deprecated-declarations
   #include <cstdio>
+
+  #include <utility>
   #include <cstdint>
 
 namespace ksi::files {

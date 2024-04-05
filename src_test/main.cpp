@@ -17,7 +17,7 @@ int main()
 
 #if 1
   #include "ksi_log/pos_carry.hpp" // 1
-  #include "ksi_log/file.hpp" // 2
+  #include "ksi_log/logger_to_file.hpp" // 2
 #include <iostream>
 #include "ksi_interpreter/infrastructure.hpp"
 #include <ranges>
@@ -38,10 +38,9 @@ int main()
   using sys = ksi::interpreter::system<>;
   try
   {
-    ksi::log::pos_carry carry{ 4 };
-    carry.reckon('\t');
+    //ksi::log::pos_carry carry{ 4 };
+    //carry.reckon('\t');
 
-    ksi::files::file_handle fh{ ksi::files::std_marker::std_output };
 
     sys::values::value_bool v_bool{ true };
     sys::values::value_array v_array{ 3 };
@@ -56,6 +55,11 @@ int main()
     << "need_cast: "
     << sys::configuration::table_of_modules::auto_increment_need_cast
     << "\n";
+
+    ksi::log::logger_to_file< sys::log::internal_interface, sys::log::internal_writer_fn >
+    log{ "log.txt", {"{}: #{}\n{}\n"} };
+    sys::log::message msg{ L"Test message", 3, ksi::interpreter::log_message_level::notice };
+    log.add({ &msg, std::source_location::current() });
 
     sys::VM vm;
 

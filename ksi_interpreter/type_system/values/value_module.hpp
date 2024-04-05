@@ -53,9 +53,9 @@ namespace ksi::interpreter {
 
     ptr_type get_type(ptr_system_types sys_types) const override;
 
-    t_string_internal get_class_name() const override
+    t_string get_class_name() const override
     {
-      return "value_module"s;
+      return converter_string("value_module"sv);
     }
   };
 

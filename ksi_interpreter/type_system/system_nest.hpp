@@ -7,11 +7,43 @@
   #include <set>
   #include <map>
   #include <string_view>
-  //#include <memory>
 
-  #include "log_helper.hpp"
+  #include "ksi_log/i_log.hpp"
+  #include "ksi_log/file_position.hpp"
+  #include <source_location>
+  #include <print>
 
 namespace ksi::interpreter {
+
+  enum class log_message_level { notice, error };
+
+} // ns
+
+template<>
+struct std::formatter<ksi::interpreter::log_message_level, char>
+{
+  template <typename ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext & ctx)
+  {
+      auto it = ctx.begin();
+      if( it == ctx.end() ) { return it; }
+      if( *it != '}' ) { throw std::format_error("Invalid format args for log_message_level."); }
+
+      return it;
+  }
+
+  template <typename FmtContext>
+  FmtContext::iterator format(ksi::interpreter::log_message_level s, FmtContext & ctx) const
+  {
+    using namespace std::string_view_literals;
+
+    std::string_view  text[]{"notice"sv, "error"sv};
+    return std::ranges::copy( text[static_cast<std::size_t>(s)], ctx.out() ).out;
+  }
+};
+
+namespace ksi::interpreter {
+  using namespace std::string_view_literals;
 
 
   template <typename Type_settings = type_settings_default>
@@ -31,14 +63,18 @@ namespace ksi::interpreter {
     using t_char = typename t_string::value_type;
     using t_string_view = std::basic_string_view<t_char>;
 
-    using t_string_internal = std::string;
+    static constexpr ksi::conv::string_cast<std::string>  converter_string_print;
+
+    struct errors
+    {
+      struct base { t_string msg; };
+      struct internal : public base {};
+      struct method_not_supported : public internal {};
+      struct release_on_empty : public internal {};
+      struct assign_from_empty : public internal {};
+    };
+
     using t_path_view = std::string_view;
-
-    static constexpr ksi::conv::string_cast<t_string_internal> converter_internal_string;
-
-    using log_internal = log::internal<t_string_internal>;
-    using log_script = log::for_script<t_string, t_path_view>;
-    // todo: log holders ~ std::shared_ptr
 
 
     struct VM;
@@ -111,6 +147,63 @@ namespace ksi::interpreter {
       // note: several slots from one point may refer to same cell
       // (so count is used as map-value)
       using in_junction_map = std::map<ptr_point, count_type>; // refs from value_pointed via slots
+    };
+
+
+    struct log
+    {
+      using code_type = std::int32_t;
+
+      struct message
+      {
+        t_string            text;
+        code_type           code;
+        log_message_level   type;
+      };
+
+      struct position_in_file
+      {
+        t_path_view               path;
+        ksi::log::file_position   pos_info;
+      };
+
+      using ptr_message = message const *;
+
+      struct script_record_type
+      {
+        ptr_message       info;
+        position_in_file  source_location;
+      };
+
+      struct internal_record_type
+      {
+        ptr_message           info;
+        std::source_location  source_location;
+      };
+
+      using internal_interface = ksi::log::i_log<typename log::internal_record_type>;
+      using script_interface = ksi::log::i_log<typename log::script_record_type>;
+
+      template <typename Record>
+      struct writer_fn
+      {
+        // message: type, code, text
+        using t_format_message = std::format_string<log_message_level const &, code_type const &, std::string>;
+
+        t_format_message   format_message;
+        //format_source_location;
+
+        void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
+        {
+          std::print(file_handle, format_message,
+            record.info->type,
+            record.info->code,
+            converter_string_print(record.info->text)
+          );
+        }
+      };
+
+      using internal_writer_fn = writer_fn<internal_record_type>;
     };
 
 

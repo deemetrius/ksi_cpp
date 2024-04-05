@@ -10,7 +10,7 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerArgs": ["-Wc++17-extensions", "-std=c++20"]
+            "compilerArgs": ["-Wc++17-extensions", "-std=c++23"]
         }
     ],
     "version": 4

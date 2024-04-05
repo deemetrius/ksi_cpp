@@ -13,7 +13,8 @@
         "${workspaceFolder}/.out/ksi_test.exe",
         "-Wc++17-extensions",
         "-std=c++23",
-        "--include-directory=${workspaceFolder}"
+        "--include-directory=${workspaceFolder}",
+        "-Wno-deprecated-declarations"
       ],
       "options": {
         "cwd": "D:/prog/LLVM/bin"
