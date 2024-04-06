@@ -6,18 +6,11 @@
   #include "../values/value_bool.hpp"
   #include "../values/value_array.hpp"
 
-  #include "../nest/log.hpp"
-
-  #include <span>
-  #include <iterator>
-  #include <initializer_list>
-  #include <vector>
-  #include <cstring>
+  #include "../nest/log.messages.hpp"
 
   #include "ksi_lib/string.implode.hpp"
 
 namespace ksi::interpreter {
-  using namespace std::string_literals;
 
 
   template <typename Type_settings>
@@ -58,7 +51,7 @@ namespace ksi::interpreter {
 
       // props
       typename log::internal_interface_ptr  log_handle;
-      names_type                            circular, repeated;
+      names_type                            circular, repeated, repeated_types;
 
       void sub_cats(ptr_cat parent, cat_crew cats, std::source_location src_location = std::source_location::current() )
       {
@@ -87,15 +80,14 @@ namespace ksi::interpreter {
               // prefixes, ending, elements, separator
               {
                 parent->name->name,
-                converter_string(" ~ category set as parent twice for: "s)
+                converter_string(" ~ category set as parent again to following categories: "s)
               },
               {},
               std::move( this->repeated ), // this->repeated ~ vector empty after move
               converter_string(", "s)
             ),
-            {log_message_level::notice, 302}
+            log::keys::cat_set_as_parent_again_for_cats
           };
-          // todo: fix message
           log_handle->add({&msg, src_location});
         }
 
@@ -112,13 +104,13 @@ namespace ksi::interpreter {
               std::move( this->circular ), // this->circular ~ vector empty after move
               converter_string(", "s)
             ),
-            {log_message_level::error, 301}
+            log::keys::cat_circular_dependencies
           };
           log_handle->add({&msg, src_location});
         }
       }
 
-      static void cat_belongs(ptr_cat cat, type_pack types)
+      void cat_belongs(ptr_cat cat, type_pack types, std::source_location src_location = std::source_location::current() )
       {
         using result_type = typename info::cat_includes::result_add;
 
@@ -126,8 +118,26 @@ namespace ksi::interpreter {
         {
           if( each->categories.add(cat) == result_type::was_already_included )
           {
-            // todo: log notice
+            repeated_types.push_back(each->name->name);
           }
+        }
+
+        if( repeated_types.size() > 0 )
+        {
+          typename log::message msg{
+            ksi::lib::implode<t_char>(
+              // prefixes, ending, elements, separator
+              {
+                cat->name->name,
+                converter_string(" ~ category was already assigned for these types: "s)
+              },
+              {},
+              std::move( this->repeated_types ), // this->repeated_types ~ vector empty after move
+              converter_string(", "s)
+            ),
+            log::keys::cat_already_assigned_for_types
+          };
+          log_handle->add({&msg, src_location});
         }
       }
     }; // struct helper
@@ -139,8 +149,7 @@ namespace ksi::interpreter {
       helper_relationships  helper{ log_handle };
 
       // todo: tree of categories
-      helper.sub_cats( c_any, {c_null, c_hint, c_struct, c_struct} );
-      helper.sub_cats( c_any, {c_null, c_hint, c_struct, c_struct} );
+      helper.sub_cats( c_any, {c_null, c_hint, c_struct} );
 
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );

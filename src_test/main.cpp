@@ -16,12 +16,9 @@ int main()
 
 
 #if 1
-  //#include "ksi_log/pos_carry.hpp" // 1
-#include <iostream>
-#include "ksi_interpreter/infrastructure.hpp"
-#include <ranges>
-
-#include "ksi_lib/table.hpp"
+  #include <iostream>
+  #include "ksi_interpreter/infrastructure.hpp"
+  #include <ranges>
 
 void show_dict(auto const & dict)
 {
@@ -37,27 +34,12 @@ int main()
   using sys = ksi::interpreter::system<>;
   try
   {
-    //ksi::log::pos_carry carry{ 4 };
-    //carry.reckon('\t');
-
-    sys::values::value_bool v_bool{ true };
-    sys::values::value_array v_array{ 3 };
-
     std::cout << std::boolalpha;
-
-    std::cout
-    << "direct: "
-    << sys::configuration::table_of_modules::auto_increment_direct
-    << "\n";
-    std::cout
-    << "need_cast: "
-    << sys::configuration::table_of_modules::auto_increment_need_cast
-    << "\n";
-
 
     sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make("log.txt", {"{} #{}:\n{}\n\n"});
     sys::VM vm{ log };
 
+    sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
     /* sys::patch_vm patch_vm{ vm.config->dict };
@@ -72,7 +54,7 @@ int main()
     patch_vm.dict.apply();
     show_dict(*vm.config->dict); */
 
-    sys::info::literal_type mod_name_main = vm.config->dict->add(L"@main").it->get_const();
+    sys::info::literal_type   mod_name_main = vm.config->dict->add(L"@main").it->get_const();
     vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );
 
     sys::info::literal_type mod_name = vm.config->dict->add(L"@global").it->get_const();

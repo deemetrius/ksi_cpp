@@ -14,31 +14,31 @@
 
 namespace ksi::interpreter {
 
-  enum class log_message_level { notice, error };
+  enum class log_level { info, error, notice };
   // todo: enum serialization // binding & output
 
 } // ns
 
 
 template<>
-struct std::formatter<ksi::interpreter::log_message_level, char>
+struct std::formatter<ksi::interpreter::log_level, char>
 {
   template <typename ParseContext>
   constexpr ParseContext::iterator parse(ParseContext & ctx)
   {
     /* auto it = ctx.begin();
     if( it == ctx.end() ) { return it; }
-    if( *it != '}' ) { throw std::format_error("Invalid format args for log_message_level."); }
+    if( *it != '}' ) { throw std::format_error("Invalid format args for log_level."); }
     return it; */
     return ctx.begin();
   }
 
   template <typename FmtContext>
-  FmtContext::iterator format(ksi::interpreter::log_message_level s, FmtContext & ctx) const
+  FmtContext::iterator format(ksi::interpreter::log_level s, FmtContext & ctx) const
   {
     using namespace std::string_view_literals;
 
-    std::string_view  text[]{"notice"sv, "error"sv};
+    std::string_view  text[]{"info"sv, "error"sv, "notice"sv};
     return std::ranges::copy( text[static_cast<std::size_t>(s)], ctx.out() ).out;
   }
 };
@@ -51,19 +51,20 @@ namespace ksi::interpreter {
   struct system<Type_settings>::log
   {
     struct messages;
+    struct keys;
 
     using code_type = std::int32_t;
 
     struct message_key
     {
-      log_message_level   level;
-      code_type           code;
+      log_level   level;
+      code_type   code;
     };
 
     struct message
     {
-      t_string            text;
-      message_key         type;
+      t_string      text;
+      message_key   type;
     };
 
     struct position_in_file
@@ -90,7 +91,7 @@ namespace ksi::interpreter {
     using internal_interface_ptr = internal_interface *;
     using script_interface = ksi::log::i_log<typename log::script_record_type>;
 
-    using t_format_message = std::format_string<log_message_level const &, code_type const &, std::string>;
+    using t_format_message = std::format_string<log_level const &, code_type const &, std::string>;
 
     template <typename Record>
     struct writer_fn

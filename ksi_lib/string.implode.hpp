@@ -4,6 +4,7 @@
   #include <initializer_list>
   #include <string_view>
   #include <vector>
+  #include <iterator>
 
   #include "ksi_log/chars.hpp"
 
