@@ -175,35 +175,52 @@ namespace ksi::interpreter {
     ptr_type t_array  = reg.add_type( converter_string("$array"s  ) );
   };
 
+
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
-    system<Type_settings>::values::
-    value_module::get_type(ptr_system_types sys_types) const
+    system<Type_settings>::values::value_module::   get_type(ptr_system_types sys_types) const
   { return sys_types->t_module; }
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
-    system<Type_settings>::values::
-    value_cat::get_type(ptr_system_types sys_types) const
+    system<Type_settings>::values::value_cat::      get_type(ptr_system_types sys_types) const
   { return sys_types->t_cat; }
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
-    system<Type_settings>::values::
-    value_type::get_type(ptr_system_types sys_types) const
+    system<Type_settings>::values::value_type::     get_type(ptr_system_types sys_types) const
   { return sys_types->t_type; }
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
-    system<Type_settings>::values::
-    value_bool::get_type(ptr_system_types sys_types) const
+    system<Type_settings>::values::value_bool::     get_type(ptr_system_types sys_types) const
   { return sys_types->t_bool; }
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
-    system<Type_settings>::values::
-    value_array::get_type(ptr_system_types sys_types) const
+    system<Type_settings>::values::value_array::    get_type(ptr_system_types sys_types) const
   { return sys_types->t_array; }
+
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_module::   get_class_name() const
+  { return converter_string("value_module"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_cat::      get_class_name() const
+  { return converter_string("value_cat"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_type::     get_class_name() const
+  { return converter_string("value_type"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_bool::     get_class_name() const
+  { return converter_string("value_bool"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_array::    get_class_name() const
+  { return converter_string("value_array"sv); }
 
 
 } // ns

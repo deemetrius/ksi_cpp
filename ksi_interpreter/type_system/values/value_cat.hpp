@@ -44,11 +44,7 @@ namespace ksi::interpreter {
     // value actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
-
-    t_string get_class_name() const override
-    {
-      return converter_string("value_cat"sv);
-    }
+    t_string get_class_name() const override;
 
     // is_hint
 

@@ -19,11 +19,7 @@ namespace ksi::interpreter {
     // actions
 
     ptr_type get_type(ptr_system_types sys_types) const override;
-
-    t_string get_class_name() const override
-    {
-      return converter_string("value_bool"sv);
-    }
+    t_string get_class_name() const override;
 
     void assign_to_cell(care::ptr_cell to_cell) override;
   };

@@ -36,7 +36,10 @@ int main()
   {
     std::cout << std::boolalpha;
 
-    sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make("log.txt", {"{} #{}:\n{}\n\n"});
+    sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make(
+      "log.txt",
+      {"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}
+    );
     sys::VM vm{ log };
 
     sys::values::value_bool v_bool{ true };

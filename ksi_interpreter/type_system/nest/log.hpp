@@ -46,6 +46,10 @@ struct std::formatter<ksi::interpreter::log_level, char>
 
 namespace ksi::interpreter {
 
+  namespace detail {
+    template <typename ... Args> std::format_string<Args ...> print_format_helper(Args && ...);
+  } // ns
+
 
   template <typename Type_settings>
   struct system<Type_settings>::log
@@ -71,6 +75,10 @@ namespace ksi::interpreter {
     {
       t_path_view               path;
       ksi::log::file_position   pos_info;
+
+      t_path_view file_name() const { return path; }
+      ksi::log::index_type line() const { return pos_info.line; }
+      ksi::log::index_type column() const { return pos_info.column; }
     };
 
     using ptr_message = message const *;
@@ -91,15 +99,20 @@ namespace ksi::interpreter {
     using internal_interface_ptr = internal_interface *;
     using script_interface = ksi::log::i_log<typename log::script_record_type>;
 
+    // message: level, code, text
     using t_format_message = std::format_string<log_level const &, code_type const &, std::string>;
 
     template <typename Record>
     struct writer_fn
     {
-      // message: type, code, text
+      using t_format_location = decltype( detail::print_format_helper(
+        std::declval<Record const &>().source_location.line(),
+        std::declval<Record const &>().source_location.column(),
+        std::declval<Record const &>().source_location.file_name()
+      ) );
 
-      t_format_message   format_message;
-      //format_source_location;
+      t_format_message    format_message;
+      t_format_location   format_source_location;
 
       void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
       {
@@ -107,6 +120,11 @@ namespace ksi::interpreter {
           record.info->type.level,
           record.info->type.code,
           converter_string_print(record.info->text)
+        );
+        std::print(file_handle, format_source_location,
+          record.source_location.line(),
+          record.source_location.column(),
+          record.source_location.file_name()
         );
       }
     };
