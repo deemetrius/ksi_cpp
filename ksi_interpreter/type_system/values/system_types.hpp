@@ -6,6 +6,8 @@
   #include "../values/value_bool.hpp"
   #include "../values/value_array.hpp"
 
+  #include "../nest/log.hpp"
+
   #include <span>
   #include <iterator>
   #include <initializer_list>
@@ -24,21 +26,24 @@ namespace ksi::interpreter {
     struct registrator
     {
       // props
-      typename info::ptr_dict_type    dict_handle;
-      configuration::table_of_types   all_types;
-      configuration::table_of_cats    all_cats;
+      typename info::ptr_dict_type          dict_handle;
+      typename log::internal_interface_ptr  log_handle;
+      configuration::table_of_types         all_types;
+      configuration::table_of_cats          all_cats;
 
       // actions
 
       ptr_type add_type(t_string name)
       {
         typename info::dict_result_add res = dict_handle->add(name);
+        // todo: check if name is unique
         return all_types.emplace_back( std::in_place_type<typename info::meta_info>, res.it->get_const() );
       }
 
       ptr_cat add_cat(t_string name)
       {
         typename info::dict_result_add res = dict_handle->add(name);
+        // todo: check if name is unique
         return all_cats.emplace_back( std::in_place_type<typename info::meta_info>, res.it->get_const() );
       }
     };
@@ -54,7 +59,8 @@ namespace ksi::interpreter {
       static size_type copy_chars(t_char * dst, t_string_view src)
       {
         size_type delta = src.size();
-        std::memcpy(dst, src.data(), delta);
+        //std::memcpy(dst, src.data(), sizeof(t_char) * delta);
+        std::char_traits<t_char>::copy(dst, src.data(), delta);
         return delta;
       }
 
@@ -87,10 +93,10 @@ namespace ksi::interpreter {
       }
 
       // props
-      //? log_handle;
-      names_type  circular, repeated;
+      typename log::internal_interface_ptr  log_handle;
+      names_type                            circular, repeated;
 
-      void sub_cats(ptr_cat parent, cat_crew cats)
+      void sub_cats(ptr_cat parent, cat_crew cats, std::source_location src_location = std::source_location::current() )
       {
         for( ptr_cat each : cats )
         {
@@ -118,8 +124,13 @@ namespace ksi::interpreter {
 
         if( circular.size() > 0 )
         {
-          // todo: log error
-          t_string message = implode( converter_string(""s), std::move(circular), converter_string(", "s) );
+          // tip: this->circular ~ after move should be empty // see: std::move( std::vector ) docs
+          typename log::message msg{
+            implode( converter_string("Cirular category dependency found: "s), std::move(circular), converter_string(", "s) ),
+            log_message_level::error, 301
+          };
+          // todo: name of parent to message
+          log_handle->add({&msg, src_location});
         }
       }
 
@@ -138,13 +149,14 @@ namespace ksi::interpreter {
     }; // struct helper
 
     // ctor
-    system_types(typename info::ptr_dict_type dict_handle)
-      : reg{ dict_handle }
+    system_types(typename info::ptr_dict_type dict_handle, typename log::internal_interface_ptr log_handle)
+      : reg{ dict_handle, log_handle }
     {
-      helper_relationships  helper{/* log_handle */};
+      helper_relationships  helper{ log_handle };
 
       // todo: tree of categories
       helper.sub_cats( c_any, {c_null, c_hint, c_struct} );
+      helper.sub_cats( c_hint, {c_any} ); // test: log
 
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );
