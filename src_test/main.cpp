@@ -54,12 +54,8 @@ int main()
     << sys::configuration::table_of_modules::auto_increment_need_cast
     << "\n";
 
-    /* ksi::log::logger_to_file< sys::log::internal_interface, sys::log::internal_writer_fn >
-    log{ "log.txt", {"{}: #{}\n{}\n"} };
-    sys::log::message msg{ L"Test message", 3, ksi::interpreter::log_message_level::notice };
-    log.add({ &msg, std::source_location::current() }); */
 
-    sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make("log.txt", {"{}: #{}\n{}\n"});
+    sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make("log.txt", {"{} #{}:\n{}\n\n"});
     sys::VM vm{ log };
 
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";

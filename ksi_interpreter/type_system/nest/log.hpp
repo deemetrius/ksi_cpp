@@ -50,13 +50,20 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   struct system<Type_settings>::log
   {
+    struct messages;
+
     using code_type = std::int32_t;
+
+    struct message_key
+    {
+      log_message_level   level;
+      code_type           code;
+    };
 
     struct message
     {
       t_string            text;
-      log_message_level   type;
-      code_type           code;
+      message_key         type;
     };
 
     struct position_in_file
@@ -96,8 +103,8 @@ namespace ksi::interpreter {
       void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
       {
         std::print(file_handle, format_message,
-          record.info->type,
-          record.info->code,
+          record.info->type.level,
+          record.info->type.code,
           converter_string_print(record.info->text)
         );
       }

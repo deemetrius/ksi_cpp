@@ -14,7 +14,7 @@
   #include <vector>
   #include <cstring>
 
-  #include "ksi_log/chars.hpp"
+  #include "ksi_lib/string.implode.hpp"
 
 namespace ksi::interpreter {
   using namespace std::string_literals;
@@ -56,42 +56,6 @@ namespace ksi::interpreter {
       using names_type = std::vector<t_string_view>;
       using size_type = typename t_string_view::size_type;
 
-      static size_type copy_chars(t_char * dst, t_string_view src)
-      {
-        size_type delta = src.size();
-        //std::memcpy(dst, src.data(), sizeof(t_char) * delta);
-        std::char_traits<t_char>::copy(dst, src.data(), delta);
-        return delta;
-      }
-
-      static t_string implode(t_string prefix, names_type elements, t_string separator)
-      {
-        if( elements.empty() ) { return prefix; }
-
-        size_type count{ prefix.size() + separator.size() * (elements.size() - 1) };
-        for( t_string_view it : elements )
-        {
-          count += it.size();
-        }
-
-        t_string ret(count, chars::symbols<t_char>::space);
-        t_char * dst{ &(ret[0]) };
-
-        dst += copy_chars(dst, prefix);
-
-        {
-          dst += copy_chars(dst, elements.front());
-          std::span<t_string_view> span{ std::ranges::next( elements.begin() ), elements.end() };
-          for( t_string_view it : span )
-          {
-            dst += copy_chars(dst, separator);
-            dst += copy_chars(dst, it);
-          }
-        }
-
-        return ret;
-      }
-
       // props
       typename log::internal_interface_ptr  log_handle;
       names_type                            circular, repeated;
@@ -118,18 +82,38 @@ namespace ksi::interpreter {
 
         if( repeated.size() > 0 )
         {
-          // todo: log notice
-          t_string message = implode( converter_string(""s), std::move(repeated), converter_string(", "s) );
+          typename log::message msg{
+            ksi::lib::implode<t_char>(
+              // prefixes, ending, elements, separator
+              {
+                parent->name->name,
+                converter_string(" ~ category set as parent twice for: "s)
+              },
+              {},
+              std::move( this->repeated ), // this->repeated ~ vector empty after move
+              converter_string(", "s)
+            ),
+            {log_message_level::notice, 302}
+          };
+          // todo: fix message
+          log_handle->add({&msg, src_location});
         }
 
         if( circular.size() > 0 )
         {
-          // tip: this->circular ~ after move should be empty // see: std::move( std::vector ) docs
           typename log::message msg{
-            implode( converter_string("Cirular category dependency found: "s), std::move(circular), converter_string(", "s) ),
-            log_message_level::error, 301
+            ksi::lib::implode<t_char>(
+              // prefixes, ending, elements, separator
+              {
+                parent->name->name,
+                converter_string(" ~ category can't be parent for: "s)
+              },
+              converter_string(" (Cirular dependencies are not allowed)"s),
+              std::move( this->circular ), // this->circular ~ vector empty after move
+              converter_string(", "s)
+            ),
+            {log_message_level::error, 301}
           };
-          // todo: name of parent to message
           log_handle->add({&msg, src_location});
         }
       }
@@ -155,8 +139,8 @@ namespace ksi::interpreter {
       helper_relationships  helper{ log_handle };
 
       // todo: tree of categories
-      helper.sub_cats( c_any, {c_null, c_hint, c_struct} );
-      helper.sub_cats( c_hint, {c_any} ); // test: log
+      helper.sub_cats( c_any, {c_null, c_hint, c_struct, c_struct} );
+      helper.sub_cats( c_any, {c_null, c_hint, c_struct, c_struct} );
 
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );
