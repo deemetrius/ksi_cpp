@@ -1,6 +1,6 @@
 #pragma once
 
-  #include "ksi_lib/type_traits/when.hpp"
+  #include "ksi_lib/type_actions/when.hpp"
 
 namespace ksi::chars {
 
