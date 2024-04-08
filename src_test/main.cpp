@@ -18,6 +18,7 @@ int main()
 #if 1
   #include <iostream>
   #include "ksi_interpreter/infrastructure.hpp"
+  #include "ksi_log/logger_to_console.hpp"
   #include <ranges>
 
 void show_dict(auto const & dict)
@@ -41,6 +42,9 @@ int main()
       {"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}
     );
     sys::VM vm{ log };
+    ksi::log::logger<sys::log::internal_interface, sys::log::internal_writer_fn, ksi::files::std_marker::std_error>
+      log_con{{"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}};
+    log_con.add({& sys::log::messages::intro, std::source_location::current()});
 
     sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";

@@ -116,16 +116,22 @@ namespace ksi::interpreter {
 
       void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
       {
-        std::print(file_handle, format_message,
-          record.info->type.level,
-          record.info->type.code,
-          converter_string_print(record.info->text)
-        );
-        std::print(file_handle, format_source_location,
-          record.source_location.line(),
-          record.source_location.column(),
-          record.source_location.file_name()
-        );
+        if( record.info->type.level == log_level::info )
+        {
+          std::string message{ converter_string_print(record.info->text) + "\n\n" };
+          std::fputs(message.c_str(), file_handle);
+        } else {
+          std::print(file_handle, format_message,
+            record.info->type.level,
+            record.info->type.code,
+            converter_string_print(record.info->text)
+          );
+          std::print(file_handle, format_source_location,
+            record.source_location.line(),
+            record.source_location.column(),
+            record.source_location.file_name()
+          );
+        }
       }
     };
 

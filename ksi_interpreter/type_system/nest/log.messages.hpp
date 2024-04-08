@@ -18,7 +18,14 @@ namespace ksi::interpreter {
 
   template <typename Type_settings>
   struct system<Type_settings>::log::messages
-  {};
+  {
+    static inline const log::message
+      intro{
+        converter_string("Started привет"sv),
+        { log_level::info, 1 }
+      }
+    ;
+  };
 
 
 } // ns

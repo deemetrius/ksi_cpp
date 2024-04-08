@@ -54,6 +54,10 @@ namespace ksi::concepts {
   concept any_of = ( std::is_same_v<Type, Args> || ... );
 
 
+  template <typename Type, typename What>
+  concept is = std::is_same_v<What, Type>;
+
+
   template <typename T, typename Struct>
   concept pointer_to_member_of =
     std::is_member_pointer_v<T> &&
