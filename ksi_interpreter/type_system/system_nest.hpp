@@ -1,6 +1,10 @@
 #pragma once
 
   #include "type_settings_default.hpp"
+  #include "default_log_config.hpp"
+
+  #include "ksi_lib/type_actions/mix.hpp"
+
   #include "ksi_lib/dict.hpp"
   #include "ksi_lib/table.hpp"
 
@@ -13,7 +17,7 @@ namespace ksi::interpreter {
   using namespace std::string_view_literals;
 
 
-  template <typename Type_settings = type_settings_default>
+  template < typename Type_settings = type_actions::mix_of<type_settings_default, default_log_config> >
   struct system
     : public Type_settings
   {

@@ -2,26 +2,27 @@
 
   #include "file.hpp"
   #include <string>
+  #include "i_log.hpp"
 
 namespace ksi::log {
 
 
-  template <typename Interface, typename Writer>
+  template <typename Record, typename Writer_Nest>
   struct logger_to_file
-    : public Interface
+    : public i_log<Record>
   {
-    using typename Interface::record_type;
+    using writer_type = Writer_Nest::template functor<Record>;
 
     // props
     std::string   file_path;
-    Writer        writer;
+    writer_type   writer;
 
-    logger_to_file(std::string path, Writer && writer_params)
+    logger_to_file(std::string path, writer_type && writer_params)
       : file_path{ std::move(path) }
       , writer{ std::move(writer_params) }
     {}
 
-    void add(record_type record) override
+    void add(Record record) override
     {
       files::file_handle file{ std::fopen(file_path.c_str(), files::open_modes::open_write_new_or_append.text.internal) };
       writer(file.handle, record);

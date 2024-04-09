@@ -1,16 +1,14 @@
 #pragma once
 
+  #include "i_log.hpp"
+
 namespace ksi::log {
 
 
-  template <typename Interface>
-  struct logger_none
-    : public Interface
+  template <typename Record>
+  struct logger_none : public i_log<Record>
   {
-    using typename Interface::record_type;
-
-    void add(record_type record) override
-    {}
+    void add(Record record) override {}
   };
 
 

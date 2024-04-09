@@ -28,8 +28,18 @@ namespace ksi::interpreter {
     values::system_types              sys_types;
     configuration::table_of_modules   modules;
 
+    space_configuration()
+      : log{ type_settings::log_maker_internal(std::in_place_type<typename log::internal_record_type>, std::in_place_type<typename log::writer_nest>) }
+      , dict{ std::make_shared<typename info::dict_type>() }
+      , sys_types{ dict.get(), log.get() }
+    {}
+
     space_configuration(log::internal_log_holder log_keep)
-      : log{ (log_keep == nullptr) ? std::make_shared<typename log::internal_logger_none>() : std::move(log_keep) }
+      : log{
+          (log_keep == nullptr) ?
+          ksi::log::maker_none{}(std::in_place_type<log::internal_record_type>, std::in_place_type<typename log::writer_nest>) :
+          std::move(log_keep)
+        }
       , dict{ std::make_shared<typename info::dict_type>() }
       , sys_types{ dict.get(), log.get() }
     {}

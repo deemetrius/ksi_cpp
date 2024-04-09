@@ -102,52 +102,43 @@ namespace ksi::interpreter {
     // message: level, code, text
     using t_format_message = std::format_string<log_level const &, code_type const &, std::string>;
 
-    template <typename Record>
-    struct writer_fn
+    struct writer_nest
     {
-      using t_format_location = decltype( detail::print_format_helper(
-        std::declval<Record const &>().source_location.line(),
-        std::declval<Record const &>().source_location.column(),
-        std::declval<Record const &>().source_location.file_name()
-      ) );
-
-      t_format_message    format_message;
-      t_format_location   format_source_location;
-
-      void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
+      template <typename Record>
+      struct functor
       {
-        if( record.info->type.level == log_level::info )
+        using t_format_location = decltype( detail::print_format_helper(
+          std::declval<Record const &>().source_location.line(),
+          std::declval<Record const &>().source_location.column(),
+          std::declval<Record const &>().source_location.file_name()
+        ) );
+
+        t_format_message    format_message;
+        t_format_location   format_source_location;
+
+        void operator() (ksi::files::file_handle::handle_type file_handle, Record const & record) const
         {
-          std::string message{ converter_string_print(record.info->text) + "\n\n" };
-          std::fputs(message.c_str(), file_handle);
-        } else {
-          std::print(file_handle, format_message,
-            record.info->type.level,
-            record.info->type.code,
-            converter_string_print(record.info->text)
-          );
-          std::print(file_handle, format_source_location,
-            record.source_location.line(),
-            record.source_location.column(),
-            record.source_location.file_name()
-          );
+          if( record.info->type.level == log_level::info )
+          {
+            std::string message{ converter_string_print(record.info->text) + "\n\n" };
+            std::fputs(message.c_str(), file_handle);
+          } else {
+            std::print(file_handle, format_message,
+              record.info->type.level,
+              record.info->type.code,
+              converter_string_print(record.info->text)
+            );
+            std::print(file_handle, format_source_location,
+              record.source_location.line(),
+              record.source_location.column(),
+              record.source_location.file_name()
+            );
+          }
         }
-      }
+      };
     };
 
-    using internal_writer_fn = writer_fn<internal_record_type>;
-
     using internal_log_holder = std::shared_ptr<internal_interface>;
-    using internal_logger_to_file = ksi::log::logger_to_file<internal_interface, internal_writer_fn>;
-    using internal_logger_to_file_holder = std::shared_ptr<internal_logger_to_file>;
-
-    using internal_logger_none = ksi::log::logger_none<internal_interface>;
-
-    static internal_logger_to_file_holder
-    internal_logger_to_file_make(std::string file_path, writer_fn<internal_record_type> && writer)
-    {
-      return std::make_shared<internal_logger_to_file>( std::move(file_path), std::move(writer) );
-    }
   };
 
 

@@ -153,6 +153,7 @@ namespace ksi::interpreter {
 
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );
+      helper.cat_belongs( c_hint, {t_cat, t_type} );
     }
 
     // props

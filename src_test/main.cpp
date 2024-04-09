@@ -37,14 +37,11 @@ int main()
   {
     std::cout << std::boolalpha;
 
-    sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make(
+    /* sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make(
       "log.txt",
       {"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}
-    );
-    sys::VM vm{ log };
-    ksi::log::logger<sys::log::internal_interface, sys::log::internal_writer_fn, ksi::files::std_marker::std_error>
-      log_con{{"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}};
-    log_con.add({& sys::log::messages::intro, std::source_location::current()});
+    ); */
+    sys::VM vm{};
 
     sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
