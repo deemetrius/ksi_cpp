@@ -4,7 +4,7 @@ namespace ksi::type_actions {
 
 
   template <typename ... Bases>
-  struct mix_of
+  struct mix
     : public Bases ...
   {};
 

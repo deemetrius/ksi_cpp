@@ -17,7 +17,7 @@ namespace ksi::interpreter {
   using namespace std::string_view_literals;
 
 
-  template < typename Type_settings = type_actions::mix_of<type_settings_default, default_log_config> >
+  template < typename Type_settings = type_actions::mix<type_settings_default, default_log_config> >
   struct system
     : public Type_settings
   {

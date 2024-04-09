@@ -37,26 +37,16 @@ int main()
   {
     std::cout << std::boolalpha;
 
-    /* sys::log::internal_logger_to_file_holder log = sys::log::internal_logger_to_file_make(
+    sys::log::wrap_internal_file_logger   log_wrap{
       "log.txt",
-      {"{} #{}:\n{}\n", "[{}:{}] {}\n\n"}
-    ); */
-    sys::VM vm{};
+      {"custom {} #{} ~ {}\n\n", "[{}:{}] {}\n\n"} // message, source_location ~ formats
+    };
+    sys::VM vm{ log_wrap.log };
 
     sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
-    /* sys::patch_vm patch_vm{ vm.config->dict };
-    std::cout << "patch.has(ret): " << patch_vm.dict.has(L"ret").included() << '\n';
-    std::cout << "patch.add(ret): " << patch_vm.dict.add(L"ret").was_added << '\n';
-    std::cout << "patch.add(z1): " << patch_vm.dict.add(L"z1").was_added << '\n';
-    std::cout << "patch.add(z0): " << patch_vm.dict.add(L"z0").was_added << '\n';
-
-    show_dict(patch_vm.dict.extra);
-
-    std::cout << "\napply patch\n";
-    patch_vm.dict.apply();
-    show_dict(*vm.config->dict); */
+    //
 
     sys::info::literal_type   mod_name_main = vm.config->dict->add(L"@main").it->get_const();
     vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );

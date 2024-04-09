@@ -11,31 +11,34 @@ namespace ksi::log {
 
   struct maker_none
   {
-    template <typename Log_Record, typename Writer_Nest>
-    using result_type = std::shared_ptr< logger_none<Log_Record> >;
+    template <typename Record, typename Writer>
+    using result_type = std::shared_ptr< logger_none<Record> >;
 
-    template <typename Log_Record, typename Writer_Nest>
-    result_type<Log_Record, Writer_Nest> operator () (std::in_place_type_t<Log_Record>, std::in_place_type_t<Writer_Nest>) const
+    template <typename Record, typename Writer>
+    result_type<Record, Writer> operator () (std::in_place_type_t<Record>, std::in_place_type_t<Writer>) const
     {
-      return std::make_shared< logger_none<Log_Record> >();
+      return std::make_shared< logger_none<Record> >();
     }
   };
 
 
-  template <typename Log_Params>
+  template <typename Params>
   struct maker_to_file
   {
-    std::string       file_path;
+    std::string  file_path;
 
-    template <typename Log_Record, typename Writer_Nest>
-    using result_type = std::shared_ptr< logger_to_file<Log_Record, Writer_Nest> >;
+    template <typename Record, typename Writer>
+    using result_type = std::shared_ptr< logger_to_file<Record, Writer> >;
 
-    template <typename Log_Record, typename Writer_Nest>
-    result_type<Log_Record, Writer_Nest> operator () (std::in_place_type_t<Log_Record>, std::in_place_type_t<Writer_Nest>) const
+    template <typename Record, typename Writer>
+    result_type<Record, Writer> operator () (std::in_place_type_t<Record>, std::in_place_type_t<Writer>) const
     {
-      using writer_type = Writer_Nest::template functor<Log_Record>;
+      using writer_type = Writer::template functor<Record>;
 
-      return std::make_shared< logger_to_file<Log_Record, Writer_Nest> >( file_path, writer_type{Log_Params::format_message, Log_Params::format_source_location} );
+      return std::make_shared< logger_to_file<Record, Writer> >(
+        file_path,
+        writer_type{Params::format_message, Params::format_source_location}
+      );
     }
   };
 

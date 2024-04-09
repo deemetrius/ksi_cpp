@@ -26,10 +26,6 @@ struct std::formatter<ksi::interpreter::log_level, char>
   template <typename ParseContext>
   constexpr ParseContext::iterator parse(ParseContext & ctx)
   {
-    /* auto it = ctx.begin();
-    if( it == ctx.end() ) { return it; }
-    if( *it != '}' ) { throw std::format_error("Invalid format args for log_level."); }
-    return it; */
     return ctx.begin();
   }
 
@@ -97,6 +93,8 @@ namespace ksi::interpreter {
 
     using internal_interface = ksi::log::i_log<typename log::internal_record_type>;
     using internal_interface_ptr = internal_interface *;
+    using internal_log_holder = std::shared_ptr<internal_interface>;
+
     using script_interface = ksi::log::i_log<typename log::script_record_type>;
 
     // message: level, code, text
@@ -138,7 +136,22 @@ namespace ksi::interpreter {
       };
     };
 
-    using internal_log_holder = std::shared_ptr<internal_interface>;
+    struct wrap_internal_file_logger
+    {
+      using value_type = ksi::log::logger_to_file<internal_record_type, writer_nest>;
+      using result_type = std::shared_ptr<value_type>;
+
+      result_type log;
+
+      wrap_internal_file_logger(std::string path, typename value_type::writer_type writer)
+        : log{ std::make_shared<value_type>( path, std::move(writer) ) }
+      {}
+
+      static result_type make(std::string path, typename value_type::writer_type writer)
+      {
+        return std::make_shared<value_type>( path, std::move(writer) );
+      }
+    };
   };
 
 

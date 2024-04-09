@@ -35,10 +35,10 @@ namespace ksi::interpreter {
       config->log->add({& log::messages::intro, std::source_location::current()});
     }
 
-    /* VM(log::internal_log_holder startup_log)
+    VM(log::internal_log_holder startup_log)
       : config{ std::make_unique<space_configuration>( std::move(startup_log) ) }
       , runtime{ config.get() }
-    {} */
+    {}
 
     void run()
     {

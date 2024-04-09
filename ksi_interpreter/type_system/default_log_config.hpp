@@ -5,7 +5,7 @@
 namespace ksi::interpreter {
 
 
-  //enum class log_to { none, file, console, /*memory*/ };
+  // none, file, console, /*memory*/
 
 
   struct default_log_config
@@ -19,7 +19,7 @@ namespace ksi::interpreter {
         format_source_location{ "[{}:{}] {}\n\n" }
       ;
     };
-    static constexpr ksi::log::maker_to_file<internal_log_params>  log_maker_internal{ "log.txt" };
+    static inline const ksi::log::maker_to_file<internal_log_params>  log_maker_internal{ "log.txt" };
   };
 
 

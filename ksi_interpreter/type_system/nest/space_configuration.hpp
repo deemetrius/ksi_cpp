@@ -23,25 +23,28 @@ namespace ksi::interpreter {
   {
     // props
     log::internal_log_holder          log;
-    info::dict_holder_type            dict;
+    info::dict_holder_type            dict{ std::make_shared<typename info::dict_type>() };
     info::token_type                  token{ 0 };
-    values::system_types              sys_types;
+    values::system_types              sys_types{ dict.get(), log.get() };
     configuration::table_of_modules   modules;
 
-    space_configuration()
-      : log{ type_settings::log_maker_internal(std::in_place_type<typename log::internal_record_type>, std::in_place_type<typename log::writer_nest>) }
-      , dict{ std::make_shared<typename info::dict_type>() }
-      , sys_types{ dict.get(), log.get() }
+    space_configuration() :
+      log{
+        type_settings::log_maker_internal(
+          std::in_place_type<typename log::internal_record_type>,
+          std::in_place_type<typename log::writer_nest>
+        )
+      }
     {}
 
-    space_configuration(log::internal_log_holder log_keep)
-      : log{
-          (log_keep == nullptr) ?
-          ksi::log::maker_none{}(std::in_place_type<log::internal_record_type>, std::in_place_type<typename log::writer_nest>) :
-          std::move(log_keep)
-        }
-      , dict{ std::make_shared<typename info::dict_type>() }
-      , sys_types{ dict.get(), log.get() }
+    space_configuration(log::internal_log_holder log_keep) :
+      log{
+        (log_keep == nullptr) ?
+        ksi::log::maker_none{}(
+          std::in_place_type<typename log::internal_record_type>,
+          std::in_place_type<typename log::writer_nest>
+        ) : std::move(log_keep)
+      }
     {}
   };
 

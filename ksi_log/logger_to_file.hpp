@@ -7,11 +7,11 @@
 namespace ksi::log {
 
 
-  template <typename Record, typename Writer_Nest>
+  template <typename Record, typename Writer>
   struct logger_to_file
     : public i_log<Record>
   {
-    using writer_type = Writer_Nest::template functor<Record>;
+    using writer_type = Writer::template functor<Record>;
 
     // props
     std::string   file_path;
@@ -24,7 +24,9 @@ namespace ksi::log {
 
     void add(Record record) override
     {
-      files::file_handle file{ std::fopen(file_path.c_str(), files::open_modes::open_write_new_or_append.text.internal) };
+      files::file_handle file{
+        std::fopen(file_path.c_str(), files::open_modes::open_write_new_or_append.text.internal)
+      };
       writer(file.handle, record);
     }
   };
