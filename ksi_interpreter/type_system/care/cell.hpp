@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../values/value_bool.hpp"
+#include "../values/value_literal.hpp"
 #include "../values/bases/value_static.hpp"
 #include "../values/bases/value_managed.hpp"
 #include "holder_value.hpp"
@@ -20,7 +21,8 @@ namespace ksi::interpreter {
 
     // props
     union {
-      values::value_bool v_bool;
+      values::value_bool      v_bool;
+      values::value_literal   v_literal;
     };
     ptr_value value_handle{ nullptr };
     care::junction junction_point;
@@ -94,6 +96,12 @@ namespace ksi::interpreter {
   inline void system<Type_settings>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
+  }
+
+  template <typename Type_settings>
+  inline void system<Type_settings>::values::value_literal::assign_to_cell(care::ptr_cell to_cell)
+  {
+    to_cell->value_handle = new(&to_cell->v_literal) value_literal{this->literal};
   }
 
 

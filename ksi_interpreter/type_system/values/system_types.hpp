@@ -4,6 +4,7 @@
   #include "../values/value_cat.hpp"
   #include "../values/value_type.hpp"
   #include "../values/value_bool.hpp"
+  #include "../values/value_literal.hpp"
   #include "../values/value_array.hpp"
 
   #include "../nest/log.messages.hpp"
@@ -153,7 +154,7 @@ namespace ksi::interpreter {
 
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );
-      helper.cat_belongs( c_hint, {t_cat, t_type} );
+      //helper.cat_belongs( c_hint, {t_cat, t_type} );
     }
 
     // props
@@ -172,6 +173,7 @@ namespace ksi::interpreter {
     ptr_type t_bool   = reg.add_type( converter_string("$bool"s   ) );
       //ptr_type t_int    = reg.add_type( converter_string("$int"s    ) );
       //ptr_type t_float  = reg.add_type( converter_string("$float"s  ) );
+    ptr_type t_literal   = reg.add_type( converter_string("$literal"s ) );
       //ptr_type t_text   = reg.add_type( converter_string("$text"s   ) );
     ptr_type t_array  = reg.add_type( converter_string("$array"s  ) );
   };
@@ -199,6 +201,11 @@ namespace ksi::interpreter {
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
+    system<Type_settings>::values::value_literal::  get_type(ptr_system_types sys_types) const
+  { return sys_types->t_literal; }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::ptr_type
     system<Type_settings>::values::value_array::    get_type(ptr_system_types sys_types) const
   { return sys_types->t_array; }
 
@@ -218,6 +225,10 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   inline system<Type_settings>::t_string    system<Type_settings>::values::value_bool::     get_class_name() const
   { return converter_string("value_bool"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_literal::  get_class_name() const
+  { return converter_string("value_literal"sv); }
 
   template <typename Type_settings>
   inline system<Type_settings>::t_string    system<Type_settings>::values::value_array::    get_class_name() const
