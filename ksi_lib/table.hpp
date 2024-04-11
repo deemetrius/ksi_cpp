@@ -1,17 +1,22 @@
 #pragma once
 
-#include "concepts.hpp"
-#include <list>
-#include <map>
+  #include "concepts.hpp"
+  #include <list>
+  #include <map>
+
+  #include "macros/NO_UNIQUE_ADDRESS.h"
+  #include "ksi_lib/type_actions/none.hpp"
 
 namespace ksi::lib {
 
 
-  template <typename T, typename = void>
+  template <typename Type, typename = void>
   struct has_auto_increment : public std::false_type
   {
     static constexpr bool is_appropriate = false;
     using member_type = void;
+
+    using result = ksi::type_actions::none;
   };
 
   template <typename T>
@@ -22,6 +27,8 @@ namespace ksi::lib {
 
     static constexpr bool is_appropriate = ksi::concepts::pointer_to_member_of<typename info::source_type, T>;
     using member_type = std::conditional_t<is_appropriate, typename info::member_type, void>;
+
+    using result = member_type;
   };
 
 
@@ -63,7 +70,7 @@ namespace ksi::lib {
     }
 
     template <typename Type, typename ... Args>
-    pointer emplace_back(std::in_place_type_t<Type>, Args && ... args)
+    pointer emplace_back(/* std::in_place_type_t<Type>,  */Args && ... args)
     {
       data_type tmp_data;
       pointer ret;
@@ -84,6 +91,12 @@ namespace ksi::lib {
       }
       index.insert({ret->*Key_member, ret});
       data.splice(data.end(), tmp_data);
+      return ret;
+    }
+
+    typename index_type::iterator merge_from_list(data_type & addon_list)
+    {
+      index_type::iterator ret;
       return ret;
     }
   };

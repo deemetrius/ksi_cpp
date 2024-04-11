@@ -134,6 +134,14 @@ namespace ksi::interpreter {
       using ptr_dict_type = dict_type *;
       using token_type = std::size_t;
 
+      struct literal_less_id // appointed to patch:: tables
+      {
+        bool operator () (info::literal_type lt, info::literal_type rt) const
+        {
+          return (lt->id < rt->id);
+        }
+      };
+
       struct literal_less
       {
         bool operator () (literal_type lt, literal_type rt) const
@@ -144,12 +152,26 @@ namespace ksi::interpreter {
 
       struct meta_info
       {
-        index_type    position; // auto_increment ~ should be the first member for table
-        literal_type  name;
+        using self_pointer = meta_info *;
 
+        // props
+
+        index_type    position; // auto_increment ~ should be the first member for table
+        literal_type  name; // todo: dislocate this->name dependencies (change them to full_name maybe)
+
+        literal_type  literal;
+        self_pointer  self_nest;
+        literal_type  full_name{ make_full_name(self_nest) };
+
+        // table index
         static constexpr index_type meta_info::*
-          auto_increment{ & meta_info::position }
-        ;
+        auto_increment{ & meta_info::position };
+
+        static literal_type make_full_name(self_pointer self_nest)
+        {
+          // todo: full_name maker (and self_nest initialization)
+          return nullptr;
+        }
       };
 
       using ptr_meta_info = meta_info *;
@@ -192,6 +214,7 @@ namespace ksi::interpreter {
     };
 
     struct configuration;
+    struct patch;
 
     struct runtime
     {

@@ -21,6 +21,8 @@ int main()
   #include "ksi_log/logger_to_console.hpp"
   #include <ranges>
 
+  #include "ksi_interpreter/type_system/nest/patch.hpp"
+
 void show_dict(auto const & dict)
 {
   std::cout << '\n';
@@ -46,9 +48,11 @@ int main()
     sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
+    sys::patch::addon_of_types  new_types{ & vm.config->sys_types.reg.all_types };
+
     //
 
-    sys::info::literal_type   mod_name_main = vm.config->dict->add(L"@main").it->get_const();
+    /* sys::info::literal_type   mod_name_main = vm.config->dict->add(L"@main").it->get_const();
     vm.config->modules.emplace_back( std::in_place_type<sys::info::meta_info>, mod_name_main );
 
     sys::info::literal_type mod_name = vm.config->dict->add(L"@global").it->get_const();
@@ -58,7 +62,7 @@ int main()
     {
       std::wcout << key->name << L" ~ " << val->position << L"\n";
     }
-    std::wcout << vm.config->modules.find(mod_name_main)->name->name << L"\n";
+    std::wcout << vm.config->modules.find(mod_name_main)->name->name << L"\n"; */
 
     show_dict(*vm.config->dict);
   }

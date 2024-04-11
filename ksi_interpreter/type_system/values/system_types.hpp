@@ -31,14 +31,14 @@ namespace ksi::interpreter {
       {
         typename info::dict_result_add res = dict_handle->add(name);
         // todo: check if name is unique
-        return all_types.emplace_back( std::in_place_type<typename info::meta_info>, res.it->get_const() );
+        return all_types.template emplace_back<typename info::meta_info>( res.it->get_const() );
       }
 
       ptr_cat add_cat(t_string name)
       {
         typename info::dict_result_add res = dict_handle->add(name);
         // todo: check if name is unique
-        return all_cats.emplace_back( std::in_place_type<typename info::meta_info>, res.it->get_const() );
+        return all_cats.template emplace_back<typename info::meta_info>( res.it->get_const() );
       }
     };
 
@@ -155,6 +155,11 @@ namespace ksi::interpreter {
       // todo: assign categories to types
       helper.cat_belongs( c_hint, {t_cat, t_type} );
       //helper.cat_belongs( c_hint, {t_cat, t_type} );
+    }
+
+    void init()
+    {
+      //
     }
 
     // props
