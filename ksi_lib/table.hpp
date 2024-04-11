@@ -107,12 +107,7 @@ namespace ksi::lib {
           ret = tmp;
         } else { index = std::move(back_up); break; }
       }
-      if( tmp.size() == addon_list.size() )
-      {
-        index.merge( tmp );
-        data.splice(addon_list);
-        ret = index.
-      }
+      data.splice(addon_list);
       return ret;
     }
   };
