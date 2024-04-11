@@ -30,7 +30,7 @@ namespace ksi::lib {
 
       increment_from.change(ptr, change.data.size());
 
-      return ((nullptr != ptr) change.merge_from_list(tmp)->second : ptr);
+      return ((nullptr != ptr) ? change.merge_from_list(tmp)->second : ptr);
     }
   };
 

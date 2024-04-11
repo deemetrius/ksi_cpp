@@ -96,18 +96,18 @@ namespace ksi::lib {
 
     typename index_type::iterator merge_from_list(data_type & addon_list)
     {
-      index_type::iterator ret = index.end();
+      index_iterator ret = index.end();
       index_type back_up = index;
       for( value_type & each : addon_list )
       {
-        key_type key{ each.second->*Key_member };
+        key_type key{ each.*Key_member };
         // important: do not forget to apply dict patch
-        if( auto [tmp, added] = index.try_emplace( key , each.second ); added )
+        if( auto [tmp, added] = index.try_emplace( key , &each ); added )
         {
           ret = tmp;
-        } else { index = std::move(back_up); break; }
+        } else { index = std::move(back_up); ret = index.end(); break; }
       }
-      data.splice(addon_list);
+      data.splice(data.end(), addon_list);
       return ret;
     }
   };
