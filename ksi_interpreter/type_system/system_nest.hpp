@@ -156,16 +156,17 @@ namespace ksi::interpreter {
 
         // props
 
-        index_type    position; // auto_increment ~ should be the first member for table
         literal_type  name; // todo: dislocate this->name dependencies (change them to full_name maybe)
 
         literal_type  literal;
         self_pointer  self_nest;
         literal_type  full_name{ make_full_name(self_nest) };
 
+        index_type    position;
+
         // table index
-        static constexpr index_type meta_info::*
-        auto_increment{ & meta_info::position };
+        //static constexpr index_type meta_info::*
+        //auto_increment{ & meta_info::position };
 
         static literal_type make_full_name(self_pointer self_nest)
         {

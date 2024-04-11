@@ -16,7 +16,13 @@ namespace ksi::lib {
     static constexpr bool is_appropriate = false;
     using member_type = void;
 
-    using result = ksi::type_actions::none;
+    struct result
+    {
+      result(auto) {}
+      result() = default;
+
+      void change(auto *, auto) {}
+    };
   };
 
   template <typename T>
@@ -28,7 +34,12 @@ namespace ksi::lib {
     static constexpr bool is_appropriate = ksi::concepts::pointer_to_member_of<typename info::source_type, T>;
     using member_type = std::conditional_t<is_appropriate, typename info::member_type, void>;
 
-    using result = member_type;
+    struct result
+    {
+      member_type value;
+
+      void change(T * o, auto by_size) { o->*(T::auto_increment) = static_cast<member_type>(value + by_size); }
+    };
   };
 
 
@@ -74,21 +85,10 @@ namespace ksi::lib {
     {
       data_type tmp_data;
       pointer ret;
-      if constexpr( auto_increment_need_cast )
-      {
-        ret = & tmp_data.emplace_back(Type{
-          static_cast<auto_increment::member_type>( data.size() ),
-          std::forward<Args>(args) ...
-        });
-      }
-      else if constexpr( auto_increment_direct )
-      {
-        ret = & tmp_data.emplace_back(Type{ data.size(), std::forward<Args>(args) ... });
-      }
-      else
-      {
-        ret = & tmp_data.emplace_back(Type{ std::forward<Args>(args) ... });
-      }
+      ret = & tmp_data.emplace_back(Type{ std::forward<Args>(args) ... });
+
+      typename auto_increment::result{}.change(ret, data.size());
+
       index.insert({ret->*Key_member, ret});
       data.splice(data.end(), tmp_data);
       return ret;
@@ -96,7 +96,23 @@ namespace ksi::lib {
 
     typename index_type::iterator merge_from_list(data_type & addon_list)
     {
-      index_type::iterator ret;
+      index_type::iterator ret = index.end();
+      index_type back_up = index;
+      for( value_type & each : addon_list )
+      {
+        key_type key{ each.second->*Key_member };
+        // important: do not forget to apply dict patch
+        if( auto [tmp, added] = index.try_emplace( key , each.second ); added )
+        {
+          ret = tmp;
+        } else { index = std::move(back_up); break; }
+      }
+      if( tmp.size() == addon_list.size() )
+      {
+        index.merge( tmp );
+        data.splice(addon_list);
+        ret = index.
+      }
       return ret;
     }
   };
