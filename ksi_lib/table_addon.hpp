@@ -25,12 +25,12 @@ namespace ksi::lib {
     {
       typename table_type::data_type tmp;
       typename table_type::pointer ptr = source->find(
-        tmp.emplace_back(std::forward<Args ...>(args ...)).*Key_member
+        tmp.emplace_back(Type{std::forward<Args>(args) ...}).*Key_member
       );
 
       increment_from.change(ptr, change.data.size());
 
-      return ((nullptr != ptr) ? change.merge_from_list(tmp)->second : ptr);
+      return ((nullptr == ptr) ? change.merge_from_list(tmp)->second : ptr);
     }
   };
 

@@ -48,10 +48,17 @@ int main()
     sys::values::value_bool v_bool{ true };
     std::wcout << v_bool.get_type(&vm.config->sys_types)->name->name << L"\n\n";
 
-    sys::patch::addon_of_types  new_types{ & vm.config->sys_types.reg.all_types };
+    { sys::patch::addon_of_types  new_types{ & vm.config->sys_types.reg.all_types };
     new_types.emplace_back<sys::info::meta_info>( * vm.config->sys_types.t_bool );
     std::cout << "errors: " <<
     (vm.config->sys_types.reg.all_types.merge_from_list(new_types.change.data) == vm.config->sys_types.reg.all_types.index.end());
+    }
+
+    { sys::patch::addon_of_types  new_types{ & vm.config->sys_types.reg.all_types };
+    new_types.template emplace_back<sys::info::meta_info>( vm.config->dict->add( L"$counter hello" ).it->get_const() );
+    std::cout << "errors: " <<
+    (vm.config->sys_types.reg.all_types.merge_from_list(new_types.change.data) == vm.config->sys_types.reg.all_types.index.end());
+    }
 
     //
 
