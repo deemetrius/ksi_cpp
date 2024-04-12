@@ -27,7 +27,7 @@ namespace ksi::interpreter {
 
     virtual void was_acquired(care::ptr_cell by_cell) = 0;
     virtual void was_redeemed(care::ptr_cell by_cell) = 0;
-    virtual care::value_status determine_status() const = 0;
+    virtual care::status_of_value determine_status() const = 0;
 
     using typename value::fn_close_type;
     fn_close_type get_close_function() const override

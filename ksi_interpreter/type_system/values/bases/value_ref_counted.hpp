@@ -24,12 +24,12 @@ namespace ksi::interpreter {
       --ref_count;
     }
 
-    care::value_status determine_status() const override
+    care::status_of_value determine_status() const override
     {
       return (
         (ref_count > 0) ?
-        care::value_status::n_should_stay :
-        care::value_status::n_ready_for_delete
+        care::status_of_value::n_should_stay :
+        care::status_of_value::n_ready_for_delete
       );
     }
   };

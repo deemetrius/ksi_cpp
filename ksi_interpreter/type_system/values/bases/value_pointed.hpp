@@ -31,12 +31,12 @@ namespace ksi::interpreter {
       }
     }
 
-    care::value_status determine_status() const override
+    care::status_of_value determine_status() const override
     {
       return (
         point.rels_empty() ?
-        care::value_status::n_ready_for_delete :
-        care::value_status::n_requires_point_examination_refs_circular_only
+        care::status_of_value::n_ready_for_delete :
+        care::status_of_value::n_requires_point_examination_refs_circular_only
       );
     }
 

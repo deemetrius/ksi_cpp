@@ -32,7 +32,7 @@ namespace ksi::interpreter {
       if( value_handle == nullptr ) { return; }
       switch( value_handle->determine_status() )
       {
-        case care::value_status::n_requires_point_examination_refs_circular_only :
+        case care::status_of_value::n_requires_point_examination_refs_circular_only :
         try
         {
           typename bases::ptr_value_pointed value_pointed_handle = value_handle->try_get_pointed();
@@ -48,7 +48,7 @@ namespace ksi::interpreter {
         }
         break;
 
-        case care::value_status::n_ready_for_delete :
+        case care::status_of_value::n_ready_for_delete :
         depart_value(value_handle);
         break;
 

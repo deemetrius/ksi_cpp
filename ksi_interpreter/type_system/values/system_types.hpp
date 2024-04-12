@@ -176,6 +176,8 @@ namespace ksi::interpreter {
     ptr_type t_cat    = reg.add_type( converter_string("$cat"s    ) );
     ptr_type t_type   = reg.add_type( converter_string("$type"s   ) );
     ptr_type t_bool   = reg.add_type( converter_string("$bool"s   ) );
+    ptr_type t_index  = reg.add_type( converter_string("$index"s   ) );
+    ptr_type t_counter= reg.add_type( converter_string("$counter"s   ) );
       //ptr_type t_int    = reg.add_type( converter_string("$int"s    ) );
       //ptr_type t_float  = reg.add_type( converter_string("$float"s  ) );
     ptr_type t_literal   = reg.add_type( converter_string("$literal"s ) );
@@ -206,6 +208,16 @@ namespace ksi::interpreter {
 
   template <typename Type_settings>
   inline system<Type_settings>::ptr_type
+    system<Type_settings>::values::value_index::    get_type(ptr_system_types sys_types) const
+  { return sys_types->t_index; }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::ptr_type
+    system<Type_settings>::values::value_counter::  get_type(ptr_system_types sys_types) const
+  { return sys_types->t_counter; }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::ptr_type
     system<Type_settings>::values::value_literal::  get_type(ptr_system_types sys_types) const
   { return sys_types->t_literal; }
 
@@ -230,6 +242,14 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   inline system<Type_settings>::t_string    system<Type_settings>::values::value_bool::     get_class_name() const
   { return converter_string("value_bool"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_index::    get_class_name() const
+  { return converter_string("value_index"sv); }
+
+  template <typename Type_settings>
+  inline system<Type_settings>::t_string    system<Type_settings>::values::value_counter::  get_class_name() const
+  { return converter_string("value_counter"sv); }
 
   template <typename Type_settings>
   inline system<Type_settings>::t_string    system<Type_settings>::values::value_literal::  get_class_name() const

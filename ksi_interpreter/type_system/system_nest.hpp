@@ -60,6 +60,9 @@ namespace ksi::interpreter {
       struct value_cat;
       struct value_type;
       struct value_bool;
+      struct value_index;
+      struct value_counter;
+      //struct value_integer;
       struct value_literal;
       struct value_array;
 
@@ -91,7 +94,7 @@ namespace ksi::interpreter {
 
     struct care
     {
-      enum class value_status {
+      enum class status_of_value {
         n_should_stay,
         n_ready_for_delete,
         n_requires_point_examination_refs_circular_only,

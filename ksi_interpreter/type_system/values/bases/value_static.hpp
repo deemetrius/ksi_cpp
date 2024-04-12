@@ -36,9 +36,9 @@ namespace ksi::interpreter {
       --use_count;
     }
 
-    care::value_status determine_status() const override
+    care::status_of_value determine_status() const override
     {
-      return care::value_status::n_should_stay;
+      return care::status_of_value::n_should_stay;
     }
     */
   };

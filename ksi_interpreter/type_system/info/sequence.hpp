@@ -17,13 +17,13 @@ namespace ksi::interpreter {
   struct system<Type_settings>::info::sequence
   {
     // props
-    execution::position       self_position;
+    execution::position_type       self_position;
     execution::isntr_groups   instruction_groups;
     info::var_names           variables;
 
     // actions
 
-    execution::ptr_instruction_const instruction_get_pointer(execution::position) const
+    execution::ptr_instruction_const instruction_get_pointer(execution::position_type) const
     {
       return &( instruction_groups[pos.group_index][pos.instr_index] );
     }

@@ -9,7 +9,7 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   struct system<Type_settings>::execution
   {
-    struct position
+    struct position_type
     {
       index_type
         group_index,
@@ -44,7 +44,7 @@ namespace ksi::interpreter {
     using group_type = std::vector<callable>;
     using isntr_groups = std::vector<group_type>;
     using ptr_instruction_const = callable const *;
-    using ptr_position = position *;
+    using ptr_position = position_type *;
 
     static bool try_increment_position(ptr_position pos_handle, isntr_groups const & groups)
     {

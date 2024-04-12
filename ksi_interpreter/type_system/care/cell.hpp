@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../values/value_bool.hpp"
+#include "../values/value_index.hpp"
+#include "../values/value_counter.hpp"
 #include "../values/value_literal.hpp"
 #include "../values/bases/value_static.hpp"
 #include "../values/bases/value_managed.hpp"
@@ -22,6 +24,8 @@ namespace ksi::interpreter {
     // props
     union {
       values::value_bool      v_bool;
+      values::value_index     v_index;
+      values::value_counter   v_counter;
       values::value_literal   v_literal;
     };
     ptr_value value_handle{ nullptr };
@@ -96,6 +100,18 @@ namespace ksi::interpreter {
   inline void system<Type_settings>::values::value_bool::assign_to_cell(care::ptr_cell to_cell)
   {
     to_cell->value_handle = new(&to_cell->v_bool) value_bool{this->flag};
+  }
+
+  template <typename Type_settings>
+  inline void system<Type_settings>::values::value_index::assign_to_cell(care::ptr_cell to_cell)
+  {
+    to_cell->value_handle = new(&to_cell->v_index) value_index{this->n};
+  }
+
+  template <typename Type_settings>
+  inline void system<Type_settings>::values::value_counter::assign_to_cell(care::ptr_cell to_cell)
+  {
+    to_cell->value_handle = new(&to_cell->v_index) value_index{ ++this->value };
   }
 
   template <typename Type_settings>

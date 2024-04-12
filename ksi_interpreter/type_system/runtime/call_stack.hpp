@@ -10,7 +10,7 @@ namespace ksi::interpreter {
   template <typename Type_settings>
   struct system<Type_settings>::runtime::sequence_space
   {
-    using instr_positions = std::vector<typename execution::position>;
+    using instr_positions = std::vector<typename execution::position_type>;
 
     // props
     ptr_sequence        sequence_handle;
@@ -56,7 +56,7 @@ namespace ksi::interpreter {
     execution::ptr_instruction_const instruction_obtain() const
     {
       ptr_sequence_space seq_space_handle{ & chain.back() };
-      execution::position pos = seq_space_handle->pos_instr_chain.back();
+      execution::position_type pos = seq_space_handle->pos_instr_chain.back();
       return seq_space_handle->sequence_handle->instruction_get_pointer(pos);
     }
 
