@@ -165,8 +165,8 @@ namespace ksi::interpreter {
         index_type    position;
 
         // table index
-        //static constexpr index_type meta_info::*
-        //auto_increment{ & meta_info::position };
+        static constexpr index_type meta_info::*
+        auto_increment{ & meta_info::position };
 
         static literal_type make_full_name(self_pointer self_nest)
         {

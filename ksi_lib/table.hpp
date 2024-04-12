@@ -98,14 +98,21 @@ namespace ksi::lib {
     {
       index_iterator ret = index.end();
       index_type back_up = index;
-      for( value_type & each : addon_list )
+      try
       {
-        key_type key{ each.*Key_member };
-        // important: do not forget to apply dict patch
-        if( auto [tmp, added] = index.try_emplace( key , &each ); added )
+        for( value_type & each : addon_list )
         {
-          ret = tmp;
-        } else { index = std::move(back_up); ret = index.end(); break; }
+          key_type key{ each.*Key_member };
+          // todo: do not forget to apply dict patch
+          if( auto [tmp, added] = index.try_emplace( key , &each ); added )
+          {
+            ret = tmp;
+          } else { index = std::move(back_up); ret = index.end(); break; }
+        }
+      } catch( ... )
+      {
+        index = std::move(back_up);
+        throw;
       }
       if( ret != index.end() )
       data.splice(data.end(), addon_list);

@@ -56,7 +56,7 @@ int main()
 
     { sys::patch::addon_of_types  new_types{ & vm.config->sys_types.reg.all_types };
     new_types.template emplace_back<sys::info::meta_info>( vm.config->dict->add( L"$counter hello" ).it->get_const() );
-    std::cout << "errors: " <<
+    std::cout << " errors: " <<
     (vm.config->sys_types.reg.all_types.merge_from_list(new_types.change.data) == vm.config->sys_types.reg.all_types.index.end());
     }
 
