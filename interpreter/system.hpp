@@ -1,6 +1,9 @@
 #pragma once
 
+  #include <forward_list>
+
   #include <string>
+  #include <string_view>
   #include "lib/counter.hpp"
   #include <cstdint>
   #include "lib/traits/no_copyable.h"
@@ -34,31 +37,83 @@ namespace ksi::interpreter::system {
   template <typename Kind>
   using static_table = lib::table<Kind, Kind::index, typename Kind::Less>;
 
+  using namespace std::string_view_literals;
 
   struct cell_info;
 
 
   namespace traits {
 
+    template <typename Cell>
+    bool cell_is_rooted_condition(Cell * handle)
+    {
+      using ct = Cell *;
+      using pt = typename decltype(handle->junction)::key_type;
 
-    template <typename Item, typename Hint, typename Point>
+      std::set<pt> visited_points;
+      std::set<ct> visited_cells{ handle };
+
+      using iterator = typename decltype(handle->junction)::iterator;
+      using pair = std::pair<iterator, iterator>;
+
+      std::forward_list<pair> back_stack;
+      back_stack.emplace_front( handle->junction.begin(), handle->junction.end() );
+
+      do
+      {
+        for( pair * h = &back_stack.front(); h->first != h->second; ++h->first )
+        {
+          pt point{ h->first->first };
+          if( point->empty() ) { return false; }
+          if( visited_points.contains(point) ) { continue; }
+
+          for( ct h_cell : *point )
+          if( ! visited_cells.contains(h_cell) )
+          {
+            back_stack.emplace_front( h_cell->junction.begin(), h_cell->junction.end() );
+            visited_cells.insert(h_cell);
+          }
+
+          visited_points.insert(point);
+        }
+
+        back_stack.pop_front();
+      }
+      while( ! back_stack.empty() );
+
+      return true;
+    }
+
+
+    template <typename Slot, typename Hint, typename Point>
     struct array_impl
     {
         Point point;
         Hint  type_hint;
-      std::vector<Item> elements;
+      std::vector<Slot> elements;
 
       array_impl(integer n)
       {
         elements.reserve( static_cast<std::size_t>(n) );
       }
 
-      template <typename Destination>
-      void add(Item && c, Destination point)
+      template <typename Holder>
+      void add(Holder from)
       {
-        this->elements.emplace_back( std::move(c) ).put( point );
+        this->elements.emplace_back( &this->point ).accept( from.release() );
       }
 
+      template <typename Holder>
+      void sweep(std::list<Holder> & to_box)
+      {
+        for( Slot & it : elements )
+        {
+          if( it.uncell() || cell_is_rooted_condition(it.handle) )
+          {
+            to_box.emplace_front(it.handle);
+          }
+        }
+      }
     };
 
     struct inner
@@ -69,15 +124,6 @@ namespace ksi::interpreter::system {
       template <typename Value, typename To>
       static void assign_static(Value * from, To * cell);
     };
-
-    template <typename Handle>
-    void close_cell_holder(Handle ptr)
-    {
-      if( auto fn = ptr->h->keep.handle->redeem(ptr->h); fn != nullptr ) {
-        fn(ptr->h);
-      }
-      ptr->h = nullptr;
-    }
 
     template <typename Pointer>
     void close_cell_value(Pointer of_cell)
@@ -369,41 +415,13 @@ namespace ksi::interpreter::system {
     using junction_type = std::map<point_type *, integer>;
 
 
-    struct cell_holder :
-      ksi_traits::no_copyable,
-      ksi_traits::no_copy_assignable
-    {
-      static cell_pointer make_empty_cell();
-
-      cell_type * h;
-
-      cell_holder() : h{ nullptr }
-      {
-        h = make_empty_cell();
-      }
-
-      cell_holder(cell_holder && other) : h{ nullptr }
-      {
-        this->h = other.release();
-      }
-
-      [[nodiscard]] cell_type * release()
-      {
-        return std::exchange(this->h, nullptr);
-      }
-
-      void operator = (cell_holder && other)
-      {
-        traits::close_cell_holder(this);
-        this->h = other.release();
-      }
-
-      ~cell_holder() { traits::close_cell_holder(this); }
-    };
-
     struct cell_type : ksi_traits::no_copyable, cell_info
     {
-      junction_type  junction;
+      static void delete_cell(cell_type * h) { delete h; }
+      using close_function = decltype(& delete_cell);
+
+      junction_type   junction;
+      close_function  fn_close{ & delete_cell };
 
       cell_type(system_types::i_value * initial)
       {
@@ -418,22 +436,73 @@ namespace ksi::interpreter::system {
       }
     };
 
-    inline cell_pointer cell_holder::make_empty_cell()
+
+    struct cell_holder :
+      ksi_traits::no_copyable,
+      ksi_traits::no_copy_assignable
     {
-      return new cell_type{ & system_types::values::none::value };
-    }
+      cell_type * h;
+
+      cell_holder(cell_type * cell_handle) : h{cell_handle} {}
+
+      cell_holder() : h{ nullptr }
+      {
+        h = new cell_type{ & system_types::values::none::value };
+      }
+
+      [[nodiscard]] cell_type * release()
+      {
+        return std::exchange(this->h, nullptr);
+      }
+
+      cell_holder(cell_holder && other) : h{ nullptr }
+      {
+        this->h = other.release();
+      }
+
+      void operator = (cell_holder && other)
+      {
+        close();
+        this->h = other.release();
+      }
+
+      ~cell_holder() { close(); }
+
+    private:
+      void close()
+      {
+        if( this->h != nullptr && this->h->junction.empty() )
+        {
+          traits::close_cell_value(this->h);
+          cell_type::close_function fn = this->h->fn_close;
+          fn( std::exchange(this->h, nullptr) );
+        }
+      }
+    };
 
 
     struct slot {
       cell_type * handle{ nullptr };
       point_type       * _ptr;
+
       slot( point_type * hp ) : _ptr{ hp } { }
 
-      void put(cell_type & o)
+      void accept(cell_type * o)
       {
-        auto [it, added] = o.junction.try_emplace(_ptr, 1);
+        auto [it, added] = o->junction.try_emplace(_ptr, 1);
         if ( added ) { return; }
         ++it->second;
+      }
+
+      bool uncell()
+      {
+        junction_type::iterator it = handle->junction.find( _ptr );
+        if( handle->junction.end() == it ) { throw "Unable to find point in cell's junction"sv; }
+
+        if( it->second > 1 ) { --it->second; }
+        else { handle->junction.erase(it); }
+
+        return handle->junction.empty();
       }
     };
 
@@ -445,9 +514,17 @@ namespace ksi::interpreter::system {
       return with;
     }
 
-  }
 
+    bool disjoin_pointed(cell_type * the_cell, point_type & from_point)
+    {
+      if( from_point.erase(the_cell) == 0 ) { throw "Can't disjoin the cell from point"sv; }
+      return from_point.empty();
+    }
+
+
+  }
   namespace system_types {
+
 
     template <typename Derived, typename Data>
     struct pointed_value : i_value
@@ -460,9 +537,21 @@ namespace ksi::interpreter::system {
 
       void assign(cell_info * to_cell) override
       {
-        execution::info::connect_pointed(to_cell, data->point)->keep.handle = this;
+        execution::info::connect_pointed(static_cast<execution::info::cell_type *>(to_cell), data->point)->keep.handle = this;
+      }
+
+      i_value::closer redeem(cell_info * of_cell) override
+      {
+        if( execution::info::disjoin_pointed(static_cast<execution::info::cell_type *>(of_cell), data->point) )
+        {
+          std::list<execution::info::cell_holder> box;
+          data->sweep(box);
+          return & traits::delete_function<cell_info>;
+        }
+        return nullptr;
       }
     };
+
 
   }
   namespace system_types::values {
@@ -475,6 +564,15 @@ namespace ksi::interpreter::system {
       >
     >
     {
+      using base_type = pointed_value<
+        array,
+        traits::array_impl<
+          execution::info::slot, restriction_type
+        , execution::info::point_type
+        >
+      >;
+      using base_type::base_type;
+
       type_pointer get_type(system_data * panel) const
       { return panel->t_array; }
     };

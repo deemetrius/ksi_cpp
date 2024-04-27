@@ -6,7 +6,7 @@ void show_types(Types & nest)
 {
   for( auto ptr : nest.pos )
   {
-    std::print("{} {:8} \t{}\n", ptr->type_index, ptr->name->first, ptr->position);
+    std::print("{:3} {:8} \t{}\n", ptr->type_index, ptr->name->first, ptr->position);
   }
 }
 
@@ -18,10 +18,13 @@ int main()
     std::source_location::current()
   );
 
-  std::print("{{---* hello *---}}\n");
+  std::print("\n");
 
   ksi::interpreter::system::system_types::system_data sys_data;
   show_types(sys_data.p.types_nest);
+
+  using array = ksi::interpreter::system::system_types::values::array;
+  std::unique_ptr<array> ar = std::make_unique<array>(3);
 
   return 0;
 }
