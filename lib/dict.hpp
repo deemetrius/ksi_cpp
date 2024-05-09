@@ -17,21 +17,19 @@ namespace ksi::lib {
     using map_type = std::map<String, data>;
 
     map_type storage;
+    std::size_t id_initial{ 0 };
 
     struct insert_result
     {
-      bool was_there;
-      typename map_type::iterator iterator;
-
-      typename map_type::pointer get_pointer() const
-      { return &*iterator; }
+      bool                        was_there;
+      typename map_type::pointer  pointer;
     };
 
-    dict() { storage.emplace_hint(storage.end(), String{}, data{0, 0}); }
+    //dict() { storage.emplace_hint(storage.end(), String{}, data{0, 0}); }
 
     insert_result add(String literal)
     {
-      auto [it, was_added] = storage.try_emplace(std::move(literal), data{static_cast<std::intptr_t>( storage.size() )});
+      auto [it, was_added] = storage.try_emplace(std::move(literal), data{static_cast<std::intptr_t>( storage.size() + id_initial )});
 
       //reindex
       std::intptr_t value = 0;
@@ -41,7 +39,13 @@ namespace ksi::lib {
         cur->second.value = ++value;
       }
 
-      return {!was_added, it};
+      return {!was_added, &*it};
+    }
+
+    typename map_type::pointer find(String const & key)
+    {
+      typename map_type::iterator it = storage.find(key);
+      return ((storage.end() == it) ? nullptr : &*it);
     }
   };
 

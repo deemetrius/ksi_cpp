@@ -3,7 +3,7 @@
     {
       "type": "cppbuild",
       "label": "C/C++: clang++.exe build src",
-      "command": "D:/prog/LLVM/bin/clang++.exe",
+      "command": "D:/prog/new/LLVM/bin/clang++.exe",
       "args": [
         "-fcolor-diagnostics",
         "-fansi-escape-codes",
@@ -17,7 +17,7 @@
         "-Wno-deprecated-declarations"
       ],
       "options": {
-        "cwd": "D:/prog/LLVM/bin"
+        "cwd": "D:/prog/new/LLVM/bin"
       },
       "problemMatcher": [
         "$gcc"

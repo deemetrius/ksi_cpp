@@ -1,7 +1,7 @@
 #pragma once
 
   #include <type_traits>
-  #include "lib/traits/recognize_class.hpp"
+  #include "helper.recognize_class.hpp"
 
 namespace ksi::lib::concepts {
 

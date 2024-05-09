@@ -3,12 +3,14 @@
   #include <list>
   #include <map>
   #include <vector>
-  #include "concepts/member_pointer_of.hpp"
-  #include "traits/determine_member_type.hpp"
+  #include "concept.member_pointer_of.hpp"
+  #include "helper.determine_member_type.hpp"
 
   #include "table_row.hpp"
 
 namespace ksi::lib {
+
+  struct table_key_not_unique {};
 
   template <
     typename Struct,
@@ -27,6 +29,12 @@ namespace ksi::lib {
     map_type            index;
     subscript           pos;
 
+    pointer find(key_type key)
+    {
+      typename map_type::iterator it = index.find(key);
+      return ((index.end() == it) ? nullptr : it->second);
+    }
+
     template <typename Param, typename ... Args>
     pointer append_row(Args ... args)
     {
@@ -37,10 +45,20 @@ namespace ksi::lib {
       row_index.emplace_hint(row_index.end(), ret->*Index, ret);
 
       detail::table_row<Struct>::auto_increment_maybe(ret, pos);
-      pos.push_back(ret);
-
-      rows.splice(rows.end(), row);
       index.merge(row_index);
+
+      if( row_index.size() > 0 ) { throw table_key_not_unique{}; }
+
+      try
+      {
+        pos.push_back(ret);
+        rows.splice(rows.end(), row);
+      }
+      catch( ... )
+      {
+        index.erase(ret->*Index);
+        throw;
+      }
 
       return ret;
     }
