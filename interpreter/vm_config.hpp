@@ -19,7 +19,7 @@ namespace ksi::interpreter
 
     vm_config()
     {
-      module_main = modules.append_row<type_system::meta::meta_information>( literal_main_module );
+      module_main = modules.append_row<type_system::meta::meta_information>( literal_main_module ).result;
     }
   };
 

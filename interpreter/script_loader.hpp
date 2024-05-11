@@ -4,6 +4,8 @@
 #include <cctype>
 #include "lib/dict_diff.hpp"
 
+#include "lib/static_text.hpp"
+
 namespace ksi::interpreter::loader
 {
 
@@ -17,14 +19,20 @@ namespace ksi::interpreter::loader
 }
 namespace ksi::interpreter::loader
 {
+  using namespace std::string_literals;
+
+  inline void skip_space(typename sys::string::const_iterator & here)
+  {
+    if( std::isspace(*here) )
+    {
+      ++here;
+    }
+  }
 
   struct parser_data
   {
     struct group_action_information
     {
-      using function_type = bool (*) (loader::file_position & pos, parser_data * data);
-
-      function_type current_function;
       sys::string   cell_name;
       sys::integer  number{};
     };
@@ -37,33 +45,85 @@ namespace ksi::interpreter::loader
     configuration::module_config                    * current_module{ nullptr };
   };
 
+  struct state
+  {
+    using function_type = state (*) (loader::file_position & pos, parser_data * data);
+
+    std::string       message;
+    function_type     current_function;
+  };
+
   template <typename Rule, typename NextRule, typename = void>
   struct rule
   {
-    static bool parser_function(loader::file_position & pos, parser_data * data)
+    static state parser_function(loader::file_position & pos, parser_data * data)
     {
       if( Rule{}.recognize(pos) )
       {
-        data->info.current_function = &NextRule::parser_function;
-        return true;
+        return NextRule::parser_function(pos, data);
       }
 
-      return false;
+      return {};
     }
   };
 
   template <typename Rule, typename NextRule>
   struct rule<Rule, NextRule, std::void_t<decltype( std::declval<Rule>().action_fn )>>
   {
-    static bool parser_function(loader::file_position & pos, parser_data * data)
+    static state parser_function(loader::file_position & pos, parser_data * data)
     {
       Rule r;
 
-      if( r.recognize(pos) ) { r.action_fn(r.result, data); }
-      else{ return false; }
+      if( r.recognize(pos) == false )
+      {
+        return { "Token don't recognized"s, nullptr };
+      }
 
-      data->info.current_function = &NextRule::parser_function;
-      return true;
+      return { r.action_fn(r.result, data), &NextRule::parser_function };
+    }
+  };
+
+  template <typename Condition, typename Action>
+  struct sentence
+  {
+    static state parser_function(loader::file_position & pos, parser_data * data)
+    {
+      Condition cond;
+
+      if( cond.recognize(pos) )
+      {
+        return Action::fn(cond.result, data);
+      }
+
+      return {};
+    }
+  };
+
+  template <typename ... T>
+  struct one_of;
+
+  template <typename Rule, typename ... Rest>
+  struct one_of<Rule, Rest ...>
+  {
+    static state parser_function(loader::file_position & pos, parser_data * data)
+    {
+      state status = Rule::parser_function(pos, data);
+
+      if( status.message.size() > 0 )
+      {
+        return one_of<Rest ...>::parser_function(pos, data);
+      }
+
+      return status;
+    }
+  };
+
+  template <typename Rule>
+  struct one_of<Rule>
+  {
+    static state parser_function(loader::file_position & pos, parser_data * data)
+    {
+      return Rule::parser_function(pos, data);
     }
   };
 
@@ -77,7 +137,7 @@ namespace ksi::interpreter::loader::rules
   */
   struct actions
   {
-    static bool add_constant_to_module(parser_data * data)
+    static std::string add_constant_to_module(parser_data * data)
     {
       sys::literal name = data->dict.add( std::move(data->info.cell_name) );
       try
@@ -86,27 +146,30 @@ namespace ksi::interpreter::loader::rules
       }
       catch( lib::table_key_not_unique const & )
       {
-        error_msg("module already have such cell name"sv, data->current_module->name->first, data->info.cell_name);
-        return false;
+        return std::format("{} {} {}", data->current_module->name->first, "module already have such cell name"sv, data->info.cell_name);
       }
 
-      return true;
+      return {};
     }
 
-    static void add_module(sys::string & name, parser_data * data)
+    static std::string add_module(sys::string & name, parser_data * data)
     {
       sys::literal module_name = data->dict.add( std::move(name) );
-      data->current_module = data->modules.append_row<type_system::meta::meta_information>(module_name);
+      data->current_module = data->modules.append_row<type_system::meta::meta_information>(module_name).result;
+
+      return {};
     }
 
-    static void set_cell_name(sys::string & name, parser_data * out)
+    static std::string set_cell_name(sys::string & name, parser_data * out)
     {
       out->info.cell_name = std::move(name);
+      return {};
     }
 
-    static void set_number(sys::string & digits, parser_data * out)
+    static std::string set_number(sys::string & digits, parser_data * out)
     {
       out->info.number = inner::number_from_string(digits);
+      return {};
     }
 
     struct inner
@@ -136,7 +199,32 @@ namespace ksi::interpreter::loader::rules
   struct colon : is_char<':'>
   {};
 
+  using lib::static_text;
+
+  template <static_text st>
+  struct is_text
+  {
+    bool recognzie(loader::file_position & pos)
+    {
+      typename std::string::const_iterator it = pos.current;
+
+      for( char ch : st.text )
+      {
+        if( ch == *(it++) ) { continue; }
+        if( pos.last == pos.current ) return false;
+      }
+
+      pos.current = it;
+
+      return true;
+    }
+  };
+
   using fn_type = decltype(&actions::add_module);
+  using namespace lib::static_text_literal;
+
+  struct boolean_yes : is_text<"yes"_st> {};
+  struct boolean_no : is_text<"no"> {};
 
   struct number
   {
@@ -181,25 +269,32 @@ namespace ksi::interpreter::loader::rules
     }
   };
 
-  struct module_name : is_name
+  template <char FirstChar>
+  struct keyword
   {
     sys::string result;
 
-    bool recognize(loader::file_position & pos)
+    bool recognize(loader::file_position & position)
     {
-      if( *pos.current != '@' ) { return false; }
-      loader::file_position new_pos = pos;
-      ++new_pos.current;
+      if( *position.current != FirstChar ) { return false; }
 
-      if( distinguish_name(new_pos, result) )
+      loader::file_position new_position{ position.current + 1, position.last };
+
+      while( std::isalpha(*new_position.current) )
       {
-        pos = new_pos;
-        return true;
+        if( new_position.current == new_position.last ) { return false; }
+        ++new_position.current;
       }
 
-      return false;
-    }
+      position = new_position;
+      result.assign(position.current, position.last);
 
+      return true;
+    }
+  };
+
+  struct module_name : keyword<'@'>
+  {
     fn_type action_fn{ &actions::add_module };
   };
 
@@ -215,19 +310,26 @@ namespace ksi::interpreter::loader::rules
     fn_type action_fn{ &actions::set_cell_name };
   };
 
-  struct nothing
-  {
-    bool recognize(loader::file_position & pos) { return true; }
-  };
-
   struct module_add_constant
   {
-    static bool parser_function(loader::file_position & pos, parser_data * data);
+    static state parser_function(loader::file_position & pos, parser_data * data);
   };
 
-  struct module_start_constant_initialization : rule<number, module_add_constant>
+  struct literal : keyword<'`'> {};
+
+  struct add_literal_from_string_to_sequence
   {
+    static state fn(std::string const & pos, parser_data * data)
+    {
+      //
+      return {};
+    }
   };
+
+  struct module_start_constant_initialization : one_of<
+    sentence<literal, add_literal_from_string_to_sequence>,
+    rule<number, module_add_constant>
+  > {};
 
   struct after_module_cell_name : rule<colon, module_start_constant_initialization>
   {};
@@ -240,10 +342,9 @@ namespace ksi::interpreter::loader::rules
   {};
 
 
-  inline bool module_add_constant::parser_function(loader::file_position & pos, parser_data * data)
+  inline state module_add_constant::parser_function(loader::file_position & pos, parser_data * data)
   {
-    data->info.current_function = &inside_module::parser_function;
-    return actions::add_constant_to_module(data);
+    return { actions::add_constant_to_module(data), &inside_module::parser_function };
   }
 
 }
@@ -252,27 +353,23 @@ namespace ksi::interpreter::loader
 
   struct script_parser : parser_data
   {
-    script_parser(vm_config * vm_configuration) : parser_data{ vm_configuration, &rules::inside_file::parser_function } {}
+    script_parser(vm_config * vm_configuration) : parser_data{ vm_configuration } {}
 
     static bool is_space(sys::character ch) { return (ch == ' ' || ch == '\n'); }
-
-    static void skip_spaces(file_position & pos)
-    {
-      while( is_space( *pos.current ) )
-      {
-        ++pos.current;
-        if( pos.is_end() ) { return; }
-      }
-    }
 
     void parse(sys::string const & file_content)
     {
       file_position pos{ file_content.cbegin(), file_content.cend() };
-      if( pos.is_end() ) { return; }
 
-      skip_spaces(pos);
+      state status{ {}, &rules::inside_file::parser_function };
 
-      while( info.current_function(pos, this) );
+      while( (pos.current != pos.last) && status.message.empty() )
+      {
+        skip_space(pos.current);
+        status = status.current_function(pos, this);
+      }
+
+      if( status.message.size() ) {}
     }
   };
 

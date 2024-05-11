@@ -35,32 +35,33 @@ namespace ksi::lib {
       return ((index.end() == it) ? nullptr : it->second);
     }
 
-    template <typename Param, typename ... Args>
-    pointer append_row(Args ... args)
+    struct append_result
     {
-      std::list<Struct> row;
-      pointer ret = &row.emplace_back( Param{std::move(args) ...} );
+      pointer result;
+      bool    is_same;
+    };
+
+    template <typename Param, typename ... Args>
+    append_result append_row(Args ... args)
+    {
+      std::list<Struct> row_temprary;
+      pointer h_result = &row_temprary.emplace_back( Param{std::move(args) ...} );
+
+      typename map_type::iterator it = index.find(h_result->*Index);
+      if( it != index.end() ) { return {it->second, true}; }
 
       map_type row_index;
-      row_index.emplace_hint(row_index.end(), ret->*Index, ret);
+      row_index.emplace(h_result->*Index, h_result);
 
-      detail::table_row<Struct>::auto_increment_maybe(ret, pos);
+      detail::table_row<Struct>::auto_increment_maybe(h_result, this->pos);
+
+      rows.splice(rows.end(), row_temprary);
       index.merge(row_index);
 
-      if( row_index.size() > 0 ) { throw table_key_not_unique{}; }
+      if( row_index.empty() && row_temprary.empty() )
+      this->pos.push_back(h_result);
 
-      try
-      {
-        pos.push_back(ret);
-        rows.splice(rows.end(), row);
-      }
-      catch( ... )
-      {
-        index.erase(ret->*Index);
-        throw;
-      }
-
-      return ret;
+      return {h_result, false};
     }
   };
 

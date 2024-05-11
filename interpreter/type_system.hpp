@@ -225,14 +225,14 @@ namespace ksi::interpreter::type_system
       {
         return p.category_table.append_row<meta::meta_information>(
           p.dict->add(sys::string{name}).pointer
-        );
+        ).result;
       }
 
       static  hints::type_pointer  reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats)
       {
         hints::type * tp = p.type_table.append_row<meta::meta_information>(
           p.dict->add(sys::string{name}).pointer
-        );
+        ).result;
         tp->relate_to_cats.insert_range(cats);
         return tp;
       }
