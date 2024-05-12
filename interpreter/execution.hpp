@@ -8,35 +8,53 @@ namespace ksi::interpreter
   struct vm_config;
 
 }
-namespace ksi::interpreter::configuration
-{
-  struct sequence;
-}
 namespace ksi::interpreter::execution
 {
 
-  using seq_pointer = configuration::sequence const *;
+  struct sequence;
+  using seq_pointer = sequence const *;
+
+  struct thread;
 
   struct params
   {
-    //log_pointer log;
     vm_config * vm_configuration;
+    thread * h_tread;
   };
 
-  struct instruction
+  union data_type
   {
-    struct data_type
+    bool boolean;
+
+    template <typename T>
+    T get() const
     {
-    };
+      if constexpr( std::is_same_v<T, bool> )
+      {
+        return this->boolean;
+      }
+      else
+      {
+        static_assert("This type is not supported");
+      }
+    }
+  };
 
-    using data_pointer = const data_type *;
-
-    static void empty_function(params & p, data_pointer d) {}
+  struct instruction_with_function
+  {
+    static void empty_function(params & p, data_type const & data) {}
 
     using function = decltype( &empty_function );
 
-    data_pointer  data;
-    function      fn{ &empty_function };
+    sys::sview  name;
+    function    fn{ &empty_function };
+
+    instruction_with_function & base() { return *this; }
+  };
+
+  struct instruction : instruction_with_function
+  {
+    data_type data;
 
     void call(params & p) const { fn(p, data); }
   };
@@ -61,7 +79,7 @@ namespace ksi::interpreter::configuration
       sys::literal                          name;
       type_system::hints::i_hint            * type_restriction;
       std::size_t                           position;
-      sys::unique<configuration::sequence>  seq_init;
+      sys::unique<execution::sequence>      seq_init;
 
       static inline const auto auto_increment{ &variable_information::position };
 
@@ -85,6 +103,10 @@ namespace ksi::interpreter::configuration
     module_config(type_system::meta::meta_information info) : type_system::meta::meta_information{ info } {}
   };
 
+}
+namespace ksi::interpreter::execution
+{
+
   struct sequence : type_system::base::counted
   {
     std::vector<sys::literal> var_names;
@@ -104,9 +126,16 @@ namespace ksi::interpreter::execution::data
 
   struct stack
   {
-    using stack_frame = sys::unique<type_system::impl::impl_array>;
+    using stack_frame = type_system::clearance::unique<type_system::impl::impl_array>;
 
     std::list<stack_frame> frames;
+
+    void add_frame(std::size_t size)
+    {
+      frames.emplace_back(
+        std::make_unique<type_system::impl::impl_array>(size)
+      );
+    }
   };
 
   struct call_stack
@@ -149,6 +178,138 @@ namespace ksi::interpreter::execution::data
         execute_instruction(p);
         next_instruction();
       }
+    }
+  };
+
+}
+namespace ksi::interpreter::execution
+{
+
+  struct module_data
+  {
+    enum class state { not_ready, calculating, ready };
+
+    configuration::module_config                                  * config;
+    type_system::clearance::unique<type_system::impl::impl_array> variables = std::make_unique<type_system::impl::impl_array>();
+    std::vector<state>                                            variables_statuses;
+
+    module_data(configuration::module_config * h_config) : config{ h_config }
+    {
+      add_more_variables();
+    }
+
+    void add_more_variables()
+    {
+      std::size_t new_size = config->variables.pos.size();
+
+      variables->elements.reserve(new_size);
+      for( std::size_t i = variables->elements.size(); i < new_size; ++i )
+      { variables->elements.emplace_back(&variables->point); }
+
+      variables_statuses.resize(new_size, state::not_ready);
+    }
+
+    type_system::base::i_value * get_value(std::size_t index, execution::params & params)
+    {
+      switch( variables_statuses[index] )
+      {
+        case state::calculating:
+        throw state::calculating;
+
+        case state::not_ready: {
+          execution::data::call_stack call_stack;
+          call_stack.run(config->variables.pos[index]->seq_init.get(), params);
+        }
+        [[fallthrough]];
+
+        case state::ready:
+        break;
+      }
+
+      return variables->elements[index].get_value();
+    }
+
+    type_system::base::i_value * find_value(sys::literal name, params & p)
+    {
+      // find constant
+      configuration::module_config::read_only_cell * constant = config->constants.find(name);
+      if( constant != nullptr ) { return constant->value.keep.handle; }
+
+      // find config variable
+      configuration::module_config::variable_information * var_info = config->variables.find(name);
+      if( var_info == nullptr ) { return nullptr; }
+
+      if( variables->elements.size() < var_info->position )
+      {
+        add_more_variables();
+      }
+
+      return get_value(var_info->position, p);
+    }
+  };
+
+}
+namespace ksi::interpreter
+{
+
+  struct vm_config
+  {
+    std::shared_ptr<sys::dictionary>                dict = std::make_shared<sys::dictionary>();
+    type_system::info::static_data                  static_information{ dict.get() };
+    sys::static_table<configuration::module_config> modules;
+
+    configuration::module_config * module_main;
+
+    sys::literal literal_main_module{ dict->add(sys::string{"@main"sv}).pointer };
+    sys::literal literal_do{ dict->add(sys::string{"do"sv}).pointer };
+
+    vm_config()
+    {
+      module_main = modules.append_row<type_system::meta::meta_information>( literal_main_module ).result;
+    }
+  };
+
+}
+namespace ksi::interpreter::execution
+{
+
+  struct thread
+  {
+    vm_config                 * h_config;
+    std::vector<module_data>  modules;
+    data::call_stack          call_stack;
+    data::stack               stack;
+
+    void add_modules()
+    {
+      modules.reserve( h_config->modules.pos.size() );
+      for( configuration::module_config * module_configuration : h_config->modules.pos )
+      {
+        modules.emplace_back(module_configuration);
+      }
+    }
+
+    module_data * get_module(size_t index)
+    {
+      if( modules.size() < h_config->modules.pos.size() ) { add_modules(); }
+
+      return &modules[index];
+    }
+
+    thread(vm_config * h) : h_config{ h }
+    {
+      add_modules();
+      stack.add_frame(20);
+    }
+
+    void run(params & p)
+    {
+      module_data * md = get_module(h_config->module_main->id);
+      type_system::base::i_value * value = md->find_value(h_config->literal_do, p);
+      sequence * seq = sequence::from_value(value, p.vm_configuration->static_information);
+      if( seq == nullptr ) { return; }
+
+      call_stack.run(seq, p);
     }
   };
 

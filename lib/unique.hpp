@@ -3,18 +3,14 @@
 namespace ksi::lib
 {
 
-   template <typename T>
-  struct deleter_base
+  template <typename T>
+  struct deleter
   {
     static void close(T * handle) { delete handle; }
 
     decltype(&close) fn{ &close };
-  };
 
-  template <typename T>
-  struct deleter : deleter_base<T>
-  {
-    void operator () (T * h) const { this->fn(h); }
+    void operator () (T * h) const { fn(h); }
 
     deleter() = default;
     deleter(std::default_delete<T> &&) noexcept {}

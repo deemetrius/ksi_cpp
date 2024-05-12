@@ -9,6 +9,7 @@
 #include "lib/dict.hpp"
 #include "lib/table.hpp"
 #include "lib/unique.hpp"
+#include "lib/unique_inner.hpp"
 
 namespace ksi::interpreter::sys
 {
@@ -25,6 +26,7 @@ namespace ksi::interpreter::sys
   using static_table = lib::table<T, &T::name, typename T::Less>;
 
   using lib::unique;
+  using lib::unique_inner;
 
 }
 namespace ksi::interpreter::detail

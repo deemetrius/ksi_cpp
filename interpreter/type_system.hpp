@@ -496,10 +496,14 @@ namespace ksi::interpreter::type_system
     };
 
     template <typename T>
-    struct impl_deleter : lib::deleter_base<T>
+    struct impl_deleter
     {
+      static void close(T * h) { delete h; }
+
+      decltype( &close ) fn{ &close };
+
       impl_deleter() = default;
-      impl_deleter(std::default_delete<T> &&) noexcept {}
+      impl_deleter(std::default_delete<T>) {}
 
       void operator () (T * h)
       {

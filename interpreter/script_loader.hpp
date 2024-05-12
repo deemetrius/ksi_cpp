@@ -1,9 +1,8 @@
 #pragma once
 
-#include "vm_config.hpp"
 #include <cctype>
-#include "lib/dict_diff.hpp"
 
+#include "lib/dict_diff.hpp"
 #include "lib/static_text.hpp"
 
 namespace ksi::interpreter::loader
@@ -35,6 +34,7 @@ namespace ksi::interpreter::loader
     {
       sys::string   cell_name;
       sys::integer  number{};
+      sys::unique<execution::sequence> seq;
     };
 
     vm_config                 * target_configuration;
@@ -43,6 +43,7 @@ namespace ksi::interpreter::loader
     lib::dict_diff<sys::string>                     dict{ target_configuration->dict };
     sys::static_table<configuration::module_config> modules;
     configuration::module_config                    * current_module{ nullptr };
+
   };
 
   struct state
@@ -128,13 +129,9 @@ namespace ksi::interpreter::loader
   };
 
 }
-namespace ksi::interpreter::loader::rules
+namespace ksi::interpreter::loader
 {
-  /*
-  // before module's variable type restriction can be not specified (directly in text) it can be deduced from sequence initializer
 
-  // before local variables it should be specified type restriction
-  */
   struct actions
   {
     static std::string add_constant_to_module(parser_data * data)
@@ -180,6 +177,16 @@ namespace ksi::interpreter::loader::rules
       }
     };
   };
+
+}
+namespace ksi::interpreter::loader::rules
+{
+
+  /*
+  // before module's variable type restriction can be not specified (directly in text) it can be deduced from sequence initializer
+
+  // before local variables it should be specified type restriction
+  */
 
   template <sys::character C>
   struct is_char
@@ -319,9 +326,33 @@ namespace ksi::interpreter::loader::rules
 
   struct add_literal_from_string_to_sequence
   {
-    static state fn(std::string const & pos, parser_data * data)
+    struct action
     {
-      //
+      template <bool Value>
+      static void make_bool(execution::data_type & data)
+      {
+        data.boolean = Value;
+      }
+    };
+
+    using fn_type = decltype(&action::make_bool<true>);
+
+    static inline std::map<std::string, fn_type> map{
+      { "`yes", &action::make_bool<true> },
+      { "`no", &action::make_bool<false> }
+    };
+
+    static state fn(std::string const & token, parser_data * data)
+    {
+      auto it = map.find(token);
+      if( it == map.end() )
+      {
+        sys::unique<execution::sequence> & seq = data->info.seq = std::make_unique<execution::sequence>();
+        execution::group_instructions * group = (seq->groups.empty() ? &seq->groups.emplace_back() : &seq->groups.front());
+        execution::instruction & instruction = seq->groups.emplace_back().list_instructions.emplace_back();
+        it->second(instruction.data);
+        instruction.base() = instructions::literal_to_stack<bool>;
+      }
       return {};
     }
   };
