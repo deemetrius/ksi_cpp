@@ -3,6 +3,8 @@
 #include "interpreter/VM.hpp"
 #include "interpreter/script_loader.hpp"
 
+#include <cstdio>
+
 template <typename Types>
 void show_types(Types & nest)
 {
@@ -10,6 +12,30 @@ void show_types(Types & nest)
   {
     std::print("{:3}  {}\n", ptr->id, ptr->name->first);
   }
+}
+
+std::size_t file_size(std::FILE * fp)
+{
+  std::fseek(fp, 0, SEEK_END);
+  auto ret = std::ftell(fp);
+  std::rewind(fp);
+  return ret;
+}
+
+std::string read_file(std::string const & path)
+{
+  std::FILE * fp = std::fopen(path.c_str(), "r");
+  if( fp == nullptr ) { ksi::lib::msg("File not found"); }
+
+  std::string ret;
+  ret.assign(file_size(fp), '\0');
+
+  ret.resize(
+    std::fread(ret.data(), 1, ret.size(), fp)
+  );
+
+  std::fclose(fp);
+  return ret;
 }
 
 int main()
@@ -24,7 +50,7 @@ int main()
     {
       ksi::interpreter::VM vm;
 
-      std::print("categories:\n");
+      /* std::print("categories:\n");
       show_types(vm.config->static_information.r.category_table);
       std::print("\nsystem types:\n");
       show_types(vm.config->static_information.r.type_table);
@@ -32,7 +58,12 @@ int main()
       std::print("size: {}\n", vm.runtime.one_thread.get_module(vm.config->module_main->id)->variables->elements.size() );
 
       rng::loader::script_parser parser{ vm.config.get() };
-      parser.parse("\n @main "s);
+      parser.parse("\n @main "s); */
+
+      std::string body = read_file(".out/test.txt");
+
+      ksi::interpreter::loader::script_parser ps{ vm.config.get() };
+      ps.parse(body);
 
       // ts::brick::flag_join = true;
       // ts::brick::flag_point = true;
@@ -44,6 +75,10 @@ int main()
   {
     std::print("* Out of memory exception");
   }
+  catch( const std::string & msg )
+  {
+    std::print("{}\n", msg);
+  }
   catch( ksi::lib::message const & message )
   {
     std::print("* Exception: {}\n", message);
@@ -53,7 +88,7 @@ int main()
     std::print("* Exception!\n");
   }
 
-  std::print("cnt_array: +{} -{}\n", ts::collections::array::cnt_made, ts::collections::array::cnt_out);
-  std::print("cnt_cells: +{} -{}\n", ts::brick::cell_type::cnt_made, ts::brick::cell_type::cnt_out);
-  std::print("Done {}\n", ksi::lib::exception::skip_count);
+  // std::print("cnt_array: +{} -{}\n", ts::collections::array::cnt_made, ts::collections::array::cnt_out);
+  // std::print("cnt_cells: +{} -{}\n", ts::brick::cell_type::cnt_made, ts::brick::cell_type::cnt_out);
+  // ksi::lib::exception::skip_count
 }

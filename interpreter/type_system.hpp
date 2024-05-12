@@ -277,8 +277,6 @@ namespace ksi::interpreter::type_system
         { return &out_none; }
 
         virtual type_result get_type(info::static_data & sd) const override { return sd.t_none; }
-
-        ~none_type() { std::print("~ none_type\n"); }
       };
 
       static inline none_type none{};

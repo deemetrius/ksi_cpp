@@ -400,7 +400,7 @@ namespace ksi::interpreter::loader
         status = status.current_function(pos, this);
       }
 
-      if( status.message.size() ) {}
+      if( status.message.size() ) { throw status.message; }
     }
   };
 
