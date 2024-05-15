@@ -8,7 +8,7 @@
       "program": "${workspaceFolder}/.out/ksi.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}/.out/",
+      "cwd": "${workspaceFolder}/",
       "environment": [],
       "console": "externalTerminal"
     }

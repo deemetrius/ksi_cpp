@@ -1,18 +1,11 @@
 
-#include <print>
+#include "lib/table_show.hpp"
 #include "interpreter/VM.hpp"
 #include "interpreter/script_loader.hpp"
 
 #include <cstdio>
+#include <iostream>
 
-template <typename Types>
-void show_types(Types & nest)
-{
-  for( auto ptr : nest.pos )
-  {
-    std::print("{:3}  {}\n", ptr->id, ptr->name->first);
-  }
-}
 
 std::size_t file_size(std::FILE * fp)
 {
@@ -28,7 +21,7 @@ std::string read_file(std::string const & path)
   if( fp == nullptr ) { ksi::lib::msg("File not found"); }
 
   std::string ret;
-  ret.assign(file_size(fp), '\0');
+  ret.assign(file_size(fp), '-');
 
   ret.resize(
     std::fread(ret.data(), 1, ret.size(), fp)
@@ -51,9 +44,9 @@ int main()
       ksi::interpreter::VM vm;
 
       /* std::print("categories:\n");
-      show_types(vm.config->static_information.r.category_table);
+      show_table(vm.config->static_information.r.category_table);
       std::print("\nsystem types:\n");
-      show_types(vm.config->static_information.r.type_table);
+      show_table(vm.config->static_information.r.type_table);
 
       std::print("size: {}\n", vm.runtime.one_thread.get_module(vm.config->module_main->id)->variables->elements.size() );
 
@@ -61,23 +54,22 @@ int main()
       parser.parse("\n @main "s); */
 
       std::string body = read_file(".out/test.txt");
+      std::print("{}\n--\n\n", body);
 
-      ksi::interpreter::loader::script_parser ps{ vm.config.get() };
+      ksi::interpreter::loader::parser ps{ vm.config.get() };
       ps.parse(body);
+
+      std::cout << "\n:parsed\n";
 
       // ts::brick::flag_join = true;
       // ts::brick::flag_point = true;
     }
 
-    ksi::lib::exception::rethrow();
+    ksi::lib::exception::try_rethrow();
   }
   catch( std::bad_alloc const & e )
   {
     std::print("* Out of memory exception");
-  }
-  catch( const std::string & msg )
-  {
-    std::print("{}\n", msg);
   }
   catch( ksi::lib::message const & message )
   {

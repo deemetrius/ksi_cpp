@@ -2,7 +2,6 @@
 
 #include "execution.hpp"
 #include "instructions.hpp"
-#include "script_loader.hpp"
 
 namespace ksi::interpreter
 {

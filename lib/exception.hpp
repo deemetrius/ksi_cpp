@@ -17,7 +17,7 @@ namespace ksi::lib
       ptr = std::current_exception();
     }
 
-    static void rethrow()
+    static void try_rethrow()
     {
       if( ! ptr ) { return; }
       std::rethrow_exception(

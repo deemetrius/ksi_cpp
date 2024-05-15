@@ -137,20 +137,6 @@ namespace ksi::interpreter::type_system
     };
 
   }
-  namespace meta
-  {
-
-    struct meta_information
-    {
-      sys::literal  name;
-      std::size_t   id;
-
-      static inline const auto auto_increment{ &meta_information::id };
-
-      using Less = detail::literal_less;
-    };
-
-  }
   namespace hints
   {
 
@@ -159,23 +145,23 @@ namespace ksi::interpreter::type_system
       virtual bool match(type_pointer tp) = 0;
     };
 
-    struct type : base::staticly, i_hint, meta::meta_information
+    struct type : base::staticly, i_hint, meta_information
     {
       std::set<category const *> relate_to_cats;
 
-      type(meta::meta_information inf) : meta::meta_information{ inf } {}
+      type(meta_information inf) : meta_information{ inf } {}
 
       virtual type_result get_type(info::static_data & sd) const override;
 
       bool match(type_pointer tp) override { return (tp == this); }
     };
 
-    struct category : base::staticly, i_hint, meta::meta_information
+    struct category : base::staticly, i_hint, meta_information
     {
       std::set<category *> insists_of;
       std::set<category *> insists_of_directly;
 
-      category(meta::meta_information inf) : meta::meta_information{ inf } {}
+      category(meta_information inf) : meta_information{ inf } {}
 
       bool match(type_pointer tp) override { return tp->relate_to_cats.contains(this); }
 
@@ -217,20 +203,20 @@ namespace ksi::interpreter::type_system
       struct params
       {
         sys::dictionary                     * dict;
-        sys::static_table<hints::type>      type_table;
-        sys::static_table<hints::category>  category_table;
+        static_table<hints::type>      type_table;
+        static_table<hints::category>  category_table;
       };
 
       static  hints::cat_pointer  reg_cat(params & p, sys::sview name)
       {
-        return p.category_table.append_row<meta::meta_information>(
+        return p.category_table.append_row(
           p.dict->add(sys::string{name}).pointer
         ).result;
       }
 
       static  hints::type_pointer  reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats)
       {
-        hints::type * tp = p.type_table.append_row<meta::meta_information>(
+        hints::type * tp = p.type_table.append_row(
           p.dict->add(sys::string{name}).pointer
         ).result;
         tp->relate_to_cats.insert_range(cats);
@@ -290,15 +276,11 @@ namespace ksi::interpreter::type_system
     struct int_value : base::inplaced<info::static_data::type_int, int_value>
     {
       using base::inplaced<info::static_data::type_int, int_value>::inplaced;
-
-      ~int_value() { std::print("~int_value: {}\n", this->value); }
     };
 
     struct literal_value : base::inplaced<info::static_data::type_literal, literal_value>
     {
       using base::inplaced<info::static_data::type_literal, literal_value>::inplaced;
-
-      ~literal_value() { std::print("~literal_value: {}\n", this->value->first); }
     };
 
     struct text_value : base::counted
@@ -309,8 +291,6 @@ namespace ksi::interpreter::type_system
       {}
 
       virtual type_result get_type(info::static_data & sd) const override { return sd.t_text; }
-
-      ~text_value() { std::print(" ~text: {}\n", value); }
     };
 
   }
@@ -331,7 +311,7 @@ namespace ksi::interpreter::type_system
       {
         if( flag_join ) { msg("Test junction before map try_emplace"); } //dbg:
         if( auto [it, added] = map.try_emplace(point, 1); !added )
-        { ++it->second; std::print(" [linked in]\n"); }
+        { ++it->second; }
       }
 
       void disjoin(point_type * point)
@@ -560,8 +540,6 @@ namespace ksi::interpreter::type_system
       }
 
       virtual type_result get_type(info::static_data & sd) const override { return sd.t_array; }
-
-      ~array() { std::print("~array\n"); }
     };
 
   }

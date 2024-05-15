@@ -14,6 +14,7 @@ namespace ksi::lib {
 
   template <
     typename Struct,
+    typename Construct,
     concepts::member_pointer_of<Struct> auto Index,
     typename Compare = std::ranges::less
   >
@@ -41,11 +42,11 @@ namespace ksi::lib {
       bool    is_same;
     };
 
-    template <typename Param, typename ... Args>
+    template <typename ... Args>
     append_result append_row(Args ... args)
     {
       std::list<Struct> row_temprary;
-      pointer h_result = &row_temprary.emplace_back( Param{std::move(args) ...} );
+      pointer h_result = &row_temprary.emplace_back( Construct{std::move(args) ...} );
 
       typename map_type::iterator it = index.find(h_result->*Index);
       if( it != index.end() ) { return {it->second, true}; }

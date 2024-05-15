@@ -22,9 +22,6 @@ namespace ksi::interpreter::sys
   using dictionary = lib::dict<string>;
   using literal = dictionary::map_type::const_pointer;
 
-  template <typename T>
-  using static_table = lib::table<T, &T::name, typename T::Less>;
-
   using lib::unique;
   using lib::unique_inner;
 
@@ -45,4 +42,17 @@ namespace ksi::interpreter
 {
   using lib::msg;
   using lib::error_msg;
+
+  struct meta_information
+  {
+    sys::literal  name;
+    std::size_t   id;
+
+    static inline const auto auto_increment{ &meta_information::id };
+
+    using Less = detail::literal_less;
+  };
+
+  template <typename T>
+  using static_table = lib::table<T, meta_information, &T::name, typename T::Less>;
 }

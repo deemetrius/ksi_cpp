@@ -72,7 +72,7 @@ namespace ksi::interpreter::execution
 namespace ksi::interpreter::configuration
 {
 
-  struct module_config : type_system::meta::meta_information
+  struct module_config : meta_information
   {
     struct variable_information
     {
@@ -97,10 +97,10 @@ namespace ksi::interpreter::configuration
       using Less = detail::literal_less;
     };
 
-    sys::static_table<variable_information> variables;
-    sys::static_table<read_only_cell>       constants;
+    static_table<variable_information> variables;
+    static_table<read_only_cell>       constants;
 
-    module_config(type_system::meta::meta_information info) : type_system::meta::meta_information{ info } {}
+    module_config(meta_information info) : meta_information{ info } {}
   };
 
 }
@@ -256,7 +256,7 @@ namespace ksi::interpreter
   {
     std::shared_ptr<sys::dictionary>                dict = std::make_shared<sys::dictionary>();
     type_system::info::static_data                  static_information{ dict.get() };
-    sys::static_table<configuration::module_config> modules;
+    static_table<configuration::module_config> modules;
 
     configuration::module_config * module_main;
 
@@ -265,7 +265,7 @@ namespace ksi::interpreter
 
     vm_config()
     {
-      module_main = modules.append_row<type_system::meta::meta_information>( literal_main_module ).result;
+      module_main = modules.append_row( literal_main_module ).result;
     }
   };
 
