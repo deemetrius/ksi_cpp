@@ -4,6 +4,7 @@
 
 namespace ksi::interpreter::loader
 {
+  using namespace std::string_literals;
 
   struct parser
   {
@@ -11,9 +12,9 @@ namespace ksi::interpreter::loader
 
     void parse(sys::string const & file)
     {
-      rules::state st{
+      state st{
         .pos{ file.data(), file.data() + file.size() },
-        .data{ h_config },
+        .prepare{ .h_configuration = h_config },
         .fn = &rules::scope_file::function
       };
 
@@ -21,16 +22,19 @@ namespace ksi::interpreter::loader
       {
         if( std::isspace(*st.pos.current) ) { ++st.pos.current; continue; }
         st.fn(st);
-        st.is_done = st.pos.is_end();
+        if( st.pos.is_end() && (st.is_done == false) )
+        {
+          st.message = "Token not the last one"s;
+        }
       }
       while( (st.is_done == false) && st.message.empty() );
 
       if( st.message.size() )
       {
-        std::print("{}\n", st.prepare.name); exit(1);
+        std::print("{}\n", st.message); exit(1);
       }
 
-      lib::show_table(st.data.modules);
+      lib::show_vector( st.prepare.seq_current_group().list_instructions );
     }
   };
 

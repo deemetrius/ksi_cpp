@@ -114,9 +114,10 @@ namespace ksi::interpreter::configuration
 
     struct read_only_cell
     {
-      sys::literal                    name;
-      type_system::brick::cell_type   value;
-      std::size_t                     position;
+      sys::literal                      name;
+      sys::unique<execution::sequence>  seq_init;
+      type_system::brick::cell_type     value;
+      std::size_t                       position;
 
       static inline const auto auto_increment{ &read_only_cell::position };
 
@@ -282,7 +283,7 @@ namespace ksi::interpreter
   {
     std::shared_ptr<sys::dictionary>                dict = std::make_shared<sys::dictionary>();
     type_system::info::static_data                  static_information{ dict.get() };
-    static_table<configuration::module_config> modules;
+    static_table<configuration::module_config, meta_information> modules;
 
     configuration::module_config * module_main;
 

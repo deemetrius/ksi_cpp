@@ -18,7 +18,7 @@ namespace ksi::interpreter
     {};
 
     template <typename Action>
-    struct expression : is_place<digits, Action>
+    struct expression : is_place<digits, Action, is_last_rule>
     {};
 
 
@@ -27,7 +27,7 @@ namespace ksi::interpreter
 
       struct set_number
       {
-        static void perform(state & st, sys::string & result)
+        static void perform(loader::state & st, sys::string & result)
         {
           execution::data_type data;
           data.get<sys::integer>() = std::atoll( result.c_str() );
@@ -36,24 +36,27 @@ namespace ksi::interpreter
 
       struct module_set_name
       {
-        static void perform(state & st, sys::string & result)
+        static void perform(loader::state & st, sys::string & result)
         {
-          st.data.add_module(result);
+          st.add_module(result);
           st.fn = &scope_module::function;
         }
       };
 
       struct module_set_cell_name
       {
-        static void perform(state & st, sys::string & result)
+        static void perform(loader::state & st, sys::string & result)
         {
+          st.prepare.next_cell();
+
           st.prepare.name = result;
+          st.prepare.seq.emplace_front();
         }
       };
 
       struct module_set_integral_number
       {
-        static void perform(state & st, sys::string & result)
+        static void perform(loader::state & st, sys::string & result)
         {
           st.prepare.seq_current_group().list_instructions.emplace_back<execution::instruction>(
             {
@@ -61,12 +64,14 @@ namespace ksi::interpreter
               { .integer = std::atoll( result.c_str() ) }
             }
           );
+
+          st.fn = &scope_module::function;
         }
       };
 
       struct module_start_constant_initializatoin
       {
-        static void perform(state & st, sys::string & result)
+        static void perform(loader::state & st, sys::string & result)
         {
           st.fn = &expression<module_set_integral_number>::function;
         }

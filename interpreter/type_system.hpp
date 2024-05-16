@@ -202,9 +202,9 @@ namespace ksi::interpreter::type_system
 
       struct params
       {
-        sys::dictionary                     * dict;
-        static_table<hints::type>      type_table;
-        static_table<hints::category>  category_table;
+        sys::dictionary                                   * dict;
+        static_table<hints::type, meta_information>      type_table;
+        static_table<hints::category, meta_information>  category_table;
       };
 
       static  hints::cat_pointer  reg_cat(params & p, sys::sview name)

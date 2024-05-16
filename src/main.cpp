@@ -1,4 +1,6 @@
 
+#include "lib/vector_show.hpp"
+
 #include "lib/table_show.hpp"
 #include "interpreter/VM.hpp"
 #include "interpreter/script_loader.hpp"

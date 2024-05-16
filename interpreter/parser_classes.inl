@@ -1,53 +1,8 @@
 
 
-struct position
-{
-  using type = const char *;
-
-  type current, end;
-
-  bool is_end() const { return (current == end); }
-};
-
-struct prepare_type
-{
-  sys::string name;
-  sys::unique<execution::sequence> seq = std::make_unique<execution::sequence>();
-
-  execution::group_instructions & seq_current_group()
-  {
-    if( seq->groups.empty() )
-    {
-      seq->groups.emplace_back();
-    }
-
-    return seq->groups.front();
-  }
-};
-
-struct state
-{
-  static void sample_function(state & st) {}
-  using function_type = decltype(&sample_function);
-
-  // props
-
-  std::size_t line_number = 0;
-  position    pos;
-
-  loader::parser_data   data;
-  prepare_type          prepare;
-
-  function_type fn;
-
-  sys::string message;
-  bool        is_done = false;
-};
-
-
 struct end_of_file
 {
-  bool check(state & st)
+  bool check(loader::state & st)
   {
     return st.pos.is_end();
   }
@@ -57,7 +12,7 @@ struct end_of_file
 template <char Ch>
 struct is_char
 {
-  bool check(state & st)
+  bool check(loader::state & st)
   {
     if( *st.pos.current == Ch )
     {
@@ -74,12 +29,12 @@ struct is_name
 {
   sys::string result;
 
-  bool check(state & st)
+  bool check(loader::state & st)
   {
     if( std::isalpha(*st.pos.current) )
     {
-      position & pos = st.pos;
-      position::type begin = pos.current;
+      loader::position & pos = st.pos;
+      loader::position::type begin = pos.current;
 
       do
       {
@@ -99,12 +54,12 @@ struct digits
 {
   sys::string result;
 
-  bool check(state & st)
+  bool check(loader::state & st)
   {
     if( std::isdigit(*st.pos.current) )
     {
-      position & pos = st.pos;
-      position::type begin = pos.current;
+      loader::position & pos = st.pos;
+      loader::position::type begin = pos.current;
       ++pos.current;
 
       while( (pos.is_end() == false) && std::isdigit(*pos.current) )
@@ -125,12 +80,12 @@ struct keyword
 {
   sys::string result;
 
-  bool check(state & st)
+  bool check(loader::state & st)
   {
     if( *st.pos.current != Ch ) { return false; }
 
-    position::type begin = st.pos.current;
-    position & pos = st.pos;
+    loader::position::type begin = st.pos.current;
+    loader::position & pos = st.pos;
 
     do
     {
@@ -155,7 +110,7 @@ struct is_place
 {
   static constexpr bool is_last = std::is_same_v<IsLast, is_last_rule>;
 
-  static void function(state & st)
+  static void function(loader::state & st)
   {
     Token t;
     if( t.check(st) )
@@ -165,7 +120,10 @@ struct is_place
       st.message = "Token not recognized";
     }
 
-    st.is_done = is_last;
+    if( st.pos.is_end() && is_last )
+    {
+      st.is_done = true;
+    }
   }
 };
 

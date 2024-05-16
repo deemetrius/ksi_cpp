@@ -53,6 +53,6 @@ namespace ksi::interpreter
     using Less = detail::literal_less;
   };
 
-  template <typename T>
-  using static_table = lib::table<T, meta_information, &T::name, typename T::Less>;
+  template <typename T, typename Base = T>
+  using static_table = lib::table<T, Base, &T::name, typename T::Less>;
 }
