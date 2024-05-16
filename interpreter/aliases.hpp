@@ -40,6 +40,8 @@ namespace ksi::interpreter::detail
 }
 namespace ksi::interpreter
 {
+  using namespace std::string_literals;
+
   using lib::msg;
   using lib::error_msg;
 

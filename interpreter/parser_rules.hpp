@@ -12,14 +12,20 @@ namespace ksi::interpreter
 
 
     struct colon : is_char<':'>
-    {};
+    {
+      static const inline sys::string name = "colon"s;
+    };
 
     struct variable : is_name
-    {};
+    {
+      static const inline sys::string name = "variable"s;
+    };
 
     template <typename Action>
     struct expression : is_place<digits, Action, is_last_rule>
-    {};
+    {
+      static const inline sys::string name = "expression"s;
+    };
 
 
     struct actions
@@ -81,7 +87,9 @@ namespace ksi::interpreter
 
 
     struct module_name : keyword<'@'>
-    {};
+    {
+      static const inline sys::string name = "module_name"s;
+    };
 
 
     struct after_module_cell_name : is_place<colon, actions::module_start_constant_initializatoin>

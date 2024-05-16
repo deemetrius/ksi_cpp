@@ -104,10 +104,10 @@ namespace ksi::interpreter::configuration
     {
       sys::literal                          name;
       type_system::hints::i_hint            * type_restriction;
-      std::size_t                           position;
+      std::size_t                           id;
       sys::unique<execution::sequence>      seq_init;
 
-      static inline const auto auto_increment{ &variable_information::position };
+      static inline const auto auto_increment{ &variable_information::id };
 
       using Less = detail::literal_less;
     };
@@ -117,9 +117,9 @@ namespace ksi::interpreter::configuration
       sys::literal                      name;
       sys::unique<execution::sequence>  seq_init;
       type_system::brick::cell_type     value;
-      std::size_t                       position;
+      std::size_t                       id;
 
-      static inline const auto auto_increment{ &read_only_cell::position };
+      static inline const auto auto_increment{ &read_only_cell::id };
 
       using Less = detail::literal_less;
     };
@@ -266,12 +266,12 @@ namespace ksi::interpreter::execution
       configuration::module_config::variable_information * var_info = config->variables.find(name);
       if( var_info == nullptr ) { return nullptr; }
 
-      if( variables->elements.size() < var_info->position )
+      if( variables->elements.size() < var_info->id )
       {
         add_more_variables();
       }
 
-      return get_value(var_info->position, p);
+      return get_value(var_info->id, p);
     }
   };
 

@@ -4,7 +4,6 @@
 
 namespace ksi::interpreter::loader
 {
-  using namespace std::string_literals;
 
   struct parser
   {
@@ -28,6 +27,8 @@ namespace ksi::interpreter::loader
         }
       }
       while( (st.is_done == false) && st.message.empty() );
+
+      lib::show_table(st.prepare.current_module->constants);
 
       if( st.message.size() )
       {

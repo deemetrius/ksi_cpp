@@ -52,6 +52,8 @@ struct is_name
 
 struct digits
 {
+  static inline const sys::string name{ "digits"s };
+
   sys::string result;
 
   bool check(loader::state & st)
@@ -117,7 +119,7 @@ struct is_place
     {
       Action::perform(st, t.result);
     } else {
-      st.message = "Token not recognized";
+      st.message = ("Token not recognized: "s + Token::name);
     }
 
     if( st.pos.is_end() && is_last )
