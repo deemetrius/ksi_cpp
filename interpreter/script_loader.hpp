@@ -19,13 +19,15 @@ namespace ksi::interpreter::loader
 
       do
       {
+        if( std::isspace(*st.pos.current) ) { ++st.pos.current; continue; }
         st.fn(st);
+        st.is_done = st.pos.is_end();
       }
-      while( st.message.empty() );
+      while( (st.is_done == false) && st.message.empty() );
 
       if( st.message.size() )
       {
-        std::print("{} ", st.message); exit(1);
+        std::print("{}\n", st.prepare.name); exit(1);
       }
 
       lib::show_table(st.data.modules);

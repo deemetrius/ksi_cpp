@@ -25,6 +25,7 @@ namespace ksi::interpreter::execution
   union data_type
   {
     bool boolean;
+    sys::integer integer;
 
     template <typename T>
     T get() const
@@ -33,9 +34,34 @@ namespace ksi::interpreter::execution
       {
         return this->boolean;
       }
+      else if constexpr( std::is_same_v<T, sys::integer> )
+      {
+        return this->integer;
+      }
       else
       {
         static_assert("This type is not supported");
+      }
+
+      return {};
+    }
+
+    template <typename T>
+    T & get()
+    {
+      if constexpr( std::is_same_v<T, bool> )
+      {
+        return this->boolean;
+      }
+      else if constexpr( std::is_same_v<T, sys::integer> )
+      {
+        return this->integer;
+      }
+      else
+      {
+        static T value;
+        static_assert("This type is not supported");
+        return value;
       }
     }
   };

@@ -10,7 +10,7 @@ namespace ksi::lib
   {
     for( auto ptr : nest.pos )
     {
-      std::print("{:3}  {}\n", ptr->id, ptr->name->first);
+      std::print("{} {:8}\n", ptr->name->first, ptr->id);
     }
   }
 

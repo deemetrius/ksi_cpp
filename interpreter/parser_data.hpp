@@ -16,7 +16,7 @@ namespace ksi::interpreter::loader
     void add_module(sys::string & name)
     {
       sys::literal lit_name = dict.add( std::move(name) );
-      modules.append_row( lit_name );
+      current_module = modules.append_row( lit_name ).result;
     }
   };
 }
