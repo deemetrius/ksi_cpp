@@ -17,25 +17,28 @@ namespace ksi::interpreter::loader
         .fn = &rules::scope_file::function
       };
 
+      state::fn_result status = state::fn_result::keep_continue;
       do
       {
+        // keep_continue error_occured fine_exit
         if( std::isspace(*st.pos.current) ) { ++st.pos.current; continue; }
-        st.fn(st);
-        if( st.pos.is_end() && (st.is_done == false) )
+        switch( status = st.fn(st) )
         {
-          st.message = "Token not the last one"s;
+          case state::fn_result::keep_continue : continue;
+          case state::fn_result::error_occured :
+          {
+            std::print("{}\n", st.message);
+            return;
+          }
+          default: ;
         }
       }
-      while( (st.is_done == false) && st.message.empty() );
+      while( status != state::fn_result::fine_exit );
+
+      st.finish();
+      std::print(":parsed\n");
 
       lib::show_table(st.prepare.current_module->constants);
-
-      if( st.message.size() )
-      {
-        std::print("{}\n", st.message); exit(1);
-      }
-
-      lib::show_vector( st.prepare.seq_current_group().list_instructions );
     }
   };
 

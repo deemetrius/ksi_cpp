@@ -18,6 +18,8 @@
 namespace ksi::interpreter
 {
   using namespace std::literals::string_view_literals;
+
+  struct vm_config_settings;
 }
 namespace ksi::interpreter::type_system
 {
@@ -40,8 +42,8 @@ namespace ksi::interpreter::type_system
     struct category;
     struct type;
 
-    using type_pointer = const type *;
-    using cat_pointer = const category *;
+    using type_pointer = type *;
+    using cat_pointer = category *;
   }
 
   struct security
@@ -59,12 +61,12 @@ namespace ksi::interpreter::type_system
   {
 
     template <typename Derived>
-    struct dbg
+    struct dbg_class
     {
       static inline int cnt_made{ 0 }, cnt_out{ 0 };
 
-      dbg() { ++cnt_made; }
-      ~dbg() { ++cnt_out; }
+      dbg_class() { ++cnt_made; }
+      ~dbg_class() { ++cnt_out; }
     };
 
     struct i_value
@@ -202,26 +204,14 @@ namespace ksi::interpreter::type_system
 
       struct params
       {
-        sys::dictionary                                   * dict;
+        vm_config_settings                               * from;
         static_table<hints::type, meta_information>      type_table;
         static_table<hints::category, meta_information>  category_table;
       };
 
-      static  hints::cat_pointer  reg_cat(params & p, sys::sview name)
-      {
-        return p.category_table.append_row(
-          p.dict->add(sys::string{name}).pointer
-        ).result;
-      }
+      static  hints::cat_pointer  reg_cat(params & p, sys::sview name);
 
-      static  hints::type_pointer  reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats)
-      {
-        hints::type * tp = p.type_table.append_row(
-          p.dict->add(sys::string{name}).pointer
-        ).result;
-        tp->relate_to_cats.insert_range(cats);
-        return tp;
-      }
+      static  hints::type_pointer  reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats);
     };
 
     struct static_data
@@ -309,7 +299,6 @@ namespace ksi::interpreter::type_system
 
       void join(point_type * point)
       {
-        if( flag_join ) { msg("Test junction before map try_emplace"); } //dbg:
         if( auto [it, added] = map.try_emplace(point, 1); !added )
         { ++it->second; }
       }
@@ -324,7 +313,7 @@ namespace ksi::interpreter::type_system
       }
     };
 
-    struct cell_type : base::dbg<cell_type>
+    struct cell_type : base::dbg_class<cell_type>
     {
       static void finish(cell_type * h, bool) { delete h; }
       static void unbind(cell_type * h, bool reset_only);
@@ -437,7 +426,6 @@ namespace ksi::interpreter::type_system
 
       void connect_with(cell_type * cell)
       {
-        if( flag_point ) { msg("Test point before set insert"); } //dbg:
         set.insert(cell);
       }
 
@@ -531,7 +519,7 @@ namespace ksi::interpreter::type_system
   namespace collections
   {
 
-    struct array : base::pointed<impl::impl_array>, base::dbg<array>
+    struct array : base::pointed<impl::impl_array>, base::dbg_class<array>
     {
       array() = default;
       array(std::size_t reserve)

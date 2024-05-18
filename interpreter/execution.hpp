@@ -279,22 +279,60 @@ namespace ksi::interpreter::execution
 namespace ksi::interpreter
 {
 
-  struct vm_config
+  struct vm_config_settings
   {
-    std::shared_ptr<sys::dictionary>                dict = std::make_shared<sys::dictionary>();
-    type_system::info::static_data                  static_information{ dict.get() };
-    static_table<configuration::module_config, meta_information> modules;
+    std::shared_ptr<sys::dictionary>                              dict = std::make_shared<sys::dictionary>();
+    static_table<configuration::module_config, meta_information>  modules;
 
     configuration::module_config * module_main;
+    configuration::module_config * module_global;
 
-    sys::literal literal_main_module{ dict->add(sys::string{"@main"sv}).pointer };
+    sys::literal literal_module_main{ dict->add(sys::string{"@main"sv}).pointer };
+    sys::literal literal_module_global{ dict->add(sys::string{"@global"sv}).pointer };
     sys::literal literal_do{ dict->add(sys::string{"do"sv}).pointer };
 
-    vm_config()
+    vm_config_settings()
     {
-      module_main = modules.append_row( literal_main_module ).result;
+      module_main = modules.append_row( literal_module_main ).result;
+      module_global = modules.append_row( literal_module_global ).result;
+    }
+
+    void add_constant(sys::literal name, type_system::base::i_value * value, configuration::module_config * h_module)
+    {
+      value->into(
+        &h_module->constants.append_row( name, std::make_unique<execution::sequence>() ).result->value
+      );
     }
   };
+
+  struct vm_config
+  {
+    vm_config_settings                              settings;
+    type_system::info::static_data                  static_information{ &settings };
+  };
+
+}
+namespace ksi::interpreter::type_system::info
+{
+
+  hints::type_pointer  internal::reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats)
+  {
+    hints::type * tp = p.type_table.append_row(
+      p.from->dict->add(sys::string{name}).pointer
+    ).result;
+    tp->relate_to_cats.insert_range(cats);
+    p.from->add_constant(tp->name, tp, p.from->module_global);
+    return tp;
+  }
+
+  hints::cat_pointer  internal::reg_cat(params & p, sys::sview name)
+  {
+    hints::cat_pointer hc = p.category_table.append_row(
+      p.from->dict->add(sys::string{name}).pointer
+    ).result;
+    p.from->add_constant(hc->name, hc, p.from->module_global);
+    return hc;
+  }
 
 }
 namespace ksi::interpreter::execution
@@ -309,8 +347,8 @@ namespace ksi::interpreter::execution
 
     void add_modules()
     {
-      modules.reserve( h_config->modules.pos.size() );
-      for( configuration::module_config * module_configuration : h_config->modules.pos )
+      modules.reserve( h_config->settings.modules.pos.size() );
+      for( configuration::module_config * module_configuration : h_config->settings.modules.pos )
       {
         modules.emplace_back(module_configuration);
       }
@@ -318,7 +356,7 @@ namespace ksi::interpreter::execution
 
     module_data * get_module(size_t index)
     {
-      if( modules.size() < h_config->modules.pos.size() ) { add_modules(); }
+      if( modules.size() < h_config->settings.modules.pos.size() ) { add_modules(); }
 
       return &modules[index];
     }
@@ -331,8 +369,8 @@ namespace ksi::interpreter::execution
 
     void run(params & p)
     {
-      module_data * md = get_module(h_config->module_main->id);
-      type_system::base::i_value * value = md->find_value(h_config->literal_do, p);
+      module_data * md = get_module(h_config->settings.module_main->id);
+      type_system::base::i_value * value = md->find_value(h_config->settings.literal_do, p);
       sequence * seq = sequence::from_value(value, p.vm_configuration->static_information);
       if( seq == nullptr ) { return; }
 

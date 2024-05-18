@@ -12,6 +12,8 @@ struct end_of_file
 template <char Ch>
 struct is_char
 {
+  sys::string result;
+
   bool check(loader::state & st)
   {
     if( *st.pos.current == Ch )
@@ -112,7 +114,7 @@ struct is_place
 {
   static constexpr bool is_last = std::is_same_v<IsLast, is_last_rule>;
 
-  static void function(loader::state & st)
+  static loader::state::fn_result function(loader::state & st)
   {
     Token t;
     if( t.check(st) )
@@ -122,10 +124,17 @@ struct is_place
       st.message = ("Token not recognized: "s + Token::name);
     }
 
-    if( st.pos.is_end() && is_last )
+    if( st.pos.is_end() )
     {
-      st.is_done = true;
+      if( is_last )
+      {
+        st.message = "Expected next token"s;
+        return loader::state::fn_result::fine_exit;
+      }
+      return loader::state::fn_result::error_occured;
     }
+
+    return loader::state::fn_result::keep_continue;
   }
 };
 

@@ -61,10 +61,10 @@ int main()
       ksi::interpreter::loader::parser ps{ vm.config.get() };
       ps.parse(body);
 
-      std::cout << "\n:parsed\n";
-
       // ts::brick::flag_join = true;
       // ts::brick::flag_point = true;
+
+      ksi::lib::show_table(vm.config->settings.module_global->constants);
     }
 
     ksi::lib::exception::try_rethrow();

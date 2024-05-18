@@ -55,8 +55,9 @@ namespace ksi::interpreter
         {
           st.prepare.next_cell();
 
-          st.prepare.name = result;
-          st.prepare.seq.emplace_front();
+          st.prepare.name = std::move(result);
+
+          st.fn = &after_module_cell_name::function;
         }
       };
 
@@ -75,10 +76,11 @@ namespace ksi::interpreter
         }
       };
 
-      struct module_start_constant_initializatoin
+      struct module_start_constant_initialization
       {
         static void perform(loader::state & st, sys::string & result)
         {
+          st.prepare.was_cell = loader::prepare_type::prev_cell_type::constant;
           st.fn = &expression<module_set_integral_number>::function;
         }
       };
@@ -92,14 +94,15 @@ namespace ksi::interpreter
     };
 
 
-    struct after_module_cell_name : is_place<colon, actions::module_start_constant_initializatoin>
+    struct after_module_cell_name : is_place<colon, actions::module_start_constant_initialization>
+    {};
+
+
+    struct scope_module : is_place<variable, actions::module_set_cell_name, is_last_rule>
     {};
 
 
     struct scope_file : is_place<module_name, actions::module_set_name, is_last_rule>
-    {};
-
-    struct scope_module : is_place<variable, actions::module_set_cell_name>
     {};
 
   }; // nest

@@ -20,23 +20,28 @@ namespace ksi::interpreter::loader
     enum class prev_cell_type { none, constant, variable };
 
     vm_config                                  * h_configuration;
-    lib::dict_diff<sys::string>                dict{ h_configuration->dict };
+    lib::dict_diff<sys::string>                dict{ h_configuration->settings.dict };
     static_table<configuration::module_config, meta_information> modules;
 
     sys::string name;
     prev_cell_type was_cell = prev_cell_type::none;
-    std::list< sys::unique<execution::sequence> > seq;
-    //sys::unique<execution::sequence> seq = std::make_unique<execution::sequence>();
-    configuration::module_config * current_module = h_configuration->module_main;
+    std::list< sys::unique<execution::sequence> > seq_list;
+    configuration::module_config * current_module = h_configuration->settings.module_main;
 
     execution::group_instructions & seq_current_group()
     {
-      if( seq.front()->groups.empty() )
+      if( seq_list.empty() )
       {
-        seq.front()->groups.emplace_back();
+        sys::unique<execution::sequence> seq = std::make_unique<execution::sequence>();
+        seq_list.push_front( std::move(seq) );
       }
 
-      return seq.front()->groups.front();
+      if( seq_list.front()->groups.empty() )
+      {
+        seq_list.front()->groups.emplace_back();
+      }
+
+      return seq_list.front()->groups.front();
     }
 
     void next_cell()
@@ -44,27 +49,26 @@ namespace ksi::interpreter::loader
       switch( this->was_cell )
       {
         case prev_cell_type::constant :
-        try_add_constant();
+        add_constant();
         break;
 
         default: ;
       }
     }
 
-    void try_add_constant()
+    void add_constant()
     {
-      if( ! name.empty() )
-      {
-        sys::literal lit_name = dict.add( std::move(this->name) );
-        current_module->constants.append_row( lit_name, std::move(this->seq.front()) );
-        this->seq.pop_front();
-      }
+      sys::literal lit_name = dict.add( std::move(this->name) );
+      current_module->constants.append_row( lit_name, std::move(this->seq_list.front()) );
+      this->seq_list.pop_front();
+      this->was_cell = prev_cell_type::none;
     }
   };
 
   struct state
   {
-    static void sample_function(state & st) {}
+    enum class fn_result { keep_continue, error_occured, fine_exit };
+    static fn_result sample_function(state & st) { return fn_result::fine_exit; }
     using function_type = decltype(&sample_function);
 
     // props
@@ -82,7 +86,14 @@ namespace ksi::interpreter::loader
 
     function_type fn;
     sys::string   message;
-    bool          is_done = false;
+
+    void finish()
+    {
+      if( prepare.seq_list.size() == 1 )
+      {
+        prepare.next_cell();
+      }
+    }
   };
 
 }
