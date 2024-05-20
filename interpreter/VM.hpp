@@ -10,16 +10,16 @@ namespace ksi::interpreter
   {
     execution::thread one_thread;
 
-    vm_runtime(vm_config * h_config) : one_thread{ h_config }
+    vm_runtime(vm_config_data * h_config) : one_thread{ h_config }
     {}
   };
 
   struct VM
   {
-    std::unique_ptr<vm_config>  config;
-    vm_runtime                  runtime;
+    vm_config_data  config;
+    vm_runtime      runtime;
 
-    VM() : config{ std::make_unique<vm_config>() }, runtime{ config.get() }
+    VM() : runtime{ &config }
     {}
   };
 

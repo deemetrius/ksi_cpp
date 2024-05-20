@@ -1,18 +1,9 @@
 
 
-struct end_of_file
-{
-  bool check(loader::state & st)
-  {
-    return st.pos.is_end();
-  }
-};
-
-
 template <char Ch>
 struct is_char
 {
-  sys::string result;
+  parser_result result;
 
   bool check(loader::state & st)
   {
@@ -29,7 +20,7 @@ struct is_char
 
 struct is_name
 {
-  sys::string result;
+  parser_result result;
 
   bool check(loader::state & st)
   {
@@ -45,10 +36,10 @@ struct is_name
       }
       while( std::isalnum(*pos.current) );
 
-      result.assign(begin, pos.current);
+      result.name.assign(begin, pos.current);
     }
 
-    return (result.size() > 0);
+    return (result.name.size() > 0);
   }
 };
 
@@ -56,7 +47,7 @@ struct digits
 {
   static inline const sys::string name{ "digits"s };
 
-  sys::string result;
+  parser_result result;
 
   bool check(loader::state & st)
   {
@@ -71,7 +62,7 @@ struct digits
         ++pos.current;
       }
 
-      result.assign(begin, pos.current);
+      result.name.assign(begin, pos.current);
       return true;
     }
 
@@ -82,7 +73,7 @@ struct digits
 template <sys::character Ch>
 struct keyword
 {
-  sys::string result;
+  parser_result result;
 
   bool check(loader::state & st)
   {
@@ -100,7 +91,7 @@ struct keyword
 
     if( begin + 1 == pos.current ) { return false; }
 
-    result.assign(begin, pos.current);
+    result.name.assign(begin, pos.current);
 
     return true;
   }

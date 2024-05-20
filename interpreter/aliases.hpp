@@ -45,12 +45,26 @@ namespace ksi::interpreter
   using lib::msg;
   using lib::error_msg;
 
-  struct meta_information
+  struct parser_result
   {
-    sys::literal  name;
-    std::size_t   id;
+    sys::string name;
+    std::size_t line;
+  };
 
-    static inline const auto auto_increment{ &meta_information::id };
+  struct src_info
+  {
+    std::size_t   line;
+    sys::literal  name;
+  };
+
+  struct var_info
+  {
+    std::size_t   id;
+  };
+
+  struct meta_info : src_info, var_info
+  {
+    static inline const auto auto_increment{ &meta_info::id };
 
     using Less = detail::literal_less;
   };

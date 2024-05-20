@@ -147,23 +147,23 @@ namespace ksi::interpreter::type_system
       virtual bool match(type_pointer tp) = 0;
     };
 
-    struct type : base::staticly, i_hint, meta_information
+    struct type : base::staticly, i_hint, meta_info
     {
       std::set<category const *> relate_to_cats;
 
-      type(meta_information inf) : meta_information{ inf } {}
+      type(meta_info inf) : meta_info{ inf } {}
 
       virtual type_result get_type(info::static_data & sd) const override;
 
       bool match(type_pointer tp) override { return (tp == this); }
     };
 
-    struct category : base::staticly, i_hint, meta_information
+    struct category : base::staticly, i_hint, meta_info
     {
       std::set<category *> insists_of;
       std::set<category *> insists_of_directly;
 
-      category(meta_information inf) : meta_information{ inf } {}
+      category(meta_info inf) : meta_info{ inf } {}
 
       bool match(type_pointer tp) override { return tp->relate_to_cats.contains(this); }
 
@@ -205,8 +205,8 @@ namespace ksi::interpreter::type_system
       struct params
       {
         vm_config_settings                               * from;
-        static_table<hints::type, meta_information>      type_table;
-        static_table<hints::category, meta_information>  category_table;
+        static_table<hints::type, meta_info>      type_table;
+        static_table<hints::category, meta_info>  category_table;
       };
 
       static  hints::cat_pointer  reg_cat(params & p, sys::sview name);

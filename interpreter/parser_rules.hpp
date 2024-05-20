@@ -33,16 +33,16 @@ namespace ksi::interpreter
 
       struct set_number
       {
-        static void perform(loader::state & st, sys::string & result)
+        static void perform(loader::state & st, parser_result & result)
         {
           execution::data_type data;
-          data.get<sys::integer>() = std::atoll( result.c_str() );
+          data.get<sys::integer>() = std::atoll( result.name.c_str() );
         }
       };
 
       struct module_set_name
       {
-        static void perform(loader::state & st, sys::string & result)
+        static void perform(loader::state & st, parser_result & result)
         {
           st.add_module(result);
           st.fn = &scope_module::function;
@@ -51,11 +51,12 @@ namespace ksi::interpreter
 
       struct module_set_cell_name
       {
-        static void perform(loader::state & st, sys::string & result)
+        static void perform(loader::state & st, parser_result & result)
         {
           st.prepare.next_cell();
 
-          st.prepare.name = std::move(result);
+          st.prepare.name = std::move(result.name);
+          st.prepare.line_number = result.line;
 
           st.fn = &after_module_cell_name::function;
         }
@@ -63,12 +64,12 @@ namespace ksi::interpreter
 
       struct module_set_integral_number
       {
-        static void perform(loader::state & st, sys::string & result)
+        static void perform(loader::state & st, parser_result & result)
         {
           st.prepare.seq_current_group().list_instructions.emplace_back<execution::instruction>(
             {
               instructions::literal_to_stack<sys::integer>,
-              { .integer = std::atoll( result.c_str() ) }
+              { .integer = std::atoll( result.name.c_str() ) }
             }
           );
 
@@ -78,7 +79,7 @@ namespace ksi::interpreter
 
       struct module_start_constant_initialization
       {
-        static void perform(loader::state & st, sys::string & result)
+        static void perform(loader::state & st, parser_result & result)
         {
           st.prepare.was_cell = loader::prepare_type::prev_cell_type::constant;
           st.fn = &expression<module_set_integral_number>::function;

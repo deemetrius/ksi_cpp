@@ -1,11 +1,13 @@
 #pragma once
 
 #include "type_system.hpp"
+#include <mutex>
 
 namespace ksi::interpreter
 {
 
   struct vm_config;
+  struct vm_config_data;
 
 }
 namespace ksi::interpreter::execution
@@ -18,14 +20,22 @@ namespace ksi::interpreter::execution
 
   struct params
   {
-    vm_config * vm_configuration;
+    vm_config_data * config;
     thread * h_tread;
   };
 
   union data_type
   {
+    struct position_in_module
+    {
+      std::size_t module_id;
+      std::size_t constant_id;
+    };
+
     bool boolean;
     sys::integer integer;
+
+    position_in_module  module_cell_position;
 
     template <typename T>
     T get() const
@@ -98,8 +108,10 @@ namespace ksi::interpreter::execution
 namespace ksi::interpreter::configuration
 {
 
-  struct module_config : meta_information
+  struct module_config : meta_info
   {
+    enum class cell_status { not_initialized, calculating, ready };
+
     struct variable_information
     {
       sys::literal                          name;
@@ -116,6 +128,8 @@ namespace ksi::interpreter::configuration
     {
       sys::literal                      name;
       sys::unique<execution::sequence>  seq_init;
+      std::size_t                       line;
+      cell_status                       status{ cell_status::not_initialized };
       type_system::brick::cell_type     value;
       std::size_t                       id;
 
@@ -127,7 +141,7 @@ namespace ksi::interpreter::configuration
     static_table<variable_information> variables;
     static_table<read_only_cell>       constants;
 
-    module_config(meta_information info) : meta_information{ info } {}
+    module_config(meta_info info) : meta_info{ info } {}
   };
 
 }
@@ -282,7 +296,7 @@ namespace ksi::interpreter
   struct vm_config_settings
   {
     std::shared_ptr<sys::dictionary>                              dict = std::make_shared<sys::dictionary>();
-    static_table<configuration::module_config, meta_information>  modules;
+    static_table<configuration::module_config, meta_info>  modules;
 
     configuration::module_config * module_main;
     configuration::module_config * module_global;
@@ -293,8 +307,8 @@ namespace ksi::interpreter
 
     vm_config_settings()
     {
-      module_main = modules.append_row( literal_module_main ).result;
-      module_global = modules.append_row( literal_module_global ).result;
+      module_main = modules.append_row( 0uz, literal_module_main ).result;
+      module_global = modules.append_row( 0uz, literal_module_global ).result;
     }
 
     void add_constant(sys::literal name, type_system::base::i_value * value, configuration::module_config * h_module)
@@ -311,6 +325,14 @@ namespace ksi::interpreter
     type_system::info::static_data                  static_information{ &settings };
   };
 
+  struct vm_config_data
+  {
+    std::unique_ptr<vm_config>  data{ std::make_unique<vm_config>() };
+    std::mutex                  mutex;
+
+    vm_config * operator -> () const { return data.get(); }
+  };
+
 }
 namespace ksi::interpreter::type_system::info
 {
@@ -318,6 +340,7 @@ namespace ksi::interpreter::type_system::info
   hints::type_pointer  internal::reg_type(params & p, sys::sview name, std::initializer_list<hints::cat_pointer> cats)
   {
     hints::type * tp = p.type_table.append_row(
+      0uz,
       p.from->dict->add(sys::string{name}).pointer
     ).result;
     tp->relate_to_cats.insert_range(cats);
@@ -328,6 +351,7 @@ namespace ksi::interpreter::type_system::info
   hints::cat_pointer  internal::reg_cat(params & p, sys::sview name)
   {
     hints::cat_pointer hc = p.category_table.append_row(
+      0uz,
       p.from->dict->add(sys::string{name}).pointer
     ).result;
     p.from->add_constant(hc->name, hc, p.from->module_global);
@@ -340,15 +364,15 @@ namespace ksi::interpreter::execution
 
   struct thread
   {
-    vm_config                 * h_config;
+    vm_config_data            * h_config;
     std::vector<module_data>  modules;
     data::call_stack          call_stack;
     data::stack               stack;
 
     void add_modules()
     {
-      modules.reserve( h_config->settings.modules.pos.size() );
-      for( configuration::module_config * module_configuration : h_config->settings.modules.pos )
+      modules.reserve( h_config->data->settings.modules.pos.size() );
+      for( configuration::module_config * module_configuration : h_config->data->settings.modules.pos )
       {
         modules.emplace_back(module_configuration);
       }
@@ -356,12 +380,12 @@ namespace ksi::interpreter::execution
 
     module_data * get_module(size_t index)
     {
-      if( modules.size() < h_config->settings.modules.pos.size() ) { add_modules(); }
+      if( modules.size() < h_config->data->settings.modules.pos.size() ) { add_modules(); }
 
       return &modules[index];
     }
 
-    thread(vm_config * h) : h_config{ h }
+    thread(vm_config_data * h) : h_config{ h }
     {
       add_modules();
       stack.add_frame(20);
@@ -369,9 +393,9 @@ namespace ksi::interpreter::execution
 
     void run(params & p)
     {
-      module_data * md = get_module(h_config->settings.module_main->id);
-      type_system::base::i_value * value = md->find_value(h_config->settings.literal_do, p);
-      sequence * seq = sequence::from_value(value, p.vm_configuration->static_information);
+      module_data * md = get_module(h_config->data->settings.module_main->id);
+      type_system::base::i_value * value = md->find_value(h_config->data->settings.literal_do, p);
+      sequence * seq = sequence::from_value(value, p.config->data->static_information);
       if( seq == nullptr ) { return; }
 
       call_stack.run(seq, p);

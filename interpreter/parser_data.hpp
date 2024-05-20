@@ -21,9 +21,10 @@ namespace ksi::interpreter::loader
 
     vm_config                                  * h_configuration;
     lib::dict_diff<sys::string>                dict{ h_configuration->settings.dict };
-    static_table<configuration::module_config, meta_information> modules;
+    static_table<configuration::module_config, meta_info> modules;
 
     sys::string name;
+    std::size_t line_number;
     prev_cell_type was_cell = prev_cell_type::none;
     std::list< sys::unique<execution::sequence> > seq_list;
     configuration::module_config * current_module = h_configuration->settings.module_main;
@@ -59,7 +60,7 @@ namespace ksi::interpreter::loader
     void add_constant()
     {
       sys::literal lit_name = dict.add( std::move(this->name) );
-      current_module->constants.append_row( lit_name, std::move(this->seq_list.front()) );
+      current_module->constants.append_row( lit_name, std::move(this->seq_list.front()), this->line_number );
       this->seq_list.pop_front();
       this->was_cell = prev_cell_type::none;
     }
@@ -78,10 +79,10 @@ namespace ksi::interpreter::loader
 
     prepare_type          prepare;
 
-    void add_module(sys::string & name)
+    void add_module(parser_result & src)
     {
-      sys::literal lit_name = prepare.dict.add( std::move(name) );
-      prepare.current_module = prepare.modules.append_row( lit_name ).result;
+      sys::literal lit_name = prepare.dict.add( std::move(src.name) );
+      prepare.current_module = prepare.modules.append_row( src.line, lit_name ).result;
     }
 
     function_type fn;

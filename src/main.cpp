@@ -58,7 +58,7 @@ int main()
       std::string body = read_file(".out/test.txt");
       std::print("{}\n--\n\n", body);
 
-      ksi::interpreter::loader::parser ps{ vm.config.get() };
+      ksi::interpreter::loader::parser ps{ vm.config.data.get() };
       ps.parse(body);
 
       // ts::brick::flag_join = true;
